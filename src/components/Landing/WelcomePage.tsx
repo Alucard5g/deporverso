@@ -1545,7 +1545,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
                         setShowLoginModal(false);
                         onNavigateTab('master-admin');
                       } else {
-                        setSaError('Contraseña incorrecta de SuperAdmin. Ingrese 1326.');
+                        setSaError('Contraseña incorrecta de SuperAdmin. Acceso denegado.');
                       }
                     }}
                     className="space-y-3"

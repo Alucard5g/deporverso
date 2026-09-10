@@ -2,15 +2,13 @@
 # CLOUDBUILD.YAML - DESPLIEGUE DIRECTO GITHUB -> CLOUD RUN
 # =========================================================
 steps:
-  # 1. Construir la imagen Docker usando la caché de la imagen anterior para velocidad
+  # 1. Construir la imagen Docker optimizada
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-t'
       - 'gcr.io/$PROJECT_ID/deporverso:$COMMIT_SHA'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/deporverso:latest'
-      - '--cache-from'
       - 'gcr.io/$PROJECT_ID/deporverso:latest'
       - '.'
 

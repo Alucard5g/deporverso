@@ -3,18 +3,15 @@
 # =========================================================
 
 # --- ETAPA 1: BUILDER ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
-
-# Instalar dependencias necesarias para compilación
-RUN apk add --no-cache libc6-compat
 
 # Copiar manifiestos de dependencias
 COPY package*.json ./
 
-# Instalar todas las dependencias (incluyendo devDependencies para compilar)
-RUN npm ci
+# Instalar dependencias con tolerancia a lockfile
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copiar el código fuente completo
 COPY . .
@@ -24,7 +21,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # --- ETAPA 2: RUNNER PRODUCCIÓN ULTRA-LIGERO ---
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
@@ -33,12 +30,12 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 # Usuario no root por seguridad
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 deporverso
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 -g nodejs deporverso
 
 # Copiar package.json y dependencias de producción
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npm cache clean --force
 
 # Copiar artefactos compilados desde el builder
 COPY --from=builder /app/dist ./dist

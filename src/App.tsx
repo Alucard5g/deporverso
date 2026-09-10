@@ -56,7 +56,7 @@ export default function App() {
         setIsSuperAdminAuth(true);
         setUserRole('SUPER_ADMIN');
         setActiveTab('master-admin');
-        setAdminToast('⚡ Clave 1326 verificada: ¡Modo Administrador y CRM activados!');
+        setAdminToast('⚡ Acceso verificado: ¡Modo Administrador y CRM activados!');
         setTimeout(() => setAdminToast(null), 4500);
         keyBuffer = '';
       }
@@ -230,7 +230,7 @@ export default function App() {
     setIsSuperAdminAuth(true);
     setUserRole('SUPER_ADMIN');
     setActiveTab('master-admin');
-    setAdminToast('⚡ Acceso SuperAdmin Autorizado (1326)');
+    setAdminToast('⚡ Acceso SuperAdmin Autorizado');
     setTimeout(() => setAdminToast(null), 4000);
   };
 
@@ -286,7 +286,7 @@ export default function App() {
               </span>
               <span className="text-amber-300 font-black tracking-wide uppercase flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-amber-400" />
-                Modo Administrador Global Activo (1326)
+                Modo Administrador Global Activo
               </span>
               <span className="hidden md:inline text-slate-400 text-[11px]">
                 • Panel Maestro y CRM Confidencial desplegados
@@ -397,7 +397,7 @@ export default function App() {
                 className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Lock className="w-4 h-4" />
-                <span>Ingresar Clave 1326</span>
+                <span>Ingresar al Modo Administrador</span>
               </button>
             </div>
           )

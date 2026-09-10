@@ -13,5 +13,3 @@ dist
 .idea
 README.md
 DEPLOYMENT.md
-Dockerfile
-.dockerignore

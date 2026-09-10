@@ -25,7 +25,7 @@ export const SuperAdminAuthModal: React.FC<SuperAdminAuthModalProps> = ({
     setIsLoading(true);
 
     setTimeout(() => {
-      // Clave maestra de acceso: 1326
+      // Clave maestra de acceso
       if (password.trim() === '1326') {
         setIsLoading(false);
         onSuccess();
@@ -34,7 +34,7 @@ export const SuperAdminAuthModal: React.FC<SuperAdminAuthModalProps> = ({
         setPassword('');
       } else {
         setIsLoading(false);
-        setError('Acceso Denegado: Contraseña de SuperAdmin incorrecta. Verifique la clave 1326.');
+        setError('Acceso Denegado: Contraseña de SuperAdmin incorrecta.');
       }
     }, 300);
   };
@@ -82,12 +82,12 @@ export const SuperAdminAuthModal: React.FC<SuperAdminAuthModalProps> = ({
                 type="password"
                 required
                 autoFocus
-                placeholder="Teclea 1326..."
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (e.target.value.trim() === '1326') {
-                    // Auto-submit when typing 1326
+                    // Auto-submit when typing authorized password
                     setTimeout(() => {
                       setIsLoading(false);
                       onSuccess();
@@ -99,9 +99,9 @@ export const SuperAdminAuthModal: React.FC<SuperAdminAuthModalProps> = ({
                 className="w-full bg-[#141414] border border-amber-500/40 rounded-xl pl-9 pr-3 py-3 text-sm text-white focus:outline-none focus:border-amber-400 font-mono tracking-widest text-center"
               />
             </div>
-            <p className="text-[11px] text-amber-400/80 mt-1.5 font-medium flex items-center justify-between">
-              <span>Clave maestra de autorización: <strong className="font-mono text-amber-300 font-black">1326</strong></span>
-              <span className="text-[10px] text-white/40">Despliega Modo Administrador</span>
+            <p className="text-[11px] text-white/50 mt-1.5 font-medium flex items-center justify-between">
+              <span>Acceso restringido a personal directivo autorizado</span>
+              <span className="text-[10px] text-amber-400/80 font-bold">Módulo Seguro</span>
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export const SuperAdminAuthModal: React.FC<SuperAdminAuthModalProps> = ({
             className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <Lock className="w-4 h-4" />
-            <span>{isLoading ? 'Verificando Clave 1326...' : 'Activar Modo Administrador (1326)'}</span>
+            <span>{isLoading ? 'Verificando Credenciales...' : 'Ingresar al Modo Administrador'}</span>
           </button>
         </form>
       </div>
