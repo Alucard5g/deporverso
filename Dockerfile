@@ -25,9 +25,9 @@ FROM node:20-slim AS runner
 
 WORKDIR /app
 
-# Instalar variables de entorno de producción
+# Instalar variables de entorno de producción (8080 es el estándar de Cloud Run)
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 
 # Usuario no root por seguridad
 RUN groupadd --system --gid 1001 nodejs && \
@@ -45,7 +45,8 @@ RUN chown -R deporverso:nodejs /app
 
 USER deporverso
 
-# Puerto expuesto para Google Cloud Run (3000)
+# Puertos expuestos para Google Cloud Run (8080 estándar, 3000 alternativo)
+EXPOSE 8080
 EXPOSE 3000
 
 # Comando de inicio del servidor CommonJS compilado

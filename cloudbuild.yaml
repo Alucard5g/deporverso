@@ -24,16 +24,16 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'deporverso'
+      - '${_SERVICE_NAME}'
       - '--image'
       - 'gcr.io/$PROJECT_ID/deporverso:$COMMIT_SHA'
       - '--region'
-      - 'us-central1'
+      - '${_REGION}'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
       - '--port'
-      - '3000'
+      - '8080'
       - '--memory'
       - '512Mi'
       - '--cpu'
@@ -43,11 +43,15 @@ steps:
       - '--max-instances'
       - '10'
       - '--set-env-vars'
-      - 'NODE_ENV=production'
+      - 'NODE_ENV=production,PORT=8080'
 
 images:
   - 'gcr.io/$PROJECT_ID/deporverso:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/deporverso:latest'
+
+substitutions:
+  _SERVICE_NAME: 'deporverso-git'
+  _REGION: 'us-central1'
 
 options:
   logging: CLOUD_LOGGING_ONLY

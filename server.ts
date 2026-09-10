@@ -6,7 +6,10 @@ import { deporversoRouter } from "./server/routes/deporversoRoutes";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const isDev = process.env.NODE_ENV !== "production";
+  // En desarrollo (AI Studio) se requiere obligatoriamente el puerto 3000 por el proxy nginx.
+  // En producción (Cloud Run), se utiliza la variable de entorno inyectada PORT (por defecto 8080).
+  const PORT = isDev ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080);
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -164,9 +167,29 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`SportIA server running on http://0.0.0.0:${PORT}`);
+  const mainServer = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[DeporVerso Server] Running on http://0.0.0.0:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
   });
+
+  mainServer.on("error", (err: any) => {
+    console.error(`[DeporVerso Server] Fatal error on primary port ${PORT}:`, err.message);
+  });
+
+  // En producción (Cloud Run): si PORT es 8080 pero alguna configuración prueba el 3000,
+  // escuchamos también de forma no bloqueante en el puerto 3000.
+  if (!isDev && PORT !== 3000) {
+    try {
+      const secondaryServer = app.listen(3000, "0.0.0.0", () => {
+        console.log(`[DeporVerso Server] Resilient secondary listener active on http://0.0.0.0:3000`);
+      });
+      secondaryServer.on("error", (err: any) => {
+        // Si el puerto 3000 ya está tomado o no se permite doble bind, continuar con el principal
+        console.log(`[DeporVerso Server] Secondary port 3000 notice: ${err.message}`);
+      });
+    } catch (e: any) {
+      console.log(`[DeporVerso Server] Secondary bind bypassed: ${e.message}`);
+    }
+  }
 }
 
 startServer();
