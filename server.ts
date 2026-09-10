@@ -6,10 +6,11 @@ import { deporversoRouter } from "./server/routes/deporversoRoutes";
 
 async function startServer() {
   const app = express();
-  const isDev = process.env.NODE_ENV !== "production";
-  // En desarrollo (AI Studio) se requiere obligatoriamente el puerto 3000 por el proxy nginx.
-  // En producción (Cloud Run), se utiliza la variable de entorno inyectada PORT (por defecto 8080).
-  const PORT = isDev ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080);
+  // En el contenedor de AI Studio, NGINX ya está corriendo en el puerto 8080 y hace proxy al 3000.
+  // Por lo tanto, el servidor Express DEBE escuchar en el puerto 3000.
+  // En Google Cloud Run (producción autónoma), no existe NGINX y el contenedor debe escuchar en process.env.PORT (8080).
+  const isAiStudioContainer = Boolean(process.env.DEFAULT_APP_PORT || process.env.NGINX_PORT);
+  const PORT = isAiStudioContainer ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080);
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -182,24 +183,8 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
   });
 
   mainServer.on("error", (err: any) => {
-    console.error(`[DeporVerso Server] Fatal error on primary port ${PORT}:`, err.message);
+    console.error(`[DeporVerso Server] Error on port ${PORT}:`, err.message);
   });
-
-  // En producción (Cloud Run): si PORT es 8080 pero alguna configuración prueba el 3000,
-  // escuchamos también de forma no bloqueante en el puerto 3000.
-  if (!isDev && PORT !== 3000) {
-    try {
-      const secondaryServer = app.listen(3000, "0.0.0.0", () => {
-        console.log(`[DeporVerso Server] Resilient secondary listener active on http://0.0.0.0:3000`);
-      });
-      secondaryServer.on("error", (err: any) => {
-        // Si el puerto 3000 ya está tomado o no se permite doble bind, continuar con el principal
-        console.log(`[DeporVerso Server] Secondary port 3000 notice: ${err.message}`);
-      });
-    } catch (e: any) {
-      console.log(`[DeporVerso Server] Secondary bind bypassed: ${e.message}`);
-    }
-  }
 }
 
 startServer();

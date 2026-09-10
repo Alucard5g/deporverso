@@ -14,7 +14,7 @@ export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestore
 // Inicializar Firebase Auth
 export const auth = getAuth(app);
 
-// Verificación obligatoria de conectividad al servidor Firestore
+// Verificación opcional de conectividad al servidor Firestore (invocable bajo demanda o en background)
 export async function testConnection(): Promise<boolean> {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
@@ -29,6 +29,3 @@ export async function testConnection(): Promise<boolean> {
     return false;
   }
 }
-
-// Ejecución al boot
-testConnection();
