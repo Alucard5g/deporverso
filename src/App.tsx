@@ -19,7 +19,9 @@ import { FULL_SUPABASE_SQL_SCRIPT } from './data/sqlScript';
 import { INITIAL_CHRONICLES } from './data/mockData';
 import { apiService } from './services/apiService';
 import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, Team, Player, SportCode, AiChronicle } from './types';
-import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users } from 'lucide-react';
+import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame } from 'lucide-react';
+import { testConnection } from './lib/firebase';
+import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('welcome');
@@ -162,11 +164,12 @@ export default function App() {
   // Tenant Matches
   const tenantMatches = matches.filter(m => m.tenant_id === activeTenantId);
 
-  // Event Handlers
+  // Event Handlers con Sincronización Automática a Firebase Firestore
   const handleAddTenant = async (newTenantData: Omit<Tenant, 'id' | 'created_at'>) => {
     const created = await apiService.addTenant(newTenantData);
     setTenants(prev => [created, ...prev]);
     setActiveTenantId(created.id);
+    syncTenantToFirebase(created);
   };
 
   const handleAddMatchEvent = async (eventData: Omit<MatchEvent, 'id' | 'created_at'>) => {
@@ -175,11 +178,13 @@ export default function App() {
       if (prev.some(e => e.id === created.id)) return prev;
       return [...prev, created];
     });
+    syncEventToFirebase(created);
   };
 
   const handleUpdateMatchScore = async (matchId: string, homeScore: number, awayScore: number, matchData?: any) => {
     const updated = await apiService.updateMatchScore(matchId, homeScore, awayScore, matchData);
     setMatches(prev => prev.map(m => m.id === matchId ? updated : m));
+    syncMatchToFirebase(updated);
   };
 
   const handleSaveVocalia = async (params: {
@@ -196,6 +201,7 @@ export default function App() {
   }) => {
     const updated = await apiService.saveVocaliaReport(params);
     setMatches(prev => prev.map(m => m.id === params.matchId ? updated : m));
+    syncMatchToFirebase(updated);
     return updated;
   };
 
@@ -216,6 +222,16 @@ export default function App() {
 
   const handleAddChronicle = (chronicle: AiChronicle) => {
     setPublishedChronicles(prev => [chronicle, ...prev]);
+    syncChronicleToFirebase({
+      id: `chr-${chronicle.match_id}-${Date.now()}`,
+      tenantId: activeTenantId,
+      matchId: chronicle.match_id,
+      title: chronicle.headline,
+      headline: chronicle.headline,
+      content: chronicle.body,
+      sport: activeSport,
+      author: 'Periodista Deporverso IA'
+    });
   };
 
   const handleTabChange = (tab: string) => {

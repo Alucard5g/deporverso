@@ -32,9 +32,19 @@ async function startServer() {
     });
   };
 
-  // API Routes
+  // API Routes & Health Probes (Cloud Run Liveness & Readiness Probes)
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", app: "SportIA Multi-Sport Platform", timestamp: new Date() });
+    res.json({
+      status: "ok",
+      service: "deporverso",
+      platform: "DeporVerso Global Multi-Sport Platform",
+      firebase: {
+        projectId: "thin-aloe-bbndl",
+        databaseId: "ai-studio-sportiaplataform-cdb26ee0-a237-495a-b10b-bedb98d213de",
+        status: "connected"
+      },
+      timestamp: new Date().toISOString()
+    });
   });
 
   // 1. AI Chronicle Generator for Sports

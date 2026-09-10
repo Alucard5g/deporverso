@@ -38,12 +38,15 @@ steps:
       - '512Mi'
       - '--cpu'
       - '1'
+      - '--cpu-boost'
       - '--min-instances'
       - '0'
       - '--max-instances'
       - '10'
+      - '--startup-probe-path=/api/health'
+      - '--liveness-probe-path=/api/health'
       - '--set-env-vars'
-      - 'NODE_ENV=production,PORT=8080'
+      - 'NODE_ENV=production,PORT=8080,FIREBASE_PROJECT_ID=thin-aloe-bbndl'
 
 images:
   - 'gcr.io/$PROJECT_ID/deporverso:$COMMIT_SHA'

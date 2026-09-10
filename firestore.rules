@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidTenant(data) {
+      return data.id is string &&
+             data.name is string &&
+             data.name.size() > 0 &&
+             data.name.size() <= 100;
+    }
+
+    function isValidMatch(data) {
+      return data.id is string &&
+             data.tenantId is string &&
+             data.homeTeam is string &&
+             data.awayTeam is string &&
+             data.status in ['SCHEDULED', 'LIVE', 'HALFTIME', 'FINISHED', 'CANCELLED'];
+    }
+
+    function isValidPlayer(data) {
+      return data.id is string &&
+             data.tenantId is string &&
+             data.name is string &&
+             data.team is string;
+    }
+
+    function isValidChronicle(data) {
+      return data.id is string &&
+             data.title is string &&
+             data.title.size() > 0 &&
+             data.content is string;
+    }
+
+    function isValidEvent(data) {
+      return data.id is string &&
+             data.matchId is string &&
+             data.type is string;
+    }
+
+    // Colección de Organizaciones Deportivas / Ligas
+    match /tenants/{tenantId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == tenantId && isValidTenant(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Partidos y Marcadores en Vivo (Lectura pública para fan zone y pantallas, escritura controlada)
+    match /matches/{matchId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == matchId && isValidMatch(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Jugadores y Estadísticas
+    match /players/{playerId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == playerId && isValidPlayer(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Crónicas Periodísticas IA y Noticias
+    match /chronicles/{chronicleId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == chronicleId && isValidChronicle(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Eventos de Vocalía Digital en Tiempo Real
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == eventId && isValidEvent(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Colección de verificación de conectividad
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -14,15 +14,16 @@ export function getDatabasePool(): Pool {
   }
 
   const connectionString = process.env.DATABASE_URL;
+  const cloudSqlSocket = process.env.INSTANCE_UNIX_SOCKET || process.env.DB_SOCKET_PATH;
 
-  if (!connectionString && !process.env.PGHOST) {
-    console.warn('[DeporVerso DB] DATABASE_URL not found. Running in resilient preview mode with mock transactional fallback.');
+  if (!connectionString && !process.env.PGHOST && !cloudSqlSocket) {
+    console.warn('[DeporVerso DB] DATABASE_URL or Cloud SQL socket not found. Running in resilient preview mode with mock transactional fallback.');
   }
 
   pool = new Pool({
     connectionString: connectionString || undefined,
-    host: process.env.PGHOST || 'localhost',
-    port: parseInt(process.env.PGPORT || '5432', 10),
+    host: cloudSqlSocket || process.env.PGHOST || 'localhost',
+    port: cloudSqlSocket ? undefined : parseInt(process.env.PGPORT || '5432', 10),
     user: process.env.PGUSER || 'deporverso_admin',
     password: process.env.PGPASSWORD || 'deporverso_pass',
     database: process.env.PGDATABASE || 'deporverso_db',

@@ -1,0 +1,130 @@
+{
+  "entities": {
+    "tenant": {
+      "title": "Tenant",
+      "description": "Multitenant sports league organization",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "subdomain": { "type": "string" },
+        "plan": { "type": "string", "enum": ["free", "pro", "enterprise"] },
+        "primarySport": { "type": "string" },
+        "supportedSports": { "type": "array" },
+        "colors": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "plan"]
+    },
+    "match": {
+      "title": "Match",
+      "description": "Sports fixture and live match state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "sportId": { "type": "string" },
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "homeScore": { "type": "number" },
+        "awayScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["SCHEDULED", "LIVE", "HALFTIME", "FINISHED", "CANCELLED"] },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "field": { "type": "string" },
+        "referee": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "homeTeam", "awayTeam", "status"]
+    },
+    "player": {
+      "title": "Player",
+      "description": "Athlete registered in the league",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "team": { "type": "string" },
+        "number": { "type": "number" },
+        "position": { "type": "string" },
+        "sport": { "type": "string" },
+        "goals": { "type": "number" },
+        "assists": { "type": "number" },
+        "yellowCards": { "type": "number" },
+        "redCards": { "type": "number" }
+      },
+      "required": ["id", "tenantId", "name", "team"]
+    },
+    "chronicle": {
+      "title": "Chronicle",
+      "description": "AI-generated sports journalistic article",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "matchId": { "type": "string" },
+        "title": { "type": "string" },
+        "headline": { "type": "string" },
+        "content": { "type": "string" },
+        "sport": { "type": "string" },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "published": { "type": "boolean" }
+      },
+      "required": ["id", "title", "content"]
+    },
+    "event": {
+      "title": "Event",
+      "description": "Match event logged during vocalia digital",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "matchId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "type": { "type": "string" },
+        "minute": { "type": "number" },
+        "team": { "type": "string" },
+        "player": { "type": "string" },
+        "details": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "matchId", "type"]
+    },
+    "test": {
+      "title": "TestDoc",
+      "description": "Test doc to verify Firestore connectivity",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "ping": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/tenants/{tenantId}": {
+      "schema": "tenant",
+      "description": "Tenant league profile and configurations"
+    },
+    "/matches/{matchId}": {
+      "schema": "match",
+      "description": "Matches scheduled and played across all sports"
+    },
+    "/players/{playerId}": {
+      "schema": "player",
+      "description": "Player profile and performance metrics"
+    },
+    "/chronicles/{chronicleId}": {
+      "schema": "chronicle",
+      "description": "AI-generated sports journalistic chronicles and summaries"
+    },
+    "/events/{eventId}": {
+      "schema": "event",
+      "description": "In-game events, goals, penalties, cards recorded via digital vocalia"
+    },
+    "/test/{testId}": {
+      "schema": "test",
+      "description": "Test collection for server connection verification"
+    }
+  }
+}

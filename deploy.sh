@@ -32,7 +32,7 @@ echo "🔧 Verificando APIs requeridas (Cloud Run, Cloud Build, Artifact Registr
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --quiet
 
 # 3. Desplegar directamente desde el código fuente con el Dockerfile optimizado
-echo "🔨 Compilando contenedor y desplegando servicio en Cloud Run..."
+echo "🔨 Compilando contenedor y desplegando servicio en Cloud Run con CPU Boost y Health Probes..."
 gcloud run deploy "$SERVICE_NAME" \
   --source . \
   --region "$REGION" \
@@ -41,9 +41,12 @@ gcloud run deploy "$SERVICE_NAME" \
   --port 8080 \
   --memory 512Mi \
   --cpu 1 \
+  --cpu-boost \
   --min-instances 0 \
   --max-instances 10 \
-  --set-env-vars NODE_ENV=production,PORT=8080
+  --startup-probe-path=/api/health \
+  --liveness-probe-path=/api/health \
+  --set-env-vars NODE_ENV=production,PORT=8080,FIREBASE_PROJECT_ID=thin-aloe-bbndl
 
 # 4. Obtener y mostrar la URL del servicio
 URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format='value(status.url)')

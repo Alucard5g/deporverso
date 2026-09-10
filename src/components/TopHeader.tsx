@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Trophy, Shield, UserCheck, Plus, Sparkles, ChevronDown, 
-  Building2, QrCode, Globe, Check, Zap, AlertCircle, Lock, LogOut
+  Building2, QrCode, Globe, Check, Zap, AlertCircle, Lock, LogOut, Flame
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 import { SPORT_THEMES } from './Navbar';
@@ -289,6 +289,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             )}
           </div>
         )}
+
+        {/* INSIGNIA FIREBASE FIRESTORE EN VIVO */}
+        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-300 shadow-sm" title="Base de datos en tiempo real Google Firebase Firestore activa">
+          <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span className="text-white/70">Firestore:</span>
+          <span className="text-amber-400 font-mono text-[10px]">thin-aloe-bbndl</span>
+        </div>
 
         {/* BOTÓN CREAR LIGA DIRECTO */}
         <button
