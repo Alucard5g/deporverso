@@ -10,8 +10,8 @@ WORKDIR /app
 # Copiar manifiestos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias con tolerancia a lockfile
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# Instalar dependencias para la compilación (funciona con o sin package-lock.json)
+RUN npm install --no-audit --no-fund
 
 # Copiar el código fuente completo
 COPY . .
@@ -33,9 +33,9 @@ ENV PORT=3000
 RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 -g nodejs deporverso
 
-# Copiar package.json y dependencias de producción
+# Copiar package.json y dependencias de producción únicamente
 COPY package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npm cache clean --force
+RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 
 # Copiar artefactos compilados desde el builder
 COPY --from=builder /app/dist ./dist
