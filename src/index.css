@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #040608;
+    color: #F3F4F6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Accessible secondary text color adhering to WCAG 2.1 4.5:1 on dark canvas */
+.text-secondary {
+  color: #A0A0A0;
+}
+
+.text-muted-custom {
+  color: #A0A0A0;
+}
+
+/* Modern Card Style with 16px border-radius and 20% expanded inner breathing room */
+.portal-card {
+  border-radius: 16px;
+  background-color: #0a0e14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Atmospheric Cybernetic Mesh & Grid Backgrounds */
+.bg-tech-mesh {
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(16, 185, 129, 0.05) 0px, transparent 60%);
+}
+
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Ultra Glassmorphic Panels */
+.glass-panel-luxury {
+  background: rgba(10, 13, 18, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+.glass-panel-luxury:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* High-Tech Glowing Borders & Drop Shadows */
+.glow-emerald {
+  box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.3);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 40px -10px rgba(6, 182, 212, 0.3);
+}
+
+.glow-amber {
+  box-shadow: 0 0 40px -10px rgba(245, 158, 11, 0.3);
+}
+
+/* Radar Scan Keyframes */
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radarSweep 6s linear infinite;
+}
+
+/* Smooth Pulse for Live Match Broadcast */
+@keyframes broadcastPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-broadcast-pulse {
+  animation: broadcastPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Deporverso Multiverse Kinetic Ticker Marquee */
+@keyframes tickerMove {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-deporverso-ticker {
+  display: flex;
+  width: max-content;
+  animation: tickerMove 40s linear infinite;
+}
+
+.animate-deporverso-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Deporverso Dimensional Hologram & Edge Highlights */
+.deporverso-portal-glow {
+  position: relative;
+}
+
+.deporverso-portal-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.6), rgba(6, 182, 212, 0.5), rgba(139, 92, 246, 0.4), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.bg-deporverso-space {
+  background: radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.15), transparent 45%),
+              radial-gradient(circle at 90% 40%, rgba(6, 182, 212, 0.12), transparent 40%),
+              radial-gradient(circle at 10% 80%, rgba(139, 92, 246, 0.08), transparent 50%),
+              #030508;
+}
+
+.bg-deporverso-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.neon-border-emerald {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35), inset 0 0 15px -3px rgba(16, 185, 129, 0.15);
+}
+
+.neon-border-cyan {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35), inset 0 0 15px -3px rgba(6, 182, 212, 0.15);
+}
+
+.neon-border-gold {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.35), inset 0 0 15px -3px rgba(245, 158, 11, 0.15);
+}
+
+/* Subtle holographic scanline */
+.hologram-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+}
+
+/* 3D Spatial Hierarchy and Hardware-Accelerated Transforms */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+/* Floating Kinetic Physics */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.8deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 5s ease-in-out infinite;
+}
+
+@keyframes laserSweepHorizontal {
+  0% {
+    left: -25%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 125%;
+    opacity: 0;
+  }
+}
+
+.animate-laser-sweep {
+  animation: laserSweepHorizontal 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Cyber Shimmer Sheen */
+@keyframes cyberSheen {
+  0% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(250%) rotate(25deg);
+  }
+}
+
+.cyber-sheen-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-sheen-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%) rotate(25deg);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+
+.cyber-sheen-effect:hover::after {
+  transform: translateX(100%) rotate(25deg);
+}
+
+/* 3D Interactive Card with Dynamic Lighting */
+.card-3d-interactive {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  transform-style: preserve-3d;
+}
+
+.card-3d-interactive:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px -5px rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Multiverse Orbit Animation */
+@keyframes orbitRing {
+  0% {
+    transform: rotateX(65deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(65deg) rotateZ(360deg);
+  }
+}
+
+.animate-orbit-ring {
+  animation: orbitRing 20s linear infinite;
+}
+
+/* Cybernetic Corner Brackets */
+.corner-bracket-tl {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #00f0b5;
+  border-left: 2px solid #00f0b5;
+  pointer-events: none;
+}
+
+.corner-bracket-br {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid #00f0b5;
+  border-right: 2px solid #00f0b5;
+  pointer-events: none;
+}
+
+
+
+
+
