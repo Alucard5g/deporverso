@@ -50,6 +50,7 @@ export interface Tenant {
   country: string;
   currency: string;
   domain: string;
+  admin_key?: string; // Clave secreta administrativa para entrega al administrador de la liga
   logo_url?: string;
   is_active: boolean;
   annual_license_fee: number;

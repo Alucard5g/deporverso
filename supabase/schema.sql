@@ -399,8 +399,8 @@ ON CONFLICT (code) DO NOTHING;
 -- Demo Tenant para Rolando Guerra
 INSERT INTO public.tenants (id, name, slug, sport_code, country, currency, domain, is_active)
 VALUES 
-('11111111-1111-1111-1111-111111111111', 'Liga Barrial Pichincha - SportIA Demo', 'liga-pichincha', 'FUTBOL', 'Ecuador', 'USD', 'pichincha.sportia.app', true)
+('11111111-1111-1111-1111-111111111111', 'Liga Barrial Pichincha - Deporverso Demo', 'liga-pichincha', 'FUTBOL', 'Ecuador', 'USD', 'pichincha.deporverso.app', true)
 ON CONFLICT (slug) DO NOTHING;
 
-COMMENT ON TABLE public.tenants IS 'Almacena las ligas organizadoras bajo la arquitectura multi-tenant de SportIA';
+COMMENT ON TABLE public.tenants IS 'Almacena las ligas organizadoras bajo la arquitectura multi-tenant de Deporverso';
 COMMENT ON TABLE public.sports IS 'Catálogo dinámico de deportes con configuraciones en JSONB';

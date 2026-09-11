@@ -144,7 +144,8 @@ export default function App() {
     sport_code: 'FUTBOL',
     country: 'Ecuador',
     currency: 'USD',
-    domain: 'pichincha.sportia.app',
+    domain: 'pichincha.deporverso.app',
+    admin_key: 'DV-PICH-2026-ADM',
     is_active: true,
     annual_license_fee: 25.00,
     created_at: '2026-01-01T00:00:00Z'
@@ -432,7 +433,7 @@ export default function App() {
 
         {activeTab === 'vocalia' && (
           <VocaliaDigital
-            matches={tenantMatches.length > 0 ? tenantMatches : matches}
+            matches={tenantMatches}
             tenant={activeTenant}
             teams={teams}
             sport={activeSportObj}
@@ -445,7 +446,7 @@ export default function App() {
         )}
 
         {activeTab === 'vision-ai' && (
-          <ComputerVisionEdge match={tenantMatches[0] || matches[0]} />
+          <ComputerVisionEdge match={tenantMatches[0]} />
         )}
 
         {activeTab === 'ingestion' && (
@@ -487,7 +488,7 @@ export default function App() {
         {activeTab === 'var' && (
           <VarModule
             tenantId={activeTenantId}
-            matches={tenantMatches.length > 0 ? tenantMatches : matches}
+            matches={tenantMatches}
             varRequests={varRequests}
             onCreateVarRequest={handleCreateVarRequest}
             onUpdateVarStatus={handleUpdateVarStatus}
@@ -557,6 +558,7 @@ export default function App() {
         {activeTab === 'tactics' && (
           <TacticalBoard
             sport={activeSportObj}
+            tenant={activeTenant}
           />
         )}
 

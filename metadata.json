@@ -1,6 +1,6 @@
 {
   "name": "Deporverso - Plataforma Multideporte Global",
-  "description": "Deporverso (deporverso.com): SaaS Multi-Tenant Global para Ligas y Torneos Deportivos, Onboarding $25/club, Vocalía Digital, VAR a la Carta, y Heroes VR en asociación con heroesdeldeporte.com",
+  "description": "Deporverso (deporverso.app): SaaS Multi-Tenant Global para Ligas y Torneos Deportivos, Aislamiento RLS, Pizarras Tácticas para Indor 7, Indor 9, Fútsal 5, Onboarding $25/club, Vocalía Digital y Claves de Administración.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

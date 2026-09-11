@@ -23,8 +23,8 @@ import {
 } from '../types';
 
 // In-memory persistent state (simulating real backend / Supabase / Firebase store)
-const LOCAL_STORAGE_MATCHES_KEY = 'sportia_firebase_matches_v1';
-const LOCAL_STORAGE_PLAYERS_KEY = 'sportia_firebase_players_v1';
+const LOCAL_STORAGE_MATCHES_KEY = 'deporverso_firebase_matches_v2';
+const LOCAL_STORAGE_PLAYERS_KEY = 'deporverso_firebase_players_v2';
 
 const loadSavedMatches = (): Match[] => {
   try {
@@ -82,8 +82,10 @@ export const apiService = {
   },
 
   addTenant: async (tenant: Omit<Tenant, 'id' | 'created_at'>): Promise<Tenant> => {
+    const generatedKey = tenant.admin_key || `DV-${(tenant.slug || 'LIGA').replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}-ADM`;
     const newTenant: Tenant = {
       ...tenant,
+      admin_key: generatedKey,
       id: `t-${Date.now()}`,
       created_at: new Date().toISOString()
     };

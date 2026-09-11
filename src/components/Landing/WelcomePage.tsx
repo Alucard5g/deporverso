@@ -178,7 +178,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
       sport_code: newLeagueSport,
       country: newLeagueCountry,
       currency: 'USD',
-      domain: `${slug}.sportia.app`,
+      domain: `${slug}.deporverso.app`,
       is_active: true,
       annual_license_fee: 0
     });
@@ -207,7 +207,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
       sport_code: newLeagueSport,
       country: newLeagueCountry,
       currency: 'USD',
-      domain: `${slug}.sportia.app`,
+      domain: `${slug}.deporverso.app`,
       is_active: true,
       annual_license_fee: 0
     });

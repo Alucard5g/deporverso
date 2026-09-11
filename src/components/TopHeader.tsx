@@ -131,7 +131,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                 <button
                   key={code}
                   onClick={() => {
-                    setActiveSport(code as SportCode);
+                    const nextSport = code as SportCode;
+                    setActiveSport(nextSport);
+                    const matchingTenant = tenants.find(t => t.sport_code === nextSport);
+                    if (matchingTenant) {
+                      setActiveTenantId(matchingTenant.id);
+                    }
                     setShowSportDropdown(false);
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -168,7 +173,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             </button>
 
             {showTenantDropdown && (
-              <div className="absolute right-0 mt-2 w-64 bg-[#0c0c0c] border border-[#00ff66]/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
+              <div className="absolute right-0 mt-2 w-72 bg-[#0c0c0c] border border-[#00ff66]/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
                 <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/10">
                   <span className="text-[10px] font-bold text-[#A0A0A0] uppercase tracking-wider">
                     Ligas Registradas
@@ -188,6 +193,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     key={t.id}
                     onClick={() => {
                       setActiveTenantId(t.id);
+                      setActiveSport(t.sport_code);
                       setShowTenantDropdown(false);
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -197,8 +203,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     }`}
                   >
                     <div className="text-left truncate">
-                      <span className="block truncate uppercase font-bold text-[#00ff66]">{t.name}</span>
-                      <span className="text-[9px] text-[#A0A0A0] font-mono block">{t.domain}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="block truncate uppercase font-bold text-white">{t.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[9px] text-[#00ff66] font-mono font-bold block">{t.domain}</span>
+                        <span className="text-[8px] bg-white/10 text-white/70 px-1 rounded uppercase">{t.sport_code}</span>
+                      </div>
                     </div>
                     {activeTenantId === t.id && <Check className="w-3.5 h-3.5 shrink-0 text-[#00ff66]" />}
                   </button>

@@ -87,16 +87,45 @@ export const INITIAL_SPORTS: Sport[] = [
 export const INITIAL_TENANTS: Tenant[] = [
   {
     id: 't-pichincha',
-    name: 'Liga Barrial Pichincha (Fútbol)',
+    name: 'Liga Barrial Pichincha (Fútbol 11)',
     slug: 'liga-pichincha',
     sport_code: 'FUTBOL',
     country: 'Ecuador',
     currency: 'USD',
-    domain: 'pichincha.sportia.app',
+    domain: 'pichincha.deporverso.app',
+    admin_key: 'DV-PICH-2026-ADM',
     is_active: true,
     annual_license_fee: 25.00,
     plan_tier: 'PRO_5',
     created_at: '2026-01-15T00:00:00Z'
+  },
+  {
+    id: 't-indoor-express',
+    name: 'Torneo Interclubes Indoor 7 & 9',
+    slug: 'indoor-express',
+    sport_code: 'FUTBOL',
+    country: 'Ecuador',
+    currency: 'USD',
+    domain: 'indoor.deporverso.app',
+    admin_key: 'DV-INDO-7926-ADM',
+    is_active: true,
+    annual_license_fee: 25.00,
+    plan_tier: 'PRO_5',
+    created_at: '2026-01-20T00:00:00Z'
+  },
+  {
+    id: 't-futsal-metro',
+    name: 'Liga Metropolitana de Fútsal 5',
+    slug: 'futsal-metro',
+    sport_code: 'FUTSAL',
+    country: 'Ecuador',
+    currency: 'USD',
+    domain: 'futsal.deporverso.app',
+    admin_key: 'DV-FUTS-5026-ADM',
+    is_active: true,
+    annual_license_fee: 25.00,
+    plan_tier: 'PRO_5',
+    created_at: '2026-02-01T00:00:00Z'
   },
   {
     id: 't-quito-basket',
@@ -105,7 +134,8 @@ export const INITIAL_TENANTS: Tenant[] = [
     sport_code: 'BALONCESTO',
     country: 'Ecuador',
     currency: 'USD',
-    domain: 'basketquito.sportia.app',
+    domain: 'basketquito.deporverso.app',
+    admin_key: 'DV-BASK-3026-ADM',
     is_active: true,
     annual_license_fee: 25.00,
     plan_tier: 'ENTERPRISE_8',
@@ -118,7 +148,8 @@ export const INITIAL_TENANTS: Tenant[] = [
     sport_code: 'ECUAVOLEY',
     country: 'Ecuador',
     currency: 'USD',
-    domain: 'ecuavoleyazuay.sportia.app',
+    domain: 'ecuavoleyazuay.deporverso.app',
+    admin_key: 'DV-ECUA-4026-ADM',
     is_active: true,
     annual_license_fee: 25.00,
     plan_tier: 'BASIC_3',
@@ -131,7 +162,8 @@ export const INITIAL_TENANTS: Tenant[] = [
     sport_code: 'PADEL',
     country: 'Ecuador',
     currency: 'USD',
-    domain: 'cumbayapadel.sportia.app',
+    domain: 'cumbayapadel.deporverso.app',
+    admin_key: 'DV-PADE-8026-ADM',
     is_active: true,
     annual_license_fee: 25.00,
     plan_tier: 'PRO_5',
@@ -145,7 +177,7 @@ export const INITIAL_PROFILES: Profile[] = [
     tenant_id: undefined,
     role: 'SUPER_ADMIN',
     full_name: 'Rolando Guerra',
-    email: 'rolando@sportia.app',
+    email: 'rolando@deporverso.app',
     phone: '+593 99 123 4567',
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
   },
@@ -154,49 +186,77 @@ export const INITIAL_PROFILES: Profile[] = [
     tenant_id: 't-pichincha',
     role: 'LEAGUE_ADMIN',
     full_name: 'Carlos Mendoza',
-    email: 'admin@ligapichincha.com',
+    email: 'admin@pichincha.deporverso.app',
     phone: '+593 98 765 4321'
+  },
+  {
+    id: 'u-admin-futsal',
+    tenant_id: 't-futsal-metro',
+    role: 'LEAGUE_ADMIN',
+    full_name: 'David Paredes (Fútsal Pro)',
+    email: 'admin@futsal.deporverso.app',
+    phone: '+593 99 874 1234'
+  },
+  {
+    id: 'u-admin-indoor',
+    tenant_id: 't-indoor-express',
+    role: 'LEAGUE_ADMIN',
+    full_name: 'Gonzalo Cevallos (Indor 7/9)',
+    email: 'admin@indoor.deporverso.app',
+    phone: '+593 98 432 9876'
   },
   {
     id: 'u-referee-1',
     tenant_id: 't-pichincha',
     role: 'REFEREE',
     full_name: 'Árbitro Jorge Benítez',
-    email: 'jorge.ref@sportia.app'
+    email: 'jorge.ref@deporverso.app'
   }
 ];
 
 export const INITIAL_CATEGORIES: Category[] = [
-  { id: 'cat-1', tenant_id: 't-pichincha', name: 'Máxima Primera A', gender: 'MASCULINO' },
-  { id: 'cat-2', tenant_id: 't-pichincha', name: 'Femenino Honor', gender: 'FEMENINO' },
+  { id: 'cat-1', tenant_id: 't-pichincha', name: 'Máxima Primera A (Fútbol 11)', gender: 'MASCULINO' },
+  { id: 'cat-2', tenant_id: 't-pichincha', name: 'Femenino Honor (Fútbol 11)', gender: 'FEMENINO' },
+  { id: 'cat-ind1', tenant_id: 't-indoor-express', name: 'Indoor 7 Libre', gender: 'MASCULINO' },
+  { id: 'cat-ind2', tenant_id: 't-indoor-express', name: 'Indoor 9 Máster', gender: 'MASCULINO' },
+  { id: 'cat-fut1', tenant_id: 't-futsal-metro', name: 'Primera Élite Fútsal 5', gender: 'MASCULINO' },
   { id: 'cat-3', tenant_id: 't-quito-basket', name: 'Primera División Basket', gender: 'MASCULINO' },
-  { id: 'cat-4', tenant_id: 't-azuay-ecuavoley', name: 'Abierta Selección Ecuavoley', gender: 'MASCULINO' }
+  { id: 'cat-4', tenant_id: 't-azuay-ecuavoley', name: 'Abierta Selección Ecuavoley', gender: 'MASCULINO' },
+  { id: 'cat-pad1', tenant_id: 't-cumbaya-padel', name: 'Circuito Máster Oro Pádel', gender: 'MIXTO' }
 ];
 
 export const INITIAL_TEAMS: Team[] = [
-  // Fútbol
+  // Fútbol 11 (Liga Barrial Pichincha)
   { id: 'tm-1', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'Deportivo Quito Norte', primary_color: '#ef4444', secondary_color: '#1e3a8a' },
   { id: 'tm-2', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'Atlético San Antonio', primary_color: '#10b981', secondary_color: '#ffffff' },
   { id: 'tm-3', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'LDU Comunitario', primary_color: '#3b82f6', secondary_color: '#dc2626' },
   { id: 'tm-4', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'Estrella Roja FC', primary_color: '#b91c1c', secondary_color: '#f59e0b' },
+
+  // Indoor 7 y 9 (Torneo Interclubes Indoor 7 & 9)
+  { id: 'tm-ind1', tenant_id: 't-indoor-express', category_id: 'cat-ind1', name: 'Relámpagos Indor 7', primary_color: '#06b6d4', secondary_color: '#0f172a' },
+  { id: 'tm-ind2', tenant_id: 't-indoor-express', category_id: 'cat-ind1', name: 'Gladiadores Indor 7', primary_color: '#f59e0b', secondary_color: '#111827' },
+  { id: 'tm-ind3', tenant_id: 't-indoor-express', category_id: 'cat-ind2', name: 'Centauros Indor 9', primary_color: '#10b981', secondary_color: '#064e3b' },
+  { id: 'tm-ind4', tenant_id: 't-indoor-express', category_id: 'cat-ind2', name: 'Furia Nocturna Indor 9', primary_color: '#8b5cf6', secondary_color: '#ffffff' },
+
+  // Fútsal 5 (Liga Metropolitana de Fútsal 5)
+  { id: 'tm-fut1', tenant_id: 't-futsal-metro', category_id: 'cat-fut1', name: 'Titanes del Valle Futsal 5', primary_color: '#f43f5e', secondary_color: '#1e1b4b' },
+  { id: 'tm-fut2', tenant_id: 't-futsal-metro', category_id: 'cat-fut1', name: 'Huracán Futsal Club 5', primary_color: '#8b5cf6', secondary_color: '#fef08a' },
+  { id: 'tm-fut3', tenant_id: 't-futsal-metro', category_id: 'cat-fut1', name: 'Águilas Doradas Futsal 5', primary_color: '#eab308', secondary_color: '#18181b' },
+  { id: 'tm-fut4', tenant_id: 't-futsal-metro', category_id: 'cat-fut1', name: 'Leones del Norte Futsal 5', primary_color: '#3b82f6', secondary_color: '#ffffff' },
   
-  // Baloncesto
+  // Baloncesto (Asociación de Baloncesto de Quito)
   { id: 'tm-bk1', tenant_id: 't-quito-basket', category_id: 'cat-3', name: 'Grizzlies de Quito', primary_color: '#7c3aed', secondary_color: '#fbbf24' },
   { id: 'tm-bk2', tenant_id: 't-quito-basket', category_id: 'cat-3', name: 'Halcones del Valle', primary_color: '#2563eb', secondary_color: '#ffffff' },
 
-  // Ecuavoley
+  // Ecuavoley (Federación de Ecuavoley del Azuay)
   { id: 'tm-ecu1', tenant_id: 't-azuay-ecuavoley', category_id: 'cat-4', name: 'Trío "El Poncho" Azuay', primary_color: '#059669', secondary_color: '#facc15' },
   { id: 'tm-ecu2', tenant_id: 't-azuay-ecuavoley', category_id: 'cat-4', name: 'Trío "Los Rayos" Cuenca', primary_color: '#db2777', secondary_color: '#111827' },
 
-  // Pádel
+  // Pádel (Club Pádel Cumbayá & Open)
   { id: 'tm-pad1', tenant_id: 't-cumbaya-padel', category_id: 'cat-pad1', name: 'Smash Pro Cumbayá (Dupla Oro)', primary_color: '#84cc16', secondary_color: '#064e3b' },
   { id: 'tm-pad2', tenant_id: 't-cumbaya-padel', category_id: 'cat-pad1', name: 'Víbora Pádel Master (Dupla Plata)', primary_color: '#06b6d4', secondary_color: '#0f172a' },
   { id: 'tm-pad3', tenant_id: 't-cumbaya-padel', category_id: 'cat-pad1', name: 'Drop Shot Cumbayá', primary_color: '#f59e0b', secondary_color: '#18181b' },
-  { id: 'tm-pad4', tenant_id: 't-cumbaya-padel', category_id: 'cat-pad1', name: 'Bandeja Power Team', primary_color: '#ec4899', secondary_color: '#ffffff' },
-
-  // Fútsal / Microfútbol
-  { id: 'tm-fut1', tenant_id: 't-pichincha', category_id: 'cat-fut1', name: 'Titanes del Valle Futsal', primary_color: '#f43f5e', secondary_color: '#1e1b4b' },
-  { id: 'tm-fut2', tenant_id: 't-pichincha', category_id: 'cat-fut1', name: 'Huracán Indor Club', primary_color: '#8b5cf6', secondary_color: '#fef08a' }
+  { id: 'tm-pad4', tenant_id: 't-cumbaya-padel', category_id: 'cat-pad1', name: 'Bandeja Power Team', primary_color: '#ec4899', secondary_color: '#ffffff' }
 ];
 
 export const INITIAL_PLAYERS: Player[] = [
@@ -384,6 +444,76 @@ export const INITIAL_PLAYERS: Player[] = [
     photo_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400',
     qr_code: 'SPORTIA-QR-PL-301', 
     is_active: true 
+  },
+
+  // Jugadores Fútsal 5 (t-futsal-metro)
+  {
+    id: 'pl-fut-1',
+    tenant_id: 't-futsal-metro',
+    team_id: 'tm-fut1',
+    full_name: 'Esteban "El Rayo" Cárdenas',
+    jersey_number: 10,
+    position: 'Pívot Goleador',
+    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-FUTS-101',
+    is_active: true
+  },
+  {
+    id: 'pl-fut-2',
+    tenant_id: 't-futsal-metro',
+    team_id: 'tm-fut1',
+    full_name: 'Bryan Vaca',
+    jersey_number: 1,
+    position: 'Portero Cierre',
+    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-FUTS-102',
+    is_active: true
+  },
+  {
+    id: 'pl-fut-3',
+    tenant_id: 't-futsal-metro',
+    team_id: 'tm-fut2',
+    full_name: 'Nicolás Andrade',
+    jersey_number: 7,
+    position: 'Ala Izquierda',
+    photo_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-FUTS-201',
+    is_active: true
+  },
+
+  // Jugadores Indoor 7 & 9 (t-indoor-express)
+  {
+    id: 'pl-ind-1',
+    tenant_id: 't-indoor-express',
+    team_id: 'tm-ind1',
+    full_name: 'Kevin "El Mago" Salgado',
+    jersey_number: 8,
+    position: 'Mediocampista Creativo (Indoor 7)',
+    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-INDO-101',
+    is_active: true
+  },
+  {
+    id: 'pl-ind-2',
+    tenant_id: 't-indoor-express',
+    team_id: 'tm-ind1',
+    full_name: 'Andrés Paredes',
+    jersey_number: 9,
+    position: 'Delantero Punta (Indoor 7)',
+    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-INDO-102',
+    is_active: true
+  },
+  {
+    id: 'pl-ind-3',
+    tenant_id: 't-indoor-express',
+    team_id: 'tm-ind3',
+    full_name: 'Mauricio Guayasamín',
+    jersey_number: 11,
+    position: 'Extremo Rápido (Indoor 9)',
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DV-QR-INDO-301',
+    is_active: true
   }
 ];
 
@@ -806,23 +936,51 @@ export const INITIAL_MATCHES: Match[] = [
     created_at: '2026-07-28T12:00:00Z'
   },
 
-  // --- FÚTSAL / INDOR ---
+  // --- FÚTSAL 5 (Liga Metropolitana de Fútsal 5 - t-futsal-metro) ---
   {
-    id: 'm-fut-ind1',
-    tenant_id: 't-pichincha',
+    id: 'm-fut-live',
+    tenant_id: 't-futsal-metro',
     category_id: 'cat-fut1',
     home_team_id: 'tm-fut1',
     away_team_id: 'tm-fut2',
     sport_code: 'FUTSAL',
+    match_date: '2026-07-28T18:00:00Z',
+    field_location: 'Coliseo Mayor - Cancha Central de Fútsal (Parquet)',
+    status: 'IN_PROGRESS',
+    home_score: 3,
+    away_score: 2,
+    match_data: {
+      round: 'Fecha 2 - Copa Metropolitana Futsal 5',
+      venue_name: 'Coliseo Mayor Central',
+      referee_name: 'Árbitro FIFA Futsal Jorge Silva',
+      vocal_name: 'Sr. David Paredes (Mesa Futsal)',
+      court_surface: 'Piso Parquet Flotante Oficial FIFA',
+      weather_temp: 'Techado Climatizado',
+      ticket_status: 'Entrada $1.50',
+      stream_url: 'https://youtube.com/live/deporverso-futsal',
+      current_period: '2ND_HALF',
+      fouls_home: 4,
+      fouls_away: 5,
+      is_public_published: true
+    },
+    created_at: '2026-07-28T17:00:00Z'
+  },
+  {
+    id: 'm-fut-ind1',
+    tenant_id: 't-futsal-metro',
+    category_id: 'cat-fut1',
+    home_team_id: 'tm-fut3',
+    away_team_id: 'tm-fut4',
+    sport_code: 'FUTSAL',
     match_date: '2026-07-24T20:00:00Z',
-    field_location: 'Coliseo Parroquial San Juan - Cancha de Cemento',
+    field_location: 'Coliseo Parroquial San Juan - Cancha de Parquet',
     status: 'FINISHED',
     home_score: 6,
     away_score: 4,
     match_data: {
-      round: 'Fecha 1 - Torneo Relámpago Nocturno',
+      round: 'Fecha 1 - Torneo Élite Fútsal 5',
       venue_name: 'Coliseo San Juan',
-      referee_name: 'Árbitro Indor Wilson Tapia',
+      referee_name: 'Árbitro Futsal Wilson Tapia',
       vocal_name: 'Sr. Germán Viteri',
       court_surface: 'Piso Sintético Poliuretano Antideslizante',
       weather_temp: '16°C Techado',
@@ -833,23 +991,97 @@ export const INITIAL_MATCHES: Match[] = [
   },
   {
     id: 'm-fut-ind2',
-    tenant_id: 't-pichincha',
+    tenant_id: 't-futsal-metro',
     category_id: 'cat-fut1',
     home_team_id: 'tm-fut2',
     away_team_id: 'tm-fut1',
     sport_code: 'FUTSAL',
     match_date: '2026-08-07T20:30:00Z',
-    field_location: 'Coliseo Parroquial San Juan - Cancha de Cemento',
+    field_location: 'Coliseo Parroquial San Juan - Cancha de Parquet',
     status: 'SCHEDULED',
     home_score: 0,
     away_score: 0,
     match_data: {
-      round: 'Fecha 2 - Gran Revancha de Fútsal',
+      round: 'Fecha 3 - Gran Revancha Fútsal 5',
       venue_name: 'Coliseo San Juan',
-      referee_name: 'Terna de Fútsal Pichincha',
-      vocal_name: 'Mesa de Control Oficial',
+      referee_name: 'Terna de Fútsal Metropolitana',
+      vocal_name: 'Mesa de Control Futsal',
       court_surface: 'Poliuretano Techado',
       ticket_status: 'Entrada $1.00'
+    },
+    created_at: '2026-07-28T12:00:00Z'
+  },
+
+  // --- INDOOR 7 & 9 (Torneo Interclubes Indoor 7 & 9 - t-indoor-express) ---
+  {
+    id: 'm-ind-live',
+    tenant_id: 't-indoor-express',
+    category_id: 'cat-ind1',
+    home_team_id: 'tm-ind1',
+    away_team_id: 'tm-ind2',
+    sport_code: 'FUTBOL',
+    match_date: '2026-07-28T19:30:00Z',
+    field_location: 'Complejo Indoor Express - Cancha 1 con Rebote (7 vs 7)',
+    status: 'IN_PROGRESS',
+    home_score: 4,
+    away_score: 3,
+    match_data: {
+      round: 'Fecha 2 - Torneo Relámpago Indoor 7',
+      venue_name: 'Cancha 1 Rebound Turf',
+      referee_name: 'Árbitro Gonzalo Cevallos',
+      vocal_name: 'Mesa Técnica Indoor',
+      court_surface: 'Césped Sintético Monofilamento con Muros Perimetrales',
+      weather_temp: '17°C Techado Iluminado',
+      ticket_status: 'General $1.50',
+      current_period: '2ND_HALF',
+      fouls_home: 3,
+      fouls_away: 2,
+      is_public_published: true
+    },
+    created_at: '2026-07-28T18:00:00Z'
+  },
+  {
+    id: 'm-ind-f1',
+    tenant_id: 't-indoor-express',
+    category_id: 'cat-ind2',
+    home_team_id: 'tm-ind3',
+    away_team_id: 'tm-ind4',
+    sport_code: 'FUTBOL',
+    match_date: '2026-07-25T16:00:00Z',
+    field_location: 'Complejo Indoor Express - Cancha 2 Ampliada (9 vs 9)',
+    status: 'FINISHED',
+    home_score: 5,
+    away_score: 2,
+    match_data: {
+      round: 'Fecha 1 - Apertura Indoor 9 Máster',
+      venue_name: 'Cancha 2 Mega Turf',
+      referee_name: 'Árbitro Patricio Córdova',
+      vocal_name: 'Vocal Rodrigo Almendariz',
+      court_surface: 'Césped Sintético 60mm',
+      ticket_status: 'Entrada Libre',
+      is_public_published: true
+    },
+    created_at: '2026-07-24T12:00:00Z'
+  },
+  {
+    id: 'm-ind-sched',
+    tenant_id: 't-indoor-express',
+    category_id: 'cat-ind1',
+    home_team_id: 'tm-ind1',
+    away_team_id: 'tm-ind3',
+    sport_code: 'FUTBOL',
+    match_date: '2026-08-05T20:00:00Z',
+    field_location: 'Complejo Indoor Express - Cancha 1 con Rebote (7 vs 7)',
+    status: 'SCHEDULED',
+    home_score: 0,
+    away_score: 0,
+    match_data: {
+      round: 'Fecha 3 - Duelo Intergrupos Indoor',
+      venue_name: 'Cancha 1 Rebound Turf',
+      referee_name: 'Terna Designada Indoor',
+      vocal_name: 'Mesa de Turno',
+      court_surface: 'Césped Sintético Monofilamento',
+      ticket_status: 'Preventa $1.00'
     },
     created_at: '2026-07-28T12:00:00Z'
   }

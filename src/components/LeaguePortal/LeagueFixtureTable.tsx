@@ -234,7 +234,7 @@ export const LeagueFixtureTable: React.FC<LeagueFixtureTableProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>SUBDOMINIO ACTIVO:</span>
               <span className="text-white font-black underline tracking-wide">
-                https://{tenant.domain || `${tenant.slug || 'liga'}.sportia.app`}
+                https://{tenant.domain || `${tenant.slug || 'liga'}.deporverso.app`}
               </span>
               <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full uppercase font-sans font-extrabold">
                 OFICIAL

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Shield, Building, Video, FileText, Plus, CheckCircle, Database, Copy, Download, RefreshCw, Calendar, Image, Sparkles, Cpu, LogOut, Users } from 'lucide-react';
+import { DollarSign, Shield, Building, Video, FileText, Plus, CheckCircle, Database, Copy, Download, RefreshCw, Calendar, Image, Sparkles, Cpu, LogOut, Users, Key, Check, ExternalLink } from 'lucide-react';
 import { Tenant, Sport, Subscription, MigrationTicket, Match, MatchEvent, SportCode, AiChronicle } from '../../types';
 import { FULL_SUPABASE_SQL_SCRIPT } from '../../data/sqlScript';
 import { CalendarCardGenerator } from '../CalendarCardGenerator';
@@ -50,6 +50,9 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   const [newTenantSport, setNewTenantSport] = useState('FUTBOL');
   const [newTenantCountry, setNewTenantCountry] = useState('Ecuador');
   const [newTenantPlan, setNewTenantPlan] = useState<'BASIC_3' | 'PRO_5' | 'ENTERPRISE_8'>('PRO_5');
+  const [newTenantAdminKey, setNewTenantAdminKey] = useState('');
+  const [copiedTenantKeyId, setCopiedTenantKeyId] = useState<string | null>(null);
+  const [copiedDeliveryId, setCopiedDeliveryId] = useState<string | null>(null);
 
   // Calculations
   const totalTenants = tenants.length;
@@ -58,17 +61,27 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   const mrrTotal = subscriptions.reduce((acc, sub) => acc + Number(sub.price_monthly), 0);
   const arrTotal = (mrrTotal * 12) + annualLicensesTotal;
 
+  const generateRandomKey = (slug: string) => {
+    const cleanSlug = (slug || 'LIGA').replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    return `DV-${cleanSlug}-${randomNum}-ADM`;
+  };
+
   const handleCreateTenant = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTenantName || !newTenantSlug) return;
 
+    const finalSlug = newTenantSlug.toLowerCase().trim().replace(/\s+/g, '-');
+    const finalKey = newTenantAdminKey.trim() || generateRandomKey(finalSlug);
+
     onAddTenant({
       name: newTenantName,
-      slug: newTenantSlug.toLowerCase().replace(/\s+/g, '-'),
+      slug: finalSlug,
       sport_code: newTenantSport as any,
       country: newTenantCountry,
       currency: 'USD',
-      domain: `${newTenantSlug.toLowerCase()}.sportia.app`,
+      domain: `${finalSlug}.deporverso.app`,
+      admin_key: finalKey,
       is_active: true,
       annual_license_fee: 25.00,
       plan_tier: newTenantPlan
@@ -76,7 +89,51 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
     setNewTenantName('');
     setNewTenantSlug('');
+    setNewTenantAdminKey('');
     setShowAddModal(false);
+  };
+
+  const handleCopyKey = async (tenantId: string, key: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(key);
+      }
+      setCopiedTenantKeyId(tenantId);
+      setTimeout(() => setCopiedTenantKeyId(null), 2500);
+    } catch (e) {
+      console.warn('Clipboard write prevented:', e);
+    }
+  };
+
+  const handleCopyDeliverySheet = async (tenant: Tenant) => {
+    const text = [
+      `======================================================`,
+      `🏆 DEPORVERSO - FICHA DE ENTREGA Y ACCESO DE LIGA / SUBDOMINIO`,
+      `======================================================`,
+      `• Organización / Liga: ${tenant.name}`,
+      `• Disciplina Oficial: ${tenant.sport_code}`,
+      `• Subdominio Oficial: https://${tenant.domain}`,
+      `• Clave de Administrador (Confidencial): ${tenant.admin_key || 'DV-ADM-2026-KEY'}`,
+      `• Tarifa Anual: $${tenant.annual_license_fee.toFixed(2)} USD`,
+      `• Plan Cloud: ${tenant.plan_tier || 'PRO_5'}`,
+      `• Estado RLS: Aislamiento Multi-Tenant Activo`,
+      `======================================================`,
+      `Instrucciones para el Administrador de Liga:`,
+      `1. Acceda a https://${tenant.domain}`,
+      `2. Seleccione 'Ingresar como Administrador de Liga'`,
+      `3. Ingrese su clave de seguridad exclusiva`,
+      `======================================================`
+    ].join('\n');
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      }
+      setCopiedDeliveryId(tenant.id);
+      setTimeout(() => setCopiedDeliveryId(null), 3000);
+    } catch (e) {
+      console.warn('Clipboard write prevented:', e);
+    }
   };
 
   const copyToClipboard = async () => {
@@ -285,6 +342,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                   <th className="py-3 px-4">Disciplina</th>
                   <th className="py-3 px-4">País / Moneda</th>
                   <th className="py-3 px-4">Dominio Tenant</th>
+                  <th className="py-3 px-4">Clave Admin & Entrega</th>
                   <th className="py-3 px-4">Licencia Anual</th>
                   <th className="py-3 px-4">Plan Recurrente</th>
                   <th className="py-3 px-4">Estado</th>
@@ -299,7 +357,47 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                     </td>
                     <td className="py-3 px-4 font-semibold text-emerald-400">{t.sport_code}</td>
                     <td className="py-3 px-4 text-slate-300">{t.country} ({t.currency})</td>
-                    <td className="py-3 px-4 text-slate-400 font-mono text-xs">{t.domain}</td>
+                    <td className="py-3 px-4 font-mono text-xs">
+                      <span className="text-cyan-400 font-bold bg-cyan-950/40 border border-cyan-800/40 px-2 py-1 rounded-md inline-flex items-center gap-1">
+                        https://{t.domain}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="bg-amber-950/40 border border-amber-500/40 text-amber-300 font-mono text-xs px-2.5 py-1 rounded-md flex items-center gap-1 font-bold">
+                          <Key className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>{t.admin_key || 'DV-ADM-2026-KEY'}</span>
+                        </div>
+                        <button
+                          onClick={() => handleCopyKey(t.id, t.admin_key || 'DV-ADM-2026-KEY')}
+                          title="Copiar solo la clave secreta"
+                          className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors cursor-pointer"
+                        >
+                          {copiedTenantKeyId === t.id ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleCopyDeliverySheet(t)}
+                          title="Copiar ficha completa de entrega para el Administrador de Liga"
+                          className="px-2 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1"
+                        >
+                          {copiedDeliveryId === t.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-400" />
+                              <span className="text-emerald-400">¡Ficha Copiada!</span>
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="w-3 h-3 text-amber-400" />
+                              <span>Ficha Entrega</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-emerald-400 font-bold">${t.annual_license_fee.toFixed(2)}/año</td>
                     <td className="py-3 px-4">
                       <span className="bg-slate-800 text-teal-300 px-2.5 py-1 rounded-md text-xs font-bold border border-slate-700">
@@ -513,14 +611,57 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">Identificador Slug (subdominio)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="ej. quito-sur"
+                    value={newTenantSlug}
+                    onChange={(e) => {
+                      const slug = e.target.value;
+                      setNewTenantSlug(slug);
+                      if (!newTenantAdminKey) {
+                        setNewTenantAdminKey(generateRandomKey(slug));
+                      }
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+                {newTenantSlug && (
+                  <p className="text-[11px] text-cyan-400 font-mono mt-1 flex items-center gap-1">
+                    <span>Subdominio asignado:</span>
+                    <strong className="bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/50">
+                      https://{newTenantSlug.toLowerCase().replace(/\s+/g, '-')}.deporverso.app
+                    </strong>
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Clave Proporcionada por Administrador (Para Entrega a Liga)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setNewTenantAdminKey(generateRandomKey(newTenantSlug || 'LIGA'))}
+                    className="text-[10px] text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
+                  >
+                    Auto-Generar
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
-                  placeholder="ej. quito-sur"
-                  value={newTenantSlug}
-                  onChange={(e) => setNewTenantSlug(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  placeholder="ej. DV-QUIT-2026-ADM"
+                  value={newTenantAdminKey}
+                  onChange={(e) => setNewTenantAdminKey(e.target.value)}
+                  className="w-full bg-slate-950 border border-amber-500/40 rounded-lg px-3 py-2 text-sm text-amber-300 focus:outline-none focus:border-amber-400 font-mono font-bold"
                 />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Esta clave única será registrada en el panel y se entregará al Administrador de Liga para la gestión segura y aislada de sus datos.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
