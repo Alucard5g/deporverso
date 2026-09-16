@@ -1,6 +1,18 @@
 export type UserRole = 'SUPER_ADMIN' | 'LEAGUE_ADMIN' | 'TEAM_DELEGATE' | 'REFEREE' | 'PLAYER';
 
-export type SportCode = 'FUTBOL' | 'BALONCESTO' | 'ECUAVOLEY' | 'VOLEIBOL' | 'PADEL' | 'FUTSAL' | 'BEISBOL' | 'OTROS';
+export type SportCode = 
+  | 'FUTBOL' 
+  | 'BALONCESTO' 
+  | 'ECUAVOLEY' 
+  | 'VOLEIBOL' 
+  | 'PADEL' 
+  | 'FUTSAL' 
+  | 'BEISBOL' 
+  | 'SOFTBOL'
+  | 'FUTBOL_AMERICANO'
+  | 'ARTES_MARCIALES'
+  | 'TENNIS'
+  | 'OTROS';
 
 export type MatchStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'HALF_TIME' | 'FINISHED' | 'SUSPENDED' | 'CANCELLED';
 
@@ -87,6 +99,11 @@ export interface Team {
   logo_url?: string;
   primary_color: string;
   secondary_color: string;
+  stadium_name?: string;
+  founded_year?: number;
+  coach_name?: string;
+  president_name?: string;
+  city?: string;
 }
 
 export interface Player {
@@ -101,6 +118,22 @@ export interface Player {
   photo_url?: string;
   qr_code: string;
   is_active: boolean;
+  age?: number;
+  height_cm?: number;
+  weight_kg?: number;
+  dominant_foot?: 'Derecha' | 'Izquierda' | 'Ambidiestro';
+  nationality?: string;
+  birth_date?: string;
+  medical_clearance?: boolean;
+  insurance_active?: boolean;
+  is_captain?: boolean;
+  goals_total?: number;
+  assists_total?: number;
+  matches_played?: number;
+  minutes_played?: number;
+  yellow_cards?: number;
+  red_cards?: number;
+  rating_ovr?: number;
 }
 
 export interface PlayerMatchStat {
@@ -147,6 +180,31 @@ export interface RefereeReport {
   signatures_verified: boolean;
   pitch_conditions?: string;
   saved_at?: string;
+}
+
+export interface VocaliaReportRecord {
+  id: string;
+  match_id: string;
+  tenant_id: string;
+  tenant_name?: string;
+  subdomain: string;
+  domain: string;
+  sport_code: SportCode;
+  home_team_name: string;
+  away_team_name: string;
+  home_score: number;
+  away_score: number;
+  status: MatchStatus | 'LIVE' | 'HALFTIME';
+  current_period?: string;
+  vocal_report: VocalReport;
+  referee_report: RefereeReport;
+  home_captain_approval?: CaptainApproval;
+  away_captain_approval?: CaptainApproval;
+  player_stats?: Record<string, PlayerMatchStat>;
+  events_count: number;
+  events?: MatchEvent[];
+  firestore_path: string;
+  saved_at: string;
 }
 
 export interface MatchData {
@@ -313,4 +371,42 @@ export interface CrmLead {
   notes: string;
   activities: CrmActivity[];
   createdAt: string;
+}
+
+export type TransferType = 'DEFINITIVO' | 'PRESTAMO' | 'LIBRE' | 'INTERLIGA';
+export type TransferStatus = 'PENDIENTE_ORIGEN' | 'PENDIENTE_DESTINO' | 'PENDIENTE_LIGA' | 'APROBADO' | 'RECHAZADO';
+
+export interface TransferApprovalRecord {
+  approved: boolean;
+  approved_by?: string;
+  role?: string;
+  signature_data?: string;
+  approved_at?: string;
+  comments?: string;
+}
+
+export interface PlayerTransfer {
+  id: string;
+  tenant_id: string;
+  player_id: string;
+  player_name: string;
+  player_cedula?: string;
+  player_photo?: string;
+  player_position?: string;
+  origin_team_id: string;
+  origin_team_name: string;
+  destination_team_id: string;
+  destination_team_name: string;
+  transfer_type: TransferType;
+  status: TransferStatus;
+  request_date: string;
+  approval_date?: string;
+  transfer_fee?: number;
+  origin_approval: TransferApprovalRecord;
+  destination_approval: TransferApprovalRecord;
+  league_approval: TransferApprovalRecord;
+  resolution_number?: string;
+  certificate_code?: string;
+  new_jersey_number?: number;
+  notes?: string;
 }

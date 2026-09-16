@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { QrCode, ShieldCheck, Zap, Award, Sparkles, CheckCircle2, UserCheck, Star, ChevronRight } from 'lucide-react';
+import { QrCode, ShieldCheck, Zap, Award, Sparkles, CheckCircle2, UserCheck, Star, ChevronRight, Activity } from 'lucide-react';
 import { Player, Team, Tenant, Sport } from '../../types';
+import { getPlayerFullData, PlayerFullData } from '../../utils/playerStatsHelper';
 
 interface TradingCardCarnetProps {
   player: Player;
@@ -10,6 +11,7 @@ interface TradingCardCarnetProps {
   size?: 'sm' | 'md' | 'lg';
   showQrModal?: boolean;
   onOpenQrModal?: () => void;
+  fullData?: PlayerFullData;
 }
 
 export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
@@ -18,21 +20,14 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
   tenant,
   sport,
   size = 'md',
-  onOpenQrModal
+  onOpenQrModal,
+  fullData: providedFullData
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Derive OVR score deterministically from player name/id for collectible feel
-  const getPlayerOvr = (id: string, jersey?: number) => {
-    let charSum = 0;
-    for (let i = 0; i < id.length; i++) {
-      charSum += id.charCodeAt(i);
-    }
-    const base = 82 + (charSum % 12);
-    return Math.min(96, Math.max(78, base + ((jersey || 10) % 3)));
-  };
-
-  const ovr = getPlayerOvr(player.id, player.jersey_number);
+  const fullData = providedFullData || getPlayerFullData(player, team);
+  const { general, stats } = fullData;
+  const ovr = stats.rating_ovr;
 
   // Derive position abbreviation
   const getPosShort = (pos?: string) => {
@@ -69,15 +64,12 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
 
   const photo = player.photo_url || getDefaultPortrait(player.id);
   const posAbbr = getPosShort(player.position);
-  const nationalId = `17${(player.id.charCodeAt(0) * 12345).toString().slice(0, 8)}-${player.id.charCodeAt(player.id.length - 1) % 9}`;
-
-  // Card theme styling
-  const isGold = ovr >= 86;
+  const nationalId = general.cedula;
 
   return (
     <div 
       className={`group relative perspective-1000 transition-all duration-300 ${
-        size === 'sm' ? 'w-64 h-[380px]' : size === 'lg' ? 'w-80 h-[520px]' : 'w-72 h-[450px]'
+        size === 'sm' ? 'w-64 h-[400px]' : size === 'lg' ? 'w-80 h-[540px]' : 'w-72 h-[470px]'
       }`}
     >
       {/* CARD CONTAINER WITH FLIP ROTATION */}
@@ -115,9 +107,9 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
               {/* Jersey Number Shield */}
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-black/60 border border-amber-400/50 flex items-center justify-center font-black text-amber-400 font-mono text-lg shadow-inner">
-                  #{player.jersey_number || '10'}
+                  #{player.jersey_number || general.role_description || '10'}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-[8px] text-black font-black border border-black">
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-[8px] text-black font-black border border-black" title="Carnet Federado Verificado">
                   ✓
                 </div>
               </div>
@@ -125,7 +117,7 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
 
             {/* CENTER PORTRAIT PHOTO */}
             <div className="relative my-2 flex-1 flex items-center justify-center">
-              <div className="relative w-full h-full max-h-[220px] rounded-2xl overflow-hidden border-2 border-amber-400/40 bg-gradient-to-b from-amber-500/10 via-black/40 to-black/80 shadow-2xl group-hover:scale-[1.02] transition-transform">
+              <div className="relative w-full h-full max-h-[190px] rounded-2xl overflow-hidden border-2 border-amber-400/40 bg-gradient-to-b from-amber-500/10 via-black/40 to-black/80 shadow-2xl group-hover:scale-[1.02] transition-transform">
                 <img 
                   src={photo} 
                   alt={player.full_name} 
@@ -136,68 +128,99 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-transparent to-transparent"></div>
 
                 {/* Team Badge Watermark */}
-                <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-                  <div className="w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center text-[8px] font-black text-black">
-                    {team?.name?.[0] || 'T'}
+                <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
+                  <div 
+                    className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-black text-white shadow-sm"
+                    style={{ backgroundColor: team?.primary_color || '#f59e0b' }}
+                  >
+                    {team?.name?.[0] || 'C'}
                   </div>
                   <span className="text-[10px] font-bold text-white max-w-[120px] truncate">
-                    {team?.name || 'Equipo Oficial'}
+                    {team?.name || 'Club Oficial'}
                   </span>
                 </div>
 
                 {/* Official Verification Badge */}
-                <div className="absolute top-2 right-2 bg-emerald-500/90 text-black text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
-                  <ShieldCheck className="w-3 h-3" /> VERIFICADO
+                <div className="absolute top-2 right-2 bg-emerald-500/95 text-black text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
+                  <ShieldCheck className="w-3 h-3" /> HABILITADO
                 </div>
               </div>
             </div>
 
             {/* PLAYER NAME BANNER */}
-            <div className="relative z-10 text-center space-y-1">
+            <div className="relative z-10 text-center space-y-0.5">
               <div className="bg-gradient-to-r from-amber-500/20 via-amber-400/30 to-amber-500/20 border-y border-amber-400/40 py-1 rounded-lg">
-                <h3 className="text-base font-black text-amber-200 uppercase tracking-wide truncate drop-shadow-md">
+                <h3 className="text-sm sm:text-base font-black text-amber-200 uppercase tracking-wide truncate drop-shadow-md px-1">
                   {player.full_name}
                 </h3>
               </div>
               <p className="text-[10px] text-white/60 font-semibold truncate">
-                {tenant?.name || 'Liga Barrial Oficial'}
+                {team?.name || tenant?.name || 'Liga Oficial'}
               </p>
             </div>
 
+            {/* REAL GOALS & ASSISTS LIVE STATS BANNER */}
+            <div className="relative z-10 grid grid-cols-3 gap-1 my-1.5 bg-black/80 px-2 py-1.5 rounded-xl border border-amber-400/30 text-center font-mono">
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-black text-emerald-400 flex items-center gap-0.5">
+                  ⚽ {stats.goals_total}
+                </span>
+                <span className="text-[8px] text-white/50 uppercase font-bold">Goles</span>
+              </div>
+              <div className="flex flex-col items-center border-x border-white/10">
+                <span className="text-xs font-black text-cyan-400 flex items-center gap-0.5">
+                  👟 {stats.assists_total}
+                </span>
+                <span className="text-[8px] text-white/50 uppercase font-bold">Asist.</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-black text-amber-300 flex items-center gap-0.5">
+                  ⏱️ {stats.matches_played}
+                </span>
+                <span className="text-[8px] text-white/50 uppercase font-bold">Partidos</span>
+              </div>
+            </div>
+
             {/* STATS ATTRIBUTES GRID */}
-            <div className="relative z-10 grid grid-cols-3 gap-1 my-2 bg-black/60 p-2 rounded-xl border border-white/10 text-center text-[10px] font-mono">
+            <div className="relative z-10 grid grid-cols-6 gap-0.5 bg-black/60 p-1.5 rounded-xl border border-white/10 text-center text-[9px] font-mono">
               <div>
-                <span className="text-amber-400 font-bold">88</span> <span className="text-white/50">RIT</span>
+                <span className="text-amber-400 font-bold block">{stats.pace}</span>
+                <span className="text-white/50 text-[7px] block">RIT</span>
               </div>
               <div>
-                <span className="text-amber-400 font-bold">85</span> <span className="text-white/50">TIR</span>
+                <span className="text-amber-400 font-bold block">{stats.shooting}</span>
+                <span className="text-white/50 text-[7px] block">TIR</span>
               </div>
               <div>
-                <span className="text-amber-400 font-bold">84</span> <span className="text-white/50">PAS</span>
+                <span className="text-amber-400 font-bold block">{stats.passing}</span>
+                <span className="text-white/50 text-[7px] block">PAS</span>
               </div>
               <div>
-                <span className="text-amber-400 font-bold">89</span> <span className="text-white/50">REG</span>
+                <span className="text-amber-400 font-bold block">{stats.dribbling}</span>
+                <span className="text-white/50 text-[7px] block">REG</span>
               </div>
               <div>
-                <span className="text-amber-400 font-bold">76</span> <span className="text-white/50">DEF</span>
+                <span className="text-amber-400 font-bold block">{stats.defense}</span>
+                <span className="text-white/50 text-[7px] block">DEF</span>
               </div>
               <div>
-                <span className="text-amber-400 font-bold">82</span> <span className="text-white/50">FIS</span>
+                <span className="text-amber-400 font-bold block">{stats.physical}</span>
+                <span className="text-white/50 text-[7px] block">FIS</span>
               </div>
             </div>
 
             {/* CARD FOOTER & ACTION BUTTONS */}
             <div className="relative z-10 flex items-center justify-between pt-1 border-t border-white/10 text-[10px]">
-              <span className="text-white/40 font-mono">C.I: {nationalId}</span>
+              <span className="text-white/50 font-mono text-[9px]">C.I: {nationalId}</span>
               
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setIsFlipped(true)}
-                  className="bg-white/10 hover:bg-white/20 text-amber-300 font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                  className="bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-all cursor-pointer border border-amber-500/30 text-[9px]"
                   title="Girar Carnet (Ver QR y Barcode)"
                 >
-                  <QrCode className="w-3 h-3" /> QR / Barcode
+                  <QrCode className="w-3 h-3" /> QR Reverso
                 </button>
               </div>
             </div>
@@ -207,38 +230,43 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
 
         {/* BACK SIDE - REVERSE OF COLLECTIBLE CARNET WITH QR & BARCODE */}
         <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-3xl overflow-hidden p-1 bg-gradient-to-b from-amber-300 via-amber-600 to-yellow-900 shadow-2xl border border-amber-300/50">
-          <div className="w-full h-full rounded-[22px] bg-[#09090d] relative overflow-hidden flex flex-col justify-between p-4 text-center border border-amber-400/30">
+          <div className="w-full h-full rounded-[22px] bg-[#09090d] relative overflow-hidden flex flex-col justify-between p-3.5 text-center border border-amber-400/30">
             
             {/* Header */}
-            <div className="space-y-1">
-              <span className="inline-block bg-amber-500 text-black font-black text-[10px] px-3 py-0.5 rounded-full uppercase tracking-widest">
+            <div className="space-y-0.5">
+              <span className="inline-block bg-amber-500 text-black font-black text-[9px] px-3 py-0.5 rounded-full uppercase tracking-widest">
                 Credencial Digital Deporverso
               </span>
-              <h4 className="text-sm font-black text-white">{player.full_name}</h4>
-              <p className="text-[10px] text-amber-400 font-bold">C.I. {nationalId}</p>
+              <h4 className="text-xs sm:text-sm font-black text-white truncate">{player.full_name}</h4>
+              <p className="text-[10px] text-amber-400 font-mono">C.I. {nationalId} • #{player.jersey_number}</p>
             </div>
 
             {/* Large QR Code Display */}
-            <div className="bg-white p-3 rounded-2xl border-4 border-amber-400 my-2 inline-block mx-auto shadow-inner">
+            <div className="bg-white p-2 rounded-2xl border-4 border-amber-400 my-1 inline-block mx-auto shadow-inner">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(player.qr_code)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(player.qr_code || `DV-PL-${player.id}`)}`}
                 alt="QR Carnet"
-                className="w-32 h-32 mx-auto object-contain"
+                className="w-24 h-24 sm:w-28 sm:h-28 mx-auto object-contain"
               />
             </div>
 
-            <div className="space-y-1 text-left bg-black/60 p-2.5 rounded-xl border border-white/10 text-[10px] font-mono">
+            {/* Player Quick Details */}
+            <div className="space-y-1 text-left bg-black/70 p-2 rounded-xl border border-white/10 text-[9px] font-mono">
               <div className="flex justify-between">
-                <span className="text-white/50">Código QR:</span>
-                <span className="text-cyan-400 font-bold">{player.qr_code}</span>
+                <span className="text-white/50">Club Oficial:</span>
+                <span className="text-amber-300 font-bold truncate max-w-[140px]">{team?.name || 'Club Registrado'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/50">Equipo:</span>
-                <span className="text-white font-bold">{team?.name || 'Oficial'}</span>
+                <span className="text-white/50">Goles / Asistencias:</span>
+                <span className="text-emerald-400 font-bold">⚽ {stats.goals_total} | 👟 {stats.assists_total}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/50">Organización:</span>
-                <span className="text-white font-bold">{tenant?.name || 'Liga'}</span>
+                <span className="text-white/50">Minutos Jugados:</span>
+                <span className="text-cyan-400 font-bold">{stats.minutes_played}' ({stats.matches_played} PJ)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Ficha Médica:</span>
+                <span className="text-emerald-400 font-bold">✓ VIGENTE 2026</span>
               </div>
             </div>
 
@@ -246,7 +274,7 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
             <button
               type="button"
               onClick={() => setIsFlipped(false)}
-              className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg cursor-pointer transition-all flex items-center justify-center gap-1"
+              className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-extrabold text-[11px] rounded-xl shadow-lg cursor-pointer transition-all flex items-center justify-center gap-1 mt-1"
             >
               Girar al Frente
             </button>
@@ -258,3 +286,4 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
     </div>
   );
 };
+

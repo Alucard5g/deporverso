@@ -19,12 +19,14 @@ import {
   Subscription,
   Team,
   Player,
-  AiChronicle
+  AiChronicle,
+  VocaliaReportRecord
 } from '../types';
 
 // In-memory persistent state (simulating real backend / Supabase / Firebase store)
 const LOCAL_STORAGE_MATCHES_KEY = 'deporverso_firebase_matches_v2';
 const LOCAL_STORAGE_PLAYERS_KEY = 'deporverso_firebase_players_v2';
+const LOCAL_STORAGE_VOCALIA_KEY = 'deporverso_firebase_vocalia_reports_v2';
 
 const loadSavedMatches = (): Match[] => {
   try {
@@ -46,6 +48,68 @@ const loadSavedPlayers = (): Player[] => {
   return [...INITIAL_PLAYERS];
 };
 
+const buildInitialVocaliaReports = (): VocaliaReportRecord[] => {
+  const reports: VocaliaReportRecord[] = [];
+  matchesStore.forEach(m => {
+    if (m.match_data?.vocal_report || m.match_data?.referee_report) {
+      const tenant = tenantsStore.find(t => t.id === m.tenant_id);
+      const homeTeam = teamsStore.find(t => t.id === m.home_team_id);
+      const awayTeam = teamsStore.find(t => t.id === m.away_team_id);
+      const matchEvts = eventsStore.filter(e => e.match_id === m.id);
+
+      reports.push({
+        id: `vocalia-${m.id}`,
+        match_id: m.id,
+        tenant_id: m.tenant_id,
+        tenant_name: tenant?.name || 'Liga Deporverso',
+        subdomain: tenant?.slug || m.tenant_id,
+        domain: tenant?.domain || `${tenant?.slug || 'liga'}.deporverso.app`,
+        sport_code: m.sport_code,
+        home_team_name: homeTeam?.name || m.home_team_id,
+        away_team_name: awayTeam?.name || m.away_team_id,
+        home_score: m.home_score,
+        away_score: m.away_score,
+        status: m.status,
+        current_period: m.match_data?.current_period || '1T',
+        vocal_report: m.match_data?.vocal_report || {
+          vocal_name: 'Vocal Designado',
+          vocal_cedula: '1700000000',
+          observations: 'Acta registrada con normalidad en el subdominio oficial.',
+          status: 'CONFORME',
+          start_time: '10:00',
+          end_time: '12:00',
+          signed: true,
+          saved_at: m.created_at
+        },
+        referee_report: m.match_data?.referee_report || {
+          main_referee: m.match_data?.referee_name || 'Árbitro Principal',
+          disciplinary_notes: 'Sin novedades disciplinarias reportadas.',
+          signatures_verified: true,
+          saved_at: m.created_at
+        },
+        home_captain_approval: m.match_data?.home_captain_approval,
+        away_captain_approval: m.match_data?.away_captain_approval,
+        player_stats: m.match_data?.player_stats,
+        events_count: matchEvts.length,
+        events: matchEvts,
+        firestore_path: `firestore://vocalia_reports/vocalia-${m.id}`,
+        saved_at: m.match_data?.last_synced_at || m.created_at || new Date().toISOString()
+      });
+    }
+  });
+  return reports;
+};
+
+const loadSavedVocaliaReports = (): VocaliaReportRecord[] => {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_VOCALIA_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.warn('Could not load vocalia reports from localStorage', e);
+  }
+  return buildInitialVocaliaReports();
+};
+
 let sportsStore: Sport[] = [...INITIAL_SPORTS];
 let tenantsStore: Tenant[] = [...INITIAL_TENANTS];
 let matchesStore: Match[] = loadSavedMatches();
@@ -55,6 +119,7 @@ let ticketsStore: MigrationTicket[] = [...INITIAL_MIGRATION_TICKETS];
 let subsStore: Subscription[] = [...INITIAL_SUBSCRIPTIONS];
 let teamsStore: Team[] = [...INITIAL_TEAMS];
 let playersStore: Player[] = loadSavedPlayers();
+let vocaliaReportsStore: VocaliaReportRecord[] = loadSavedVocaliaReports();
 
 const persistMatches = () => {
   try {
@@ -69,6 +134,14 @@ const persistPlayers = () => {
     localStorage.setItem(LOCAL_STORAGE_PLAYERS_KEY, JSON.stringify(playersStore));
   } catch (e) {
     console.warn('Failed saving players to localStorage', e);
+  }
+};
+
+const persistVocaliaReports = () => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_VOCALIA_KEY, JSON.stringify(vocaliaReportsStore));
+  } catch (e) {
+    console.warn('Failed saving vocalia reports to localStorage', e);
   }
 };
 
@@ -163,6 +236,11 @@ export const apiService = {
   }): Promise<Match> => {
     const idx = matchesStore.findIndex(m => m.id === params.matchId);
     if (idx !== -1) {
+      const tenant = tenantsStore.find(t => t.id === params.tenantId);
+      const homeTeam = teamsStore.find(t => t.id === matchesStore[idx].home_team_id);
+      const awayTeam = teamsStore.find(t => t.id === matchesStore[idx].away_team_id);
+      const matchEvts = eventsStore.filter(e => e.match_id === params.matchId);
+
       const updatedMatch: Match = {
         ...matchesStore[idx],
         tenant_id: params.tenantId,
@@ -183,9 +261,55 @@ export const apiService = {
       };
       matchesStore[idx] = updatedMatch;
       persistMatches();
+
+      // Guardar también en el almacén de Informes de Vocalía
+      const reportRecord: VocaliaReportRecord = {
+        id: `vocalia-${params.matchId}`,
+        match_id: params.matchId,
+        tenant_id: params.tenantId,
+        tenant_name: tenant?.name || 'Liga Deporverso',
+        subdomain: tenant?.slug || params.tenantId,
+        domain: tenant?.domain || `${tenant?.slug || 'liga'}.deporverso.app`,
+        sport_code: matchesStore[idx].sport_code,
+        home_team_name: homeTeam?.name || matchesStore[idx].home_team_id,
+        away_team_name: awayTeam?.name || matchesStore[idx].away_team_id,
+        home_score: params.homeScore,
+        away_score: params.awayScore,
+        status: params.status,
+        current_period: matchesStore[idx].match_data?.current_period || '1T',
+        vocal_report: params.vocalReport,
+        referee_report: params.refereeReport,
+        home_captain_approval: params.homeCaptainApproval,
+        away_captain_approval: params.awayCaptainApproval,
+        player_stats: params.playerStats,
+        events_count: matchEvts.length,
+        events: matchEvts,
+        firestore_path: `firestore://vocalia_reports/vocalia-${params.matchId}`,
+        saved_at: new Date().toISOString()
+      };
+
+      const repIdx = vocaliaReportsStore.findIndex(r => r.match_id === params.matchId);
+      if (repIdx !== -1) {
+        vocaliaReportsStore[repIdx] = reportRecord;
+      } else {
+        vocaliaReportsStore.unshift(reportRecord);
+      }
+      persistVocaliaReports();
+
       return updatedMatch;
     }
     throw new Error('Match not found');
+  },
+
+  getVocaliaReports: async (tenantId?: string): Promise<VocaliaReportRecord[]> => {
+    if (tenantId) {
+      return vocaliaReportsStore.filter(r => r.tenant_id === tenantId);
+    }
+    return vocaliaReportsStore;
+  },
+
+  getVocaliaReportByMatchId: async (matchId: string): Promise<VocaliaReportRecord | undefined> => {
+    return vocaliaReportsStore.find(r => r.match_id === matchId);
   },
 
   getVarRequests: async (tenantId?: string): Promise<VarRequest[]> => {

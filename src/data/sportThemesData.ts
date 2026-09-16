@@ -306,28 +306,188 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       { label: 'Bases en Juego', value: 'Primera, Segunda, Tercera y Home' }
     ]
   },
-  OTROS: {
-    code: 'OTROS',
-    name: 'Artes Marciales & Disciplinas Adaptables',
-    tagline: 'Esquema de combate por asaltos, categorías de peso y puntuación libre',
-    badge: '🥊 Disciplina Marcial',
+  SOFTBOL: {
+    code: 'SOFTBOL',
+    name: 'Sóftbol Fastpitch & Slowpitch',
+    tagline: 'Lanzamiento molinete bajo hombro, Mercy Rule y categorías mixtas',
+    badge: '🥎 Velocidad & Precisión',
+    heroImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200',
+    actionImages: [
+      {
+        title: 'Lanzamiento Molinete Femenino',
+        description: 'Técnica de alta velocidad y control de zona de strike.',
+        url: 'https://images.unsplash.com/photo-1531247448636-47565b43d1a7?auto=format&fit=crop&q=80&w=600',
+        tag: 'Molinete'
+      },
+      {
+        title: 'Bateo Oportuno con Corredores',
+        description: 'Anotación instantánea de carreras producidas y outs.',
+        url: 'https://images.unsplash.com/photo-1544298621-35a9634e0622?auto=format&fit=crop&q=80&w=600',
+        tag: 'Bateo'
+      },
+      {
+        title: 'Defensa de Cuadro Interior',
+        description: 'Doble matanzas y asistencia rápida en primera base.',
+        url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=600',
+        tag: 'Infield'
+      }
+    ],
+    color: {
+      primary: '#eab308',
+      accent: '#facc15',
+      gradient: 'from-yellow-500 via-amber-500 to-orange-500',
+      glow: 'rgba(234, 179, 8, 0.25)',
+      border: 'border-yellow-500/30'
+    },
+    metrics: [
+      { label: 'Estructura de Juego', value: '7 Entradas (Innings)' },
+      { label: 'Regla de Misericordia', value: '10 Carreras de Ventaja' },
+      { label: 'Modalidad de Lanzamiento', value: 'Molinete o Arco Alto' },
+      { label: 'Control de Bateo', value: 'Boxscore Digital' }
+    ]
+  },
+  FUTBOL_AMERICANO: {
+    code: 'FUTBOL_AMERICANO',
+    name: 'Fútbol Americano & Flag Football',
+    tagline: 'Estrategia de 4 downs, yardas ganadas, touchdowns y play clock digital',
+    badge: '🏈 Táctica & Potencia',
+    heroImage: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&q=80&w=1200',
+    actionImages: [
+      {
+        title: 'Pase en Profundidad del Quarterback',
+        description: 'Lectura de cobertura y precisión en rutas aéreas.',
+        url: 'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?auto=format&fit=crop&q=80&w=600',
+        tag: 'Pase QB'
+      },
+      {
+        title: 'Línea de Golpeo & Bloqueo',
+        description: 'Duelo en las trincheras y protección del mariscal.',
+        url: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&q=80&w=600',
+        tag: 'Tackle'
+      },
+      {
+        title: 'Flag Football Olímpico 5v5',
+        description: 'Extracción limpia de cintas y velocidad en espacio abierto.',
+        url: 'https://images.unsplash.com/photo-1544298621-35a9634e0622?auto=format&fit=crop&q=80&w=600',
+        tag: 'Flag'
+      }
+    ],
+    color: {
+      primary: '#ea580c',
+      accent: '#f97316',
+      gradient: 'from-orange-600 via-red-600 to-amber-500',
+      glow: 'rgba(234, 88, 12, 0.25)',
+      border: 'border-orange-500/30'
+    },
+    metrics: [
+      { label: 'Sistema de Avance', value: '4 Downs / 10 Yardas' },
+      { label: 'Anotaciones', value: 'TD 6pts, FG 3pts, Conv 1-2' },
+      { label: 'Reloj de Jugada', value: 'Play Clock 25/40s' },
+      { label: 'Arbitraje', value: 'Cadena de Medición Digital' }
+    ]
+  },
+  ARTES_MARCIALES: {
+    code: 'ARTES_MARCIALES',
+    name: 'Artes Marciales, MMA & Boxeo',
+    tagline: 'Octágono, ring y tatami con pesaje biométrico y tarjetas de 3 jueces 10-9 Must',
+    badge: '🥋 Honor & Combate',
     heroImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
     actionImages: [
       {
-        title: 'Combate en Tatami & Ring Oficial',
-        description: 'Jueces laterales con pulsadores de puntos en tiempo real.',
+        title: 'Combate en Octágono Profesional',
+        description: 'Control de rounds de 5 minutos, sumisiones y striking.',
         url: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80&w=600',
-        tag: 'Tatami'
+        tag: 'MMA Pro'
       },
       {
-        title: 'Control de Pesaje y Categoría',
-        description: 'Verificación por carnet biométrico antes del ingreso a combate.',
+        title: 'Báscula y Pesaje Oficial',
+        description: 'Registro biométrico previo para cumplimiento de división.',
         url: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&q=80&w=600',
-        tag: 'Báscula Oficial'
+        tag: 'Pesaje'
       },
       {
-        title: 'Medallero de Campeonato',
-        description: 'Llaves de repechaje, finales y premiación automática.',
+        title: 'Jiu-Jitsu & Grappling No-Gi',
+        description: 'Puntuación IBJJF en tiempo real y finalizaciones por sumisión.',
+        url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600',
+        tag: 'Tatami'
+      }
+    ],
+    color: {
+      primary: '#e11d48',
+      accent: '#f43f5e',
+      gradient: 'from-rose-600 via-red-600 to-purple-600',
+      glow: 'rgba(225, 29, 72, 0.25)',
+      border: 'border-rose-500/30'
+    },
+    metrics: [
+      { label: 'Sistema de Jueces', value: '3 Jueces Laterales (10-9)' },
+      { label: 'Duración de Asaltos', value: '3 o 5 Rounds × 5 min' },
+      { label: 'Control de Peso', value: 'Báscula Certificada' },
+      { label: 'Resolución de Combate', value: 'KO, TKO, Sumisión o Decisión' }
+    ]
+  },
+  TENNIS: {
+    code: 'TENNIS',
+    name: 'Tenis Singles & Dobles',
+    tagline: 'Ranking ATP/ITF dinámico, gestión de cuadros de eliminación y súper tie-breaks',
+    badge: '🎾 Pista & Circuito',
+    heroImage: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&q=80&w=1200',
+    actionImages: [
+      {
+        title: 'Saque As a 200 KM/H',
+        description: 'Registro de primeros servicios y efectividad de quiebre.',
+        url: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&q=80&w=600',
+        tag: 'Saque As'
+      },
+      {
+        title: 'Intercambio desde el Fondo en Arcilla',
+        description: 'Estadísticas de winners de revés y errores no forzados.',
+        url: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&q=80&w=600',
+        tag: 'Arcilla'
+      },
+      {
+        title: 'Definición en la Red de Dobles',
+        description: 'Coordinación táctica de pareja y definición en tie-break.',
+        url: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&q=80&w=600',
+        tag: 'Dobles'
+      }
+    ],
+    color: {
+      primary: '#059669',
+      accent: '#10b981',
+      gradient: 'from-emerald-600 via-teal-500 to-cyan-500',
+      glow: 'rgba(5, 150, 105, 0.25)',
+      border: 'border-emerald-500/30'
+    },
+    metrics: [
+      { label: 'Estructura de Sets', value: 'Al mejor de 3 sets (games a 6)' },
+      { label: 'Puntuación de Games', value: '15 - 30 - 40 - Juego' },
+      { label: 'Desempate', value: 'Tie-break a 7 o 10 Pts' },
+      { label: 'Ranking Oficial', value: 'Cálculo de Puntos ELO' }
+    ]
+  },
+  OTROS: {
+    code: 'OTROS',
+    name: 'Multideporte & Disciplinas Adaptables',
+    tagline: 'Esquema modular para cualquier deporte federado o comunal que requiera liga',
+    badge: '🏆 Modular 100%',
+    heroImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
+    actionImages: [
+      {
+        title: 'Competición Multidisciplinaria',
+        description: 'Adaptable a deportes de raqueta, combate, césped o pista.',
+        url: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80&w=600',
+        tag: 'Multideporte'
+      },
+      {
+        title: 'Control de Participantes y Carnet QR',
+        description: 'Identificación digital instantánea contra falsificaciones.',
+        url: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&q=80&w=600',
+        tag: 'Carnet QR'
+      },
+      {
+        title: 'Podio y Premiación Final',
+        description: 'Generación automática de tablas acumuladas y trofeos.',
         url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
         tag: 'Podio'
       }
@@ -340,10 +500,10 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       border: 'border-purple-500/30'
     },
     metrics: [
-      { label: 'Sistema de Rondas', value: 'Asaltos o Rounds configurables' },
-      { label: 'Criterio de Victoria', value: 'Puntos, Ippon o Decisión Unánime' },
-      { label: 'Pesaje & División', value: 'Categorías por peso estricto' },
-      { label: 'Sanciones', value: 'Advertencias y descalificaciones' }
+      { label: 'Sistema de Rondas', value: 'Asaltos o Tiempos configurables' },
+      { label: 'Criterio de Victoria', value: 'Puntos, Sets o Goles' },
+      { label: 'Inscripción', value: 'Plantillas y Fichas QR' },
+      { label: 'Automatización', value: 'Actas Digitales Cloud' }
     ]
   }
 };

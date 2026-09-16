@@ -38,6 +38,21 @@ service cloud.firestore {
              data.type is string;
     }
 
+    function isValidVocaliaReport(data) {
+      return data.id is string &&
+             data.matchId is string &&
+             data.tenantId is string;
+    }
+
+    function isValidTransfer(data) {
+      return data.id is string &&
+             data.tenantId is string &&
+             data.playerId is string &&
+             data.originTeamId is string &&
+             data.destinationTeamId is string &&
+             data.status in ['PENDIENTE_ORIGEN', 'PENDIENTE_DESTINO', 'PENDIENTE_LIGA', 'APROBADO', 'RECHAZADO'];
+    }
+
     // Colección de Organizaciones Deportivas / Ligas
     match /tenants/{tenantId} {
       allow read: if true;
@@ -52,10 +67,24 @@ service cloud.firestore {
       allow delete: if request.auth != null;
     }
 
+    // Informes de Vocalía Digital en Vivo (Detallados por subdominio y agregados para el admin)
+    match /vocalia_reports/{reportId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == reportId && isValidVocaliaReport(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
     // Jugadores y Estadísticas
     match /players/{playerId} {
       allow read: if true;
       allow create, update: if request.resource.data.id == playerId && isValidPlayer(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    // Pases y Transferencias Oficiales entre Clubes con Visto Bueno Digital
+    match /transfers/{transferId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id == transferId && isValidTransfer(request.resource.data);
       allow delete: if request.auth != null;
     }
 

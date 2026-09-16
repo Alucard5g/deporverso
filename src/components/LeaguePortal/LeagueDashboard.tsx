@@ -4,12 +4,14 @@ import {
   Heart, Sparkles, MessageCircle, Search, Filter, Award, Flame, 
   AlertTriangle, Check, ArrowRight, Eye, Star, Zap, Clock, MapPin, 
   ChevronRight, ExternalLink, Download, FileText, Activity, ChevronDown,
-  Globe, Radio, Play, RefreshCw, Send, ThumbsUp
+  Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft
 } from 'lucide-react';
 import { Tenant, Match, Team, Player, Sport, AiChronicle } from '../../types';
 import { FanAuthModal } from '../Fan/FanAuthModal';
 import { TradingCardCarnet } from './TradingCardCarnet';
 import { LeagueFixtureTable } from './LeagueFixtureTable';
+import { ClubAndRosterDetail } from './ClubAndRosterDetail';
+import { PlayerTransfersManager } from './PlayerTransfersManager';
 import { SPORT_VISUAL_THEMES } from '../../data/sportThemesData';
 import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
 import heroBannerImg from '../../assets/images/soccer_hero_banner_1785853921446.jpg';
@@ -23,6 +25,7 @@ interface LeagueDashboardProps {
   teams: Team[];
   players: Player[];
   publishedChronicles?: AiChronicle[];
+  onPlayerTransferred?: (playerId: string, newTeamId: string, newJerseyNumber?: number) => void;
 }
 
 const getSportHeroBg = (sportCode?: string, sportName?: string) => {
@@ -57,10 +60,12 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
   matches,
   teams,
   players,
-  publishedChronicles = []
+  publishedChronicles = [],
+  onPlayerTransferred
 }) => {
   const currentSportBg = getSportHeroBg(tenant.sport_code, sport?.name);
-  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
+  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
+  const [playerForTransfer, setPlayerForTransfer] = useState<Player | null>(null);
   const [standingsSubTab, setStandingsSubTab] = useState<'table' | 'scorers' | 'fairplay'>('table');
   const [selectedCategory, setSelectedCategory] = useState<string>('Primera Senior');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -243,31 +248,43 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
         </div>
       )}
 
-      {/* ==================== SADCAF TOP NAVIGATION BAR ==================== */}
-      <header className="bg-black/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-40 px-4 lg:px-8 py-3 flex items-center justify-between">
-        {/* Brand Logo & Name */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('inicio')}>
-          <div className="w-10 h-10 rounded-xl bg-[#00ff66] flex items-center justify-center font-black text-black text-xl shadow-lg shadow-[#00ff66]/30 shrink-0">
-            {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'L'}
+      {/* ==================== MINIMALIST ELEGANT TOP NAVIGATION BAR ==================== */}
+      <header className="bg-slate-950/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between transition-all">
+        {/* Brand Logo & League Identification */}
+        <div className="flex items-center gap-3.5 cursor-pointer group" onClick={() => setActiveTab('inicio')}>
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-amber-300 p-0.5 shadow-lg shadow-emerald-500/10 group-hover:scale-105 transition-all">
+            <div className="w-full h-full bg-[#050b14] rounded-[14px] flex items-center justify-center">
+              <span className="font-black text-white text-base font-mono">
+                {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'L'}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center">
-            <span className="text-xl md:text-2xl font-black uppercase tracking-wider text-[#00ff66] drop-shadow-[0_0_14px_rgba(0,255,102,0.5)]">
-              {tenant.name || 'LIGA DEPORTIVA'}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+                {tenant.name || 'LIGA DEPORTIVA'}
+              </span>
+              <span className="hidden sm:inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                {sport?.name?.toUpperCase() || tenant.sport_code || 'FÚTBOL 11'}
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono tracking-wider">
+              Portal Oficial de Competición
             </span>
           </div>
         </div>
 
-        {/* Right Menu Items (SADCAF Style) */}
-        <nav className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest">
+        {/* Right Menu Items (Minimalist & Refined) */}
+        <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider">
           <button
             onClick={() => setActiveTab('inicio')}
             className={`relative py-2 transition-all cursor-pointer ${
-              activeTab === 'inicio' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeTab === 'inicio' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
             }`}
           >
             INICIO
             {activeTab === 'inicio' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00d2b5]"></span>
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
             )}
           </button>
 
@@ -275,14 +292,14 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="flex items-center gap-1.5 py-2 text-white/60 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 py-2 text-slate-400 hover:text-white transition-all cursor-pointer"
             >
               <span>CATEGORÍAS</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
 
             {showCategoryDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-[#0d0d0d] border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
+              <div className="absolute top-full right-0 mt-2 w-52 bg-[#080d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
                 {categories.map((cat) => (
                   <button
                     key={cat}
@@ -291,8 +308,8 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                       setShowCategoryDropdown(false);
                       setActiveTab('standings');
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                      selectedCategory === cat ? 'bg-[#00d2b5] text-black' : 'text-white/80 hover:bg-white/10'
+                    className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                      selectedCategory === cat ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {cat}
@@ -303,14 +320,26 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </div>
 
           <button
+            onClick={() => setActiveTab('transfers')}
+            className={`relative py-2 transition-all cursor-pointer ${
+              activeTab === 'transfers' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            PASES & FICHAJES
+            {activeTab === 'transfers' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('blog')}
             className={`relative py-2 transition-all cursor-pointer ${
-              activeTab === 'blog' ? 'text-white' : 'text-white/60 hover:text-white'
+              activeTab === 'blog' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
             }`}
           >
             BLOG & CRÓNICAS
             {activeTab === 'blog' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00d2b5]"></span>
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
             )}
           </button>
 
@@ -318,26 +347,26 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowOnlineDropdown(!showOnlineDropdown)}
-              className="flex items-center gap-1.5 py-2 text-white/60 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 py-2 text-slate-400 hover:text-white transition-all cursor-pointer"
             >
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 EN LÍNEA
               </span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
 
             {showOnlineDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-56 bg-[#0d0d0d] border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
+              <div className="absolute top-full right-0 mt-2 w-56 bg-[#080d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
                 <button
                   onClick={() => { setActiveTab('online'); setShowOnlineDropdown(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-white/90 hover:bg-white/10 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white flex items-center gap-2"
                 >
                   <Radio className="w-3.5 h-3.5 text-emerald-400" /> Vocalía Digital Live
                 </button>
                 <button
                   onClick={() => { setActiveTab('matches'); setMatchdayFilter('LIVE'); setShowOnlineDropdown(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-white/90 hover:bg-white/10 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white flex items-center gap-2"
                 >
                   <Activity className="w-3.5 h-3.5 text-rose-400" /> Transmisión VAR Local
                 </button>
@@ -350,53 +379,85 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
         <div className="flex md:hidden items-center gap-2">
           <button 
             onClick={() => setActiveTab('inicio')}
-            className="p-2 bg-white/5 rounded-xl text-xs text-white font-bold"
+            className="px-3 py-1.5 bg-white/10 border border-white/15 rounded-xl text-xs text-white font-medium"
           >
             Menú
           </button>
         </div>
       </header>
 
-      {/* ==================== SADCAF HERO BANNER SECTION ==================== */}
-      <div className="relative bg-[#050505] py-20 md:py-28 px-4 overflow-hidden border-b border-white/10">
-        {/* Dynamic Sport Background Image */}
+      {/* ==================== MINIMALIST ELEGANT HERO BANNER SECTION ==================== */}
+      <div className="relative bg-[#03060f] py-14 sm:py-20 px-4 overflow-hidden border-b border-white/10">
+        {/* Dynamic Atmospheric Background with Dark Vignette */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-55 scale-105 transition-all duration-1000"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 scale-105 transition-all duration-1000 mix-blend-screen filter brightness-90 contrast-125"
           style={{ 
             backgroundImage: `url(${currentSportBg})` 
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#050505]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#03060f]/90 via-[#03060f]/80 to-[#03060f]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/20 via-transparent to-transparent pointer-events-none"></div>
 
-        {/* Center Content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-[0.25em] text-white uppercase font-sans">
-            INICIO
+        {/* Center Content: Minimalist, Authoritative & Balanced */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 border border-cyan-500/25 text-cyan-300 text-xs font-medium backdrop-blur-md shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Plataforma Federativa Digital • Temporada 2026</span>
+          </div>
+
+          {/* Main League Headline */}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white font-sans leading-tight">
+            {tenant.name || 'Liga Barrial Pichincha'}
           </h1>
-          <p className="text-lg sm:text-2xl md:text-3xl font-black tracking-[0.2em] text-[#00ff66] uppercase drop-shadow-[0_0_18px_rgba(0,255,102,0.55)]">
-            {tenant.name || 'CAMPEÓN DE CAMPEONES'}
+
+          {/* Subtitle */}
+          <p className="text-sm sm:text-base text-slate-300 font-normal max-w-2xl mx-auto leading-relaxed">
+            Resultados oficiales en tiempo real, tabla de posiciones por categorías, nóminas de clubes y credenciales digitales coleccionables verificadas con código QR.
           </p>
 
-          {/* SADCAF Central Search Input */}
-          <div className="pt-4 max-w-xl mx-auto">
-            <div className="flex items-center bg-white rounded-lg shadow-2xl overflow-hidden p-1 border border-white/20">
+          {/* Feature Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1 text-xs text-slate-300">
+            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" /> {selectedCategory}
+            </span>
+            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
+              <Shield className="w-3.5 h-3.5 text-cyan-400" /> {teams.length} Clubes Afiliados
+            </span>
+            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
+              <Award className="w-3.5 h-3.5 text-emerald-400" /> {players.length} Carnets QR Habilitados
+            </span>
+          </div>
+
+          {/* Minimalist Frosted Search Bar */}
+          <div className="pt-3 max-w-xl mx-auto">
+            <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/15 focus-within:border-cyan-400/80 focus-within:ring-2 focus-within:ring-cyan-500/20 shadow-2xl transition-all p-1.5">
+              <Search className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar equipos, jugadores, estadísticas..."
-                className="w-full px-4 py-3 text-black text-sm outline-none placeholder-gray-500 font-medium"
+                placeholder="Buscar por equipo, jugador o cédula..."
+                className="w-full px-3 py-2.5 bg-transparent text-white text-sm outline-none placeholder-slate-400 font-medium"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors mr-1 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
               <button 
                 onClick={() => setActiveTab('standings')}
-                className="bg-[#00d2b5] hover:bg-[#00bda3] text-black p-3 rounded-md transition-all cursor-pointer font-bold flex items-center justify-center shrink-0"
+                className="bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-bold px-4 py-2 rounded-xl transition-all cursor-pointer text-xs flex items-center gap-1.5 shrink-0 shadow-lg shadow-cyan-500/20"
               >
-                <Search className="w-5 h-5" />
+                <span>Buscar</span>
               </button>
             </div>
             {searchQuery && (
-              <p className="text-xs text-cyan-400 font-bold mt-2">
-                Filtrando resultados para "{searchQuery}"...
+              <p className="text-xs text-cyan-400 font-medium mt-2">
+                Filtrando resultados para: <span className="font-bold">"{searchQuery}"</span>
               </p>
             )}
           </div>
@@ -406,12 +467,14 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
       {/* ==================== MAIN PORTAL DASHBOARD CONTENT ==================== */}
       <main className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
 
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-2 border-b border-white/10 overflow-x-auto pb-2 text-xs font-bold uppercase tracking-wider">
+        {/* Minimalist Segmented Navigation Tabs Bar */}
+        <div className="p-1.5 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-md flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
           <button
             onClick={() => setActiveTab('inicio')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'inicio' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'inicio' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Globe className="w-4 h-4" /> Resumen Portal
@@ -419,8 +482,10 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('standings')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'standings' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'standings' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Trophy className="w-4 h-4" /> Posiciones
@@ -428,8 +493,10 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('matches')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'matches' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'matches' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Calendar className="w-4 h-4" /> Calendario & Marcadores
@@ -437,17 +504,32 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('teams')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'teams' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'teams' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <Users className="w-4 h-4" /> Equipos & Carnets QR
+            <Users className="w-4 h-4" /> Clubes, Jugadores & Carnets
+          </button>
+
+          <button
+            onClick={() => setActiveTab('transfers')}
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'transfers' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <ArrowRightLeft className="w-4 h-4" /> Pases & Transferencias
           </button>
 
           <button
             onClick={() => setActiveTab('blog')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'blog' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'blog' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <FileText className="w-4 h-4" /> Blog & Crónicas
@@ -455,8 +537,10 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('rules')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'rules' ? 'bg-[#00d2b5] text-black font-extrabold shadow-lg shadow-cyan-500/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'rules' 
+                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Shield className="w-4 h-4" /> Reglamento
@@ -464,8 +548,10 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('3d-stadium')}
-            className={`px-5 py-3 rounded-2xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === '3d-stadium' ? 'bg-[#00ff66] text-black font-extrabold shadow-lg shadow-[#00ff66]/20' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5 font-medium'
+            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+              activeTab === '3d-stadium' 
+                ? 'bg-gradient-to-r from-emerald-500/25 via-cyan-500/20 to-emerald-500/15 text-emerald-300 border border-emerald-500/40 shadow-sm font-bold' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Sparkles className="w-4 h-4 text-emerald-400" /> Experiencia 3D
@@ -475,47 +561,51 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
         {/* SECTION: INICIO (SUMMARY OVERVIEW) */}
         {activeTab === 'inicio' && (
           <div className="space-y-8">
-            {/* Top Stat Cards with Increased Numerical Metrics & 3D Interactive Cybernetic Styling */}
+            {/* Minimalist Glass Stat Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="card-3d-interactive cyber-sheen-effect neon-border-cyan bg-gradient-to-b from-[#091522] to-[#040911] p-6 rounded-3xl space-y-1.5 shadow-xl relative overflow-hidden">
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
-                <span className="text-white/60 text-xs font-mono font-bold uppercase tracking-wider block">Equipos Registrados</span>
-                <span className="text-4xl sm:text-5xl font-black text-white block tracking-tight font-mono">{teams.length}</span>
-                <span className="text-xs text-cyan-400 font-bold block flex items-center gap-1.5">
+              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 p-5 rounded-2xl space-y-2 transition-all group">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400 text-xs font-medium">Equipos Registrados</span>
+                  <Shield className="w-4 h-4 text-cyan-400 opacity-80 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-3xl sm:text-4xl font-black text-white block tracking-tight font-mono">{teams.length}</span>
+                <span className="text-xs text-cyan-400 font-medium flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                  100% Verificados
+                  Planteles Oficiales
                 </span>
               </div>
 
-              <div className="card-3d-interactive cyber-sheen-effect neon-border-gold bg-gradient-to-b from-[#181308] to-[#080603] p-6 rounded-3xl space-y-1.5 shadow-xl relative overflow-hidden">
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
-                <span className="text-white/60 text-xs font-mono font-bold uppercase tracking-wider block">Partidos Jugados</span>
-                <span className="text-4xl sm:text-5xl font-black text-amber-400 block tracking-tight font-mono">{matches.length}</span>
-                <span className="text-xs text-amber-400 font-bold block flex items-center gap-1.5">
+              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 hover:border-amber-500/30 p-5 rounded-2xl space-y-2 transition-all group">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400 text-xs font-medium">Partidos Jugados</span>
+                  <Trophy className="w-4 h-4 text-amber-400 opacity-80 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-3xl sm:text-4xl font-black text-amber-400 block tracking-tight font-mono">{matches.length}</span>
+                <span className="text-xs text-amber-400 font-medium flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                   Fase de Grupos
                 </span>
               </div>
 
-              <div className="card-3d-interactive cyber-sheen-effect neon-border-emerald bg-gradient-to-b from-[#091811] to-[#040a07] p-6 rounded-3xl space-y-1.5 shadow-xl relative overflow-hidden">
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
-                <span className="text-white/60 text-xs font-mono font-bold uppercase tracking-wider block">Jugadores Carnetizados</span>
-                <span className="text-4xl sm:text-5xl font-black text-emerald-400 block tracking-tight font-mono">{players.length}</span>
-                <span className="text-xs text-emerald-400 font-bold block flex items-center gap-1.5">
+              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 hover:border-emerald-500/30 p-5 rounded-2xl space-y-2 transition-all group">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400 text-xs font-medium">Jugadores Carnetizados</span>
+                  <Award className="w-4 h-4 text-emerald-400 opacity-80 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-3xl sm:text-4xl font-black text-emerald-400 block tracking-tight font-mono">{players.length}</span>
+                <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Carnet QR 3D
                 </span>
               </div>
 
-              <div className="card-3d-interactive cyber-sheen-effect bg-gradient-to-b from-[#120a1c] to-[#060309] border border-purple-500/30 p-6 rounded-3xl space-y-1.5 shadow-xl relative overflow-hidden">
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
-                <span className="text-white/60 text-xs font-mono font-bold uppercase tracking-wider block">Liga / Torneo</span>
-                <span className="text-xl sm:text-2xl font-black text-[#00ff66] uppercase truncate block tracking-tight drop-shadow-[0_0_12px_rgba(0,255,102,0.4)]">{tenant.name}</span>
-                <span className="text-xs text-purple-300/80 font-bold block flex items-center gap-1.5">
+              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 hover:border-purple-500/30 p-5 rounded-2xl space-y-2 transition-all group">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400 text-xs font-medium">Liga / Torneo</span>
+                  <Globe className="w-4 h-4 text-purple-400 opacity-80 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="text-xl sm:text-2xl font-bold text-white truncate block tracking-tight">{tenant.name}</span>
+                <span className="text-xs text-purple-300 font-medium flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
                   Licencia Deporverso
                 </span>
@@ -525,17 +615,15 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             {/* Quick Layout Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column: Top Standings Preview */}
-              <div className="lg:col-span-2 bg-gradient-to-b from-[#09111c] to-[#040810] rounded-3xl border border-cyan-500/30 p-7 space-y-5 shadow-2xl relative overflow-hidden card-3d-interactive">
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
+              <div className="lg:col-span-2 bg-slate-900/60 backdrop-blur-md rounded-3xl border border-white/10 p-6 sm:p-7 space-y-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <h3 className="font-bold text-white text-lg flex items-center gap-2.5">
+                  <h3 className="font-bold text-white text-base sm:text-lg flex items-center gap-2.5">
                     <Trophy className="w-5 h-5 text-amber-400" />
                     Líderes de Clasificación — {selectedCategory}
                   </h3>
                   <button
                     onClick={() => setActiveTab('standings')}
-                    className="text-xs text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     Ver Tabla Completa <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -544,7 +632,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-white/50 border-b border-white/10 font-bold uppercase tracking-wider font-mono">
+                      <tr className="text-slate-400 border-b border-white/10 font-bold uppercase tracking-wider font-mono">
                         <th className="pb-3">Pos</th>
                         <th className="pb-3">Equipo</th>
                         <th className="pb-3 text-center">PJ</th>
@@ -557,13 +645,13 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                       {standings.slice(0, 5).map((row, idx) => (
                         <tr key={row.team.id} className="hover:bg-white/5 transition-colors">
                           <td className="py-3.5 font-bold font-mono text-cyan-400">#{idx + 1}</td>
-                          <td className="py-3.5 font-bold text-white flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full shrink-0 shadow-[0_0_8px_currentColor]" style={{ backgroundColor: row.team.primary_color, color: row.team.primary_color }}></span>
+                          <td className="py-3.5 font-bold text-white flex items-center gap-2.5">
+                            <span className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: row.team.primary_color }}></span>
                             <span>{row.team.name}</span>
                           </td>
-                          <td className="py-3.5 text-center font-medium font-mono text-white/90">{row.played}</td>
+                          <td className="py-3.5 text-center font-medium font-mono text-slate-300">{row.played}</td>
                           <td className="py-3.5 text-center text-emerald-400 font-bold font-mono">{row.won}</td>
-                          <td className="py-3.5 text-center font-medium font-mono text-white">{row.diff > 0 ? `+${row.diff}` : row.diff}</td>
+                          <td className="py-3.5 text-center font-medium font-mono text-slate-300">{row.diff > 0 ? `+${row.diff}` : row.diff}</td>
                           <td className="py-3.5 text-right font-black text-cyan-400 text-base font-mono">{row.pts}</td>
                         </tr>
                       ))}
@@ -574,29 +662,27 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
               {/* Right Column: Live Match Widget & Fan Registration */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-b from-[#160a0a] to-[#070303] p-7 rounded-3xl border border-red-500/30 space-y-4 shadow-2xl relative overflow-hidden card-3d-interactive">
-                  <div className="corner-bracket-tl"></div>
-                  <div className="corner-bracket-br"></div>
+                <div className="bg-slate-900/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-rose-400 flex items-center gap-1.5 font-mono">
-                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span className="text-xs font-semibold uppercase text-rose-400 flex items-center gap-1.5 font-mono">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                       Próximo Encuentro
                     </span>
-                    <span className="text-[11px] text-white/50 font-mono">Cancha Principal</span>
+                    <span className="text-[11px] text-slate-400 font-mono">Cancha Principal</span>
                   </div>
 
-                  <div className="bg-black/60 p-5 rounded-2xl border border-white/10 text-center space-y-3">
+                  <div className="bg-slate-950/60 p-4 rounded-2xl border border-white/5 text-center space-y-2.5">
                     <div className="flex items-center justify-between text-sm font-bold">
-                      <span className="text-white truncate">{teams[0]?.name || 'Barcelona S.C.'}</span>
-                      <span className="text-amber-400 font-black text-base font-mono bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/30">15:30</span>
-                      <span className="text-white truncate">{teams[1]?.name || 'Liga de Quito'}</span>
+                      <span className="text-white truncate max-w-[110px]">{teams[0]?.name || 'Barcelona S.C.'}</span>
+                      <span className="text-amber-400 font-bold text-xs font-mono bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/25">15:30</span>
+                      <span className="text-white truncate max-w-[110px]">{teams[1]?.name || 'Liga de Quito'}</span>
                     </div>
-                    <p className="text-xs text-white/50 font-normal">Vocalía asignada por mesa de control digital Deporverso.</p>
+                    <p className="text-xs text-slate-400 font-normal">Vocalía asignada por mesa de control digital Deporverso.</p>
                   </div>
 
                   <button
                     onClick={() => setActiveTab('matches')}
-                    className="w-full py-3 bg-red-500/15 hover:bg-red-500/25 text-red-300 hover:text-red-200 font-bold text-xs rounded-xl border border-red-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                    className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white font-semibold text-xs rounded-xl border border-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
                     <span>Ver Todo el Calendario</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -604,22 +690,20 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                 </div>
 
                 {/* Fan Action Card */}
-                <div className="bg-gradient-to-br from-[#0c1825] via-[#07101a] to-[#04080e] p-7 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl relative overflow-hidden card-3d-interactive cyber-sheen-effect">
-                  <div className="corner-bracket-tl"></div>
-                  <div className="corner-bracket-br"></div>
+                <div className="bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-slate-950/90 p-6 rounded-3xl border border-cyan-500/30 space-y-3.5 shadow-xl relative overflow-hidden">
                   <h4 className="font-bold text-white text-base flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-cyan-400 fill-cyan-400 animate-pulse" />
+                    <Heart className="w-4 h-4 text-cyan-400 fill-cyan-400" />
                     ¿Eres Hinchada de la Liga?
                   </h4>
-                  <p className="text-xs text-white/60 font-normal leading-relaxed">
-                    Regístrate como Fan Oficial para interactuar, votar por el jugador del partido y compartir resultados por WhatsApp.
+                  <p className="text-xs text-slate-300 font-normal leading-relaxed">
+                    Regístrate como Fan Oficial para interactuar, votar por el jugador del partido y compartir resultados.
                   </p>
                   <button
                     onClick={() => {
                       setFanModalAction('Registrarse como Hinchada Oficial');
                       setShowFanAuthModal(true);
                     }}
-                    className="w-full py-3 bg-[#00d2b5] hover:bg-[#00bda3] text-black font-extrabold text-xs rounded-xl shadow-lg transition-all cursor-pointer"
+                    className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/15 transition-all cursor-pointer"
                   >
                     {fanUser ? `Iniciado como ${fanUser.name}` : 'Unirse como Fan'}
                   </button>
@@ -783,44 +867,33 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
         {/* SECTION: TEAMS & CARNETIZACIÓN QR */}
         {activeTab === 'teams' && (
-          <div className="bg-[#0d0d0d] rounded-2xl border border-white/10 p-7 space-y-6 shadow-2xl">
-            <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Award className="w-6 h-6 text-amber-400" />
-                  Carnets Coleccionables & Nómina Digital de Jugadores
-                </h2>
-                <p className="text-xs text-[#A0A0A0] font-normal mt-1">Tarjetas coleccionables con fotografía, atributos, C.I. y código QR de verificación.</p>
-              </div>
+          <ClubAndRosterDetail
+            tenant={tenant}
+            sport={sport}
+            teams={teams}
+            players={players}
+            matches={matches}
+            searchQuery={searchQuery}
+            onSharePlayer={(pName, tName) => handleShareMatch(`Ficha de ${pName} (${tName}) en ${tenant.name}`)}
+            onRequestTransfer={(player) => {
+              setPlayerForTransfer(player);
+              setActiveTab('transfers');
+            }}
+            onOpenTransfers={() => setActiveTab('transfers')}
+          />
+        )}
 
-              <span className="bg-amber-500/20 text-amber-300 text-xs font-bold px-3.5 py-1.5 rounded-xl border border-amber-500/30 self-start sm:self-auto">
-                {players.length} Carnets Habilitados
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 py-4">
-              {players.filter(p => p.full_name.toLowerCase().includes(searchQuery.toLowerCase())).map((p) => {
-                const pTeam = teams.find(t => t.id === p.team_id);
-                return (
-                  <div key={p.id} className="flex flex-col items-center gap-3">
-                    <TradingCardCarnet 
-                      player={p}
-                      team={pTeam}
-                      tenant={tenant}
-                      sport={sport}
-                      size="md"
-                    />
-                    <button
-                      onClick={() => setSelectedPlayerForQr(p)}
-                      className="py-2 px-4 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 text-xs font-bold rounded-xl border border-amber-500/30 flex items-center gap-1.5 transition-all cursor-pointer shadow-lg"
-                    >
-                      <QrCode className="w-3.5 h-3.5" /> Ver QR / Ampliar Carnet
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        {/* SECTION: GESTIÓN DE PASES Y TRANSFERENCIAS DIGITALES */}
+        {activeTab === 'transfers' && (
+          <PlayerTransfersManager
+            tenant={tenant}
+            sport={sport}
+            teams={teams}
+            players={players}
+            onPlayerTransferred={onPlayerTransferred}
+            onRequestTransferForPlayer={playerForTransfer}
+            onCloseRequestModal={() => setPlayerForTransfer(null)}
+          />
         )}
 
         {/* SECTION: BLOG & CRÓNICAS IA */}

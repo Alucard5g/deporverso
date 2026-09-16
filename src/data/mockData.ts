@@ -59,13 +59,14 @@ export const INITIAL_SPORTS: Sport[] = [
     code: 'PADEL',
     name: 'Pádel',
     icon: 'activity',
-    description: 'Formato de juegos (15-30-40) y sets a 6 con Tie-Break',
+    description: 'Formato internacional FIP: juegos (15-30-40), punto de oro, sets a 6 y Tie-Break',
     sport_rules: {
       periods: 3,
       sets_to_win: 2,
       games_per_set: 6,
       players_per_team: 2,
-      scoring_modes: [{ type: 'GAME', points: 1, label: 'Juego' }]
+      scoring_modes: [{ type: 'GAME', points: 1, label: 'Juego' }],
+      positions: ['Revés', 'Drive']
     }
   },
   {
@@ -73,13 +74,112 @@ export const INITIAL_SPORTS: Sport[] = [
     code: 'FUTSAL',
     name: 'Fútsal / Microfútbol',
     icon: 'shield',
-    description: 'Reglas de 5 contra 5 con tarjeta azul y faltas acumuladas',
+    description: 'Reglas de 5 contra 5 con tarjeta azul y faltas acumuladas (límite 5)',
     sport_rules: {
       periods: 2,
       period_duration_minutes: 20,
       players_per_team: 5,
       scoring_modes: [{ type: 'GOAL', points: 1, label: 'Gol' }],
       accumulated_fouls_limit: 5
+    }
+  },
+  {
+    id: 's6',
+    code: 'BEISBOL',
+    name: 'Béisbol',
+    icon: 'circle-dot',
+    description: '9 innings reglamentarios, conteo de strikes/bolas/outs, control de pitch count y carreras',
+    sport_rules: {
+      periods: 9, // Innings
+      players_per_team: 9,
+      scoring_modes: [
+        { type: 'RUN', points: 1, label: 'Carrera (+1)' },
+        { type: 'HOME_RUN', points: 1, label: 'Cuadrangular (+1 Carrera Directa)' }
+      ],
+      positions: ['Pitcher', 'Catcher', '1ra Base', '2da Base', '3ra Base', 'Shortstop', 'Left Field', 'Center Field', 'Right Field'],
+      has_overtime: true // Extra-innings
+    }
+  },
+  {
+    id: 's7',
+    code: 'SOFTBOL',
+    name: 'Sóftbol',
+    icon: 'target',
+    description: '7 innings con lanzamiento molinete, categorías Femenino, Masculino y Slowpitch',
+    sport_rules: {
+      periods: 7, // 7 innings
+      players_per_team: 10,
+      scoring_modes: [
+        { type: 'RUN', points: 1, label: 'Carrera (+1)' },
+        { type: 'HOME_RUN', points: 1, label: 'Home Run' }
+      ],
+      has_mercy_rule: true // Diferencia de 10 carreras
+    }
+  },
+  {
+    id: 's8',
+    code: 'FUTBOL_AMERICANO',
+    name: 'Fútbol Americano / Flag',
+    icon: 'award',
+    description: '4 cuartos con sistema de 4 downs, yardas, Touchdown (6 pts), FG (3 pts) y conversión',
+    sport_rules: {
+      periods: 4,
+      period_duration_minutes: 12,
+      players_per_team: 11, // o 5/7 para Flag Football
+      scoring_modes: [
+        { type: 'TOUCHDOWN', points: 6, label: 'Touchdown (+6)' },
+        { type: 'FIELD_GOAL', points: 3, label: 'Gol de Campo (+3)' },
+        { type: 'EXTRA_POINT_1', points: 1, label: 'Punto Extra (+1)' },
+        { type: 'TWO_POINT_CONV', points: 2, label: 'Conversión (+2)' },
+        { type: 'SAFETY', points: 2, label: 'Safety (+2)' }
+      ],
+      has_overtime: true
+    }
+  },
+  {
+    id: 's9',
+    code: 'ARTES_MARCIALES',
+    name: 'Artes Marciales / MMA / Box',
+    icon: 'swords',
+    description: 'Combates por asaltos (rounds), tarjetas de jueces (sistema 10-9 Must), pesajes y categorías',
+    sport_rules: {
+      periods: 3, // 3 a 5 rounds
+      period_duration_minutes: 5,
+      players_per_team: 1,
+      scoring_modes: [
+        { type: 'ROUND_10_9', points: 10, label: 'Ronda Dominante (10-9)' },
+        { type: 'KO_TKO', points: 0, label: 'Victoria por KO / TKO' },
+        { type: 'SUBMISSION', points: 0, label: 'Victoria por Sumisión' }
+      ],
+      categories: ['Mosca', 'Gallo', 'Pluma', 'Ligero', 'Wélter', 'Medio', 'Pesado']
+    }
+  },
+  {
+    id: 's10',
+    code: 'TENNIS',
+    name: 'Tenis (Singles & Dobles)',
+    icon: 'circle',
+    description: 'Sets y games (15-30-40-ventaja), Tie-break a 7 y súper tie-break a 10 puntos',
+    sport_rules: {
+      periods: 3, // Sets
+      sets_to_win: 2,
+      games_per_set: 6,
+      players_per_team: 1, // o 2 para dobles
+      scoring_modes: [{ type: 'GAME', points: 1, label: 'Game' }]
+    }
+  },
+  {
+    id: 's11',
+    code: 'VOLEIBOL',
+    name: 'Voleibol Sala / Playa',
+    icon: 'volleyball',
+    description: '3 de 5 sets a 25 puntos (quinto a 15), rotaciones reglamentarias y líbero',
+    sport_rules: {
+      periods: 5,
+      sets_to_win: 3,
+      points_per_set: 25,
+      players_per_team: 6,
+      scoring_modes: [{ type: 'POINT', points: 1, label: 'Punto' }]
     }
   }
 ];

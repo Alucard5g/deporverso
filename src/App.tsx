@@ -22,13 +22,17 @@ import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket
 import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame } from 'lucide-react';
 import { testConnection } from './lib/firebase';
 import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
+import { AffiliationModal } from './components/Affiliation/AffiliationModal';
+import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('welcome');
   const [userRole, setUserRole] = useState<UserRole>('LEAGUE_ADMIN');
   const [isSuperAdminAuth, setIsSuperAdminAuth] = useState<boolean>(false);
   const [showSuperAdminModal, setShowSuperAdminModal] = useState<boolean>(false);
+  const [showAffiliationModal, setShowAffiliationModal] = useState<boolean>(false);
   const [adminToast, setAdminToast] = useState<string | null>(null);
+  const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
 
   // Escucha global de teclado: Al teclear "1326" en cualquier parte de la página,
   // se activa el modo administrador y se despliega el panel maestro con CRM confidencial
@@ -57,6 +61,7 @@ export default function App() {
       if (keyBuffer.endsWith('1326')) {
         setIsSuperAdminAuth(true);
         setUserRole('SUPER_ADMIN');
+        setIsPlatformUnlocked(true);
         setActiveTab('master-admin');
         setAdminToast('⚡ Acceso verificado: ¡Modo Administrador y CRM activados!');
         setTimeout(() => setAdminToast(null), 4500);
@@ -235,17 +240,46 @@ export default function App() {
     });
   };
 
+  const handlePlayerTransferred = (playerId: string, newTeamId: string, newJerseyNumber?: number) => {
+    setPlayers(prev => prev.map(p => {
+      if (p.id === playerId) {
+        return {
+          ...p,
+          team_id: newTeamId,
+          jersey_number: newJerseyNumber !== undefined ? newJerseyNumber : p.jersey_number
+        };
+      }
+      return p;
+    }));
+  };
+
+  const handleEnterFullPlatform = (targetTab: string = 'league') => {
+    setIsPlatformUnlocked(true);
+    setActiveTab(targetTab === 'welcome' ? 'league' : targetTab);
+  };
+
+  const handleReturnToScrollytelling = () => {
+    setIsPlatformUnlocked(false);
+    setActiveTab('welcome');
+  };
+
   const handleTabChange = (tab: string) => {
+    if (tab === 'welcome') {
+      handleReturnToScrollytelling();
+      return;
+    }
     if ((tab === 'master-admin' || tab === 'master-admin-crm' || tab === 'sql-viewer') && !isSuperAdminAuth) {
       setShowSuperAdminModal(true);
       return;
     }
+    setIsPlatformUnlocked(true);
     setActiveTab(tab);
   };
 
   const handleSuperAdminSuccess = () => {
     setIsSuperAdminAuth(true);
     setUserRole('SUPER_ADMIN');
+    setIsPlatformUnlocked(true);
     setActiveTab('master-admin');
     setAdminToast('⚡ Acceso SuperAdmin Autorizado');
     setTimeout(() => setAdminToast(null), 4000);
@@ -254,13 +288,14 @@ export default function App() {
   const handleLogoutSuperAdmin = () => {
     setIsSuperAdminAuth(false);
     setUserRole('LEAGUE_ADMIN');
+    setIsPlatformUnlocked(false);
     setActiveTab('welcome');
     setAdminToast('🔒 Sesión cerrada: Modo Administrador desactivado');
     setTimeout(() => setAdminToast(null), 3000);
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
       <SuperAdminAuthModal
         isOpen={showSuperAdminModal}
         onClose={() => setShowSuperAdminModal(false)}
@@ -275,76 +310,23 @@ export default function App() {
         </div>
       )}
 
-      {/* Left Column Vertical Sidebar Navigation */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-        userRole={userRole}
-        setUserRole={setUserRole}
-        tenants={tenants}
-        activeTenantId={activeTenantId}
-        setActiveTenantId={setActiveTenantId}
-        activeSport={activeSport}
-        setActiveSport={setActiveSport}
-        isSuperAdminAuth={isSuperAdminAuth}
-        onOpenSuperAdminAuth={() => setShowSuperAdminModal(true)}
-        onLogoutSuperAdmin={handleLogoutSuperAdmin}
+      {/* MODAL DE AFILIACIÓN AL DEPORVERSO */}
+      <AffiliationModal
+        isOpen={showAffiliationModal}
+        onClose={() => setShowAffiliationModal(false)}
+        onAddTenant={handleAddTenant}
+        initialSport={activeSport}
       />
 
-      {/* Right Column Layout: TopHeader + Main Content Scrollable Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0 bg-[#050505]">
-        {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (ACTIVO CON 1326) */}
-        {isSuperAdminAuth && (
-          <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-              </span>
-              <span className="text-amber-300 font-black tracking-wide uppercase flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-amber-400" />
-                Modo Administrador Global Activo
-              </span>
-              <span className="hidden md:inline text-slate-400 text-[11px]">
-                • Panel Maestro y CRM Confidencial desplegados
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setActiveTab('master-admin')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'master-admin'
-                    ? 'bg-amber-500 text-black font-extrabold shadow-sm'
-                    : 'text-amber-300 hover:text-white bg-amber-500/10 border border-amber-500/30'
-                }`}
-              >
-                Panel Maestro
-              </button>
-              <button
-                onClick={() => setActiveTab('master-admin-crm')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === 'master-admin-crm'
-                    ? 'bg-indigo-600 text-white font-extrabold shadow-sm'
-                    : 'text-indigo-300 hover:text-white bg-indigo-500/10 border border-indigo-500/30'
-                }`}
-              >
-                <Users className="w-3 h-3 text-indigo-400" />
-                CRM Ligas (Confidencial)
-              </button>
-              <button
-                onClick={handleLogoutSuperAdmin}
-                className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 hover:border-rose-400 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-1"
-                title="Cerrar sesión de administrador y ocultar funciones"
-              >
-                <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                <span>Salir de Modo Admin</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        <TopHeader
+      {/* Left Column Vertical Sidebar Navigation (Panel Imagen 2) - Se oculta en inicio y se despliega al presionar el botón */}
+      <div
+        className={`transition-all duration-700 ease-in-out shrink-0 z-40 ${
+          isPlatformUnlocked
+            ? 'translate-x-0 w-full lg:w-64 opacity-100'
+            : '-translate-x-full w-0 max-w-0 overflow-hidden opacity-0 pointer-events-none fixed lg:static'
+        }`}
+      >
+        <Navbar
           activeTab={activeTab}
           setActiveTab={handleTabChange}
           userRole={userRole}
@@ -354,23 +336,121 @@ export default function App() {
           setActiveTenantId={setActiveTenantId}
           activeSport={activeSport}
           setActiveSport={setActiveSport}
-          onOpenOnboarding={() => setActiveTab('welcome')}
           isSuperAdminAuth={isSuperAdminAuth}
           onOpenSuperAdminAuth={() => setShowSuperAdminModal(true)}
           onLogoutSuperAdmin={handleLogoutSuperAdmin}
         />
+      </div>
 
-        {/* Main App Content View Container */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          {activeTab === 'welcome' && (
-          <WelcomePage
-            onNavigateTab={handleTabChange}
-            onAddTenant={handleAddTenant}
-            setUserRole={setUserRole}
-            isSuperAdminAuth={isSuperAdminAuth}
-            onSuperAdminAuthSuccess={handleSuperAdminSuccess}
+      {/* Right Column Layout: TopHeader + Main Content Scrollable Area */}
+      <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0 bg-[#030610] relative">
+        {/* Deporverso Ambient Stadium Texture */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+          <img
+            src={deporversoDarkBg}
+            alt=""
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center opacity-20 filter brightness-90 contrast-125"
           />
-        )}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#030610]/95 via-[#030610]/85 to-[#030610]/95" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#030610]/60 to-[#030610]" />
+        </div>
+
+        <div className="relative z-10 flex-1 flex flex-col min-h-full">
+          {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (ACTIVO CON 1326) */}
+          {isSuperAdminAuth && isPlatformUnlocked && (
+            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-2.5 w-2.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                </span>
+                <span className="text-amber-300 font-black tracking-wide uppercase flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-amber-400" />
+                  Modo Administrador Global Activo
+                </span>
+                <span className="hidden md:inline text-slate-400 text-[11px]">
+                  • Panel Maestro y CRM Confidencial desplegados
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('master-admin')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeTab === 'master-admin'
+                      ? 'bg-amber-500 text-black font-extrabold shadow-sm'
+                      : 'text-amber-300 hover:text-white bg-amber-500/10 border border-amber-500/30'
+                  }`}
+                >
+                  Panel Maestro
+                </button>
+                <button
+                  onClick={() => setActiveTab('master-admin-crm')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'master-admin-crm'
+                      ? 'bg-indigo-600 text-white font-extrabold shadow-sm'
+                      : 'text-indigo-300 hover:text-white bg-indigo-500/10 border border-indigo-500/30'
+                  }`}
+                >
+                  <Users className="w-3 h-3 text-indigo-400" />
+                  CRM Ligas (Confidencial)
+                </button>
+                <button
+                  onClick={handleLogoutSuperAdmin}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 hover:border-rose-400 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-1"
+                  title="Cerrar sesión de administrador y ocultar funciones"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Salir de Modo Admin</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TopHeader (Panel Imagen 1) - Se oculta en inicio y se despliega al presionar el botón */}
+          <div
+            className={`transition-all duration-700 ease-in-out z-30 shrink-0 ${
+              isPlatformUnlocked
+                ? 'translate-y-0 opacity-100 max-h-36'
+                : '-translate-y-full opacity-0 max-h-0 overflow-hidden pointer-events-none'
+            }`}
+          >
+            <TopHeader
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+              userRole={userRole}
+              setUserRole={setUserRole}
+              tenants={tenants}
+              activeTenantId={activeTenantId}
+              setActiveTenantId={setActiveTenantId}
+              activeSport={activeSport}
+              setActiveSport={setActiveSport}
+              onOpenOnboarding={() => setShowAffiliationModal(true)}
+              isSuperAdminAuth={isSuperAdminAuth}
+              onOpenSuperAdminAuth={() => setShowSuperAdminModal(true)}
+              onLogoutSuperAdmin={handleLogoutSuperAdmin}
+              onReturnToScrollytelling={handleReturnToScrollytelling}
+            />
+          </div>
+
+          {/* Main App Content View Container */}
+          <main className={`flex-1 w-full min-w-0 transition-all duration-500 ${
+            isPlatformUnlocked
+              ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8'
+              : 'p-0 w-full'
+          }`}>
+            {activeTab === 'welcome' && (
+              <WelcomePage
+                onNavigateTab={handleEnterFullPlatform}
+                onEnterFullPlatform={handleEnterFullPlatform}
+                onOpenAffiliation={() => setShowAffiliationModal(true)}
+                onAddTenant={handleAddTenant}
+                setUserRole={setUserRole}
+                isSuperAdminAuth={isSuperAdminAuth}
+                onSuperAdminAuthSuccess={handleSuperAdminSuccess}
+              />
+            )}
 
         {activeTab === 'calendar' && (
           <MultiSportCalendar
@@ -428,6 +508,7 @@ export default function App() {
             teams={teams}
             players={players}
             publishedChronicles={publishedChronicles}
+            onPlayerTransferred={handlePlayerTransferred}
           />
         )}
 
@@ -624,6 +705,22 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* MODAL OFICIAL DE AFILIACIÓN DE LIGAS */}
+      {showAffiliationModal && (
+        <AffiliationModal
+          isOpen={showAffiliationModal}
+          onClose={() => setShowAffiliationModal(false)}
+          onAffiliationSuccess={async (newTenant) => {
+            await handleAddTenant(newTenant);
+            setShowAffiliationModal(false);
+            setUserRole('LEAGUE_ADMIN');
+            setActiveTab('league');
+          }}
+          initialSport={activeSport}
+        />
+      )}
+        </div>
       </div>
     </div>
   );

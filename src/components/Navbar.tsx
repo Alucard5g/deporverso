@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Trophy, Shield, Users, Video, FileText, Zap, Cpu, Database, MessageSquare, 
   Home, ChevronLeft, ChevronRight, Menu, X, Sparkles, Award, Lock, LogOut, Glasses,
-  Calendar
+  Calendar, Presentation
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 
@@ -93,18 +93,58 @@ export const SPORT_THEMES: Record<SportCode, {
     label: 'Piso Flotante'
   },
   BEISBOL: {
-    name: 'Béisbol / Sóftbol',
+    name: 'Béisbol',
     icon: '⚾',
     accentColor: 'amber',
     glowClass: 'shadow-amber-500/20',
     badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
     borderClass: 'border-amber-500/40',
     bgGradient: 'from-amber-600 via-yellow-600 to-orange-700',
-    label: 'Diamante / Innings'
+    label: 'Diamante / 9 Innings'
+  },
+  SOFTBOL: {
+    name: 'Sóftbol',
+    icon: '🥎',
+    accentColor: 'yellow',
+    glowClass: 'shadow-yellow-500/20',
+    badgeClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
+    borderClass: 'border-yellow-500/40',
+    bgGradient: 'from-yellow-500 via-amber-600 to-orange-600',
+    label: 'Molinete & Slowpitch'
+  },
+  FUTBOL_AMERICANO: {
+    name: 'Fútbol Americano',
+    icon: '🏈',
+    accentColor: 'orange',
+    glowClass: 'shadow-orange-500/20',
+    badgeClass: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
+    borderClass: 'border-orange-500/40',
+    bgGradient: 'from-orange-600 via-red-600 to-amber-700',
+    label: 'Downs & Tackle / Flag'
+  },
+  ARTES_MARCIALES: {
+    name: 'Artes Marciales / MMA',
+    icon: '🥋',
+    accentColor: 'rose',
+    glowClass: 'shadow-rose-500/20',
+    badgeClass: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    borderClass: 'border-rose-500/40',
+    bgGradient: 'from-rose-600 via-red-600 to-purple-700',
+    label: 'Octágono & Tatami'
+  },
+  TENNIS: {
+    name: 'Tenis',
+    icon: '🎾',
+    accentColor: 'emerald',
+    glowClass: 'shadow-emerald-500/20',
+    badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    borderClass: 'border-emerald-500/40',
+    bgGradient: 'from-emerald-500 via-teal-600 to-green-700',
+    label: 'Pista Abierta & ATP'
   },
   OTROS: {
-    name: 'Artes Marciales / Otros',
-    icon: '🥊',
+    name: 'Multideporte / Otros',
+    icon: '🏆',
     accentColor: 'purple',
     glowClass: 'shadow-purple-500/20',
     badgeClass: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
@@ -137,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     {
       title: 'Principal',
       items: [
-        { id: 'welcome', label: 'Inicio / Bienvenida', icon: Home, color: 'text-emerald-400' },
+        { id: 'welcome', label: 'Presentación Scrollytelling', icon: Presentation, color: 'text-cyan-400' },
       ]
     },
     {

@@ -99,6 +99,55 @@
         "status": { "type": "string" },
         "ping": { "type": "string" }
       }
+    },
+    "vocalia_report": {
+      "title": "VocaliaReport",
+      "description": "Live match vocalia digital report tied to a tenant subdomain",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "matchId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "subdomain": { "type": "string" },
+        "domain": { "type": "string" },
+        "sportCode": { "type": "string" },
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "homeScore": { "type": "number" },
+        "awayScore": { "type": "number" },
+        "status": { "type": "string" },
+        "vocalName": { "type": "string" },
+        "refereeName": { "type": "string" },
+        "savedAt": { "type": "string" }
+      },
+      "required": ["id", "matchId", "tenantId", "status"]
+    },
+    "player_transfer": {
+      "title": "PlayerTransfer",
+      "description": "Official player transfer and clearance pass between league clubs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "playerId": { "type": "string" },
+        "playerName": { "type": "string" },
+        "playerCedula": { "type": "string" },
+        "originTeamId": { "type": "string" },
+        "originTeamName": { "type": "string" },
+        "destinationTeamId": { "type": "string" },
+        "destinationTeamName": { "type": "string" },
+        "transferType": { "type": "string", "enum": ["DEFINITIVO", "PRESTAMO", "LIBRE", "INTERLIGA"] },
+        "status": { "type": "string", "enum": ["PENDIENTE_ORIGEN", "PENDIENTE_DESTINO", "PENDIENTE_LIGA", "APROBADO", "RECHAZADO"] },
+        "transferFee": { "type": "number" },
+        "requestDate": { "type": "string" },
+        "approvalDate": { "type": "string" },
+        "originApproved": { "type": "boolean" },
+        "destinationApproved": { "type": "boolean" },
+        "leagueApproved": { "type": "boolean" },
+        "resolutionNumber": { "type": "string" },
+        "certificateCode": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "playerId", "originTeamId", "destinationTeamId", "status"]
     }
   },
   "firestore": {
@@ -106,9 +155,17 @@
       "schema": "tenant",
       "description": "Tenant league profile and configurations"
     },
+    "/transfers/{transferId}": {
+      "schema": "player_transfer",
+      "description": "Official player transfer certificates, multi-party approvals, and audit trail"
+    },
     "/matches/{matchId}": {
       "schema": "match",
       "description": "Matches scheduled and played across all sports"
+    },
+    "/vocalia_reports/{reportId}": {
+      "schema": "vocalia_report",
+      "description": "Official live digital vocalia reports detailed by league subdomain and persisted in real time"
     },
     "/players/{playerId}": {
       "schema": "player",

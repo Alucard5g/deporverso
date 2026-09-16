@@ -20,6 +20,7 @@ interface TopHeaderProps {
   isSuperAdminAuth?: boolean;
   onOpenSuperAdminAuth?: () => void;
   onLogoutSuperAdmin?: () => void;
+  onReturnToScrollytelling?: () => void;
 }
 
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
@@ -52,7 +53,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onOpenOnboarding,
   isSuperAdminAuth,
   onOpenSuperAdminAuth,
-  onLogoutSuperAdmin
+  onLogoutSuperAdmin,
+  onReturnToScrollytelling
 }) => {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
@@ -307,6 +309,18 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <span className="text-white/70">Firestore:</span>
           <span className="text-amber-400 font-mono text-[10px]">thin-aloe-bbndl</span>
         </div>
+
+        {/* BOTÓN VOLVER A PRESENTACIÓN SCROLLYTELLING */}
+        {onReturnToScrollytelling && (
+          <button
+            onClick={onReturnToScrollytelling}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
+            title="Volver a la Presentación Cinematográfica Scrollytelling"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden md:inline">Ver Presentación 3D</span>
+          </button>
+        )}
 
         {/* BOTÓN CREAR LIGA DIRECTO */}
         <button

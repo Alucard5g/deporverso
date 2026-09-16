@@ -1,0 +1,146 @@
+[
+  {
+    "id": "futbol",
+    "name": "FÚTBOL",
+    "icon": "⚽",
+    "url": "/sports/futbol.webp"
+  },
+  {
+    "id": "basquetbol",
+    "name": "BÁSQUETBOL",
+    "icon": "🏀",
+    "url": "/sports/basquetbol.webp"
+  },
+  {
+    "id": "voleibol",
+    "name": "VOLEIBOL",
+    "icon": "🏐",
+    "url": "/sports/voleibol.webp"
+  },
+  {
+    "id": "futsal",
+    "name": "FUTSAL",
+    "icon": "⚡",
+    "url": "/sports/futsal.webp"
+  },
+  {
+    "id": "tenis",
+    "name": "TENIS",
+    "icon": "🎾",
+    "url": "/sports/tenis.webp"
+  },
+  {
+    "id": "atletismo",
+    "name": "ATLETISMO",
+    "icon": "🏃",
+    "url": "/sports/atletismo.webp"
+  },
+  {
+    "id": "boxeo",
+    "name": "BOXEO",
+    "icon": "🥊",
+    "url": "/sports/boxeo.webp"
+  },
+  {
+    "id": "beisbol",
+    "name": "BÉISBOL",
+    "icon": "⚾",
+    "url": "/sports/beisbol.webp"
+  },
+  {
+    "id": "natacion",
+    "name": "NATACIÓN",
+    "icon": "🏊",
+    "url": "/sports/natacion.webp"
+  },
+  {
+    "id": "ciclismo",
+    "name": "CICLISMO",
+    "icon": "🚴",
+    "url": "/sports/ciclismo.webp"
+  },
+  {
+    "id": "padel",
+    "name": "PÁDEL",
+    "icon": "🎾",
+    "url": "/sports/padel.webp"
+  },
+  {
+    "id": "rugby",
+    "name": "RUGBY",
+    "icon": "🏉",
+    "url": "/sports/rugby.webp"
+  },
+  {
+    "id": "balonmano",
+    "name": "BALONMANO",
+    "icon": "🤾",
+    "url": "/sports/balonmano.webp"
+  },
+  {
+    "id": "gimnasia",
+    "name": "GIMNASIA",
+    "icon": "🤸",
+    "url": "/sports/gimnasia.webp"
+  },
+  {
+    "id": "hockey",
+    "name": "HOCKEY",
+    "icon": "🏑",
+    "url": "/sports/hockey.webp"
+  },
+  {
+    "id": "tenis_mesa",
+    "name": "TENIS MESA",
+    "icon": "🏓",
+    "url": "/sports/tenis_mesa.webp"
+  },
+  {
+    "id": "taekwondo",
+    "name": "TAEKWONDO",
+    "icon": "🥋",
+    "url": "/sports/taekwondo.webp"
+  },
+  {
+    "id": "skateboarding",
+    "name": "SKATE",
+    "icon": "🛹",
+    "url": "/sports/skateboarding.webp"
+  },
+  {
+    "id": "halterofilia",
+    "name": "PESAS",
+    "icon": "🏋️",
+    "url": "/sports/halterofilia.webp"
+  },
+  {
+    "id": "badminton",
+    "name": "BÁDMINTON",
+    "icon": "🏸",
+    "url": "/sports/badminton.webp"
+  },
+  {
+    "id": "voleibol_playa",
+    "name": "VOLEY PLAYA",
+    "icon": "🏖️",
+    "url": "/sports/voleibol_playa.webp"
+  },
+  {
+    "id": "crossfit",
+    "name": "CROSSFIT",
+    "icon": "🔥",
+    "url": "/sports/crossfit.webp"
+  },
+  {
+    "id": "esgrima",
+    "name": "ESGRIMA",
+    "icon": "🤺",
+    "url": "/sports/esgrima.webp"
+  },
+  {
+    "id": "tiro_arco",
+    "name": "TIRO ARCO",
+    "icon": "🏹",
+    "url": "/sports/tiro_arco.webp"
+  }
+]
