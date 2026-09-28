@@ -3,7 +3,6 @@ import { Navbar } from './components/Navbar';
 import { TopHeader } from './components/TopHeader';
 import { WelcomePage } from './components/Landing/WelcomePage';
 import { MasterAdminDashboard } from './components/MasterAdmin/MasterAdminDashboard';
-import { SuperAdminAuthModal } from './components/MasterAdmin/SuperAdminAuthModal';
 import { LeagueDashboard } from './components/LeaguePortal/LeagueDashboard';
 import { VocaliaDigital } from './components/Vocalia/VocaliaDigital';
 import { ComputerVisionEdge } from './components/Vocalia/ComputerVisionEdge';
@@ -29,7 +28,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>('welcome');
   const [userRole, setUserRole] = useState<UserRole>('LEAGUE_ADMIN');
   const [isSuperAdminAuth, setIsSuperAdminAuth] = useState<boolean>(false);
-  const [showSuperAdminModal, setShowSuperAdminModal] = useState<boolean>(false);
   const [showAffiliationModal, setShowAffiliationModal] = useState<boolean>(false);
   const [adminToast, setAdminToast] = useState<string | null>(null);
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
@@ -269,20 +267,10 @@ export default function App() {
       return;
     }
     if ((tab === 'master-admin' || tab === 'master-admin-crm' || tab === 'sql-viewer') && !isSuperAdminAuth) {
-      setShowSuperAdminModal(true);
       return;
     }
     setIsPlatformUnlocked(true);
     setActiveTab(tab);
-  };
-
-  const handleSuperAdminSuccess = () => {
-    setIsSuperAdminAuth(true);
-    setUserRole('SUPER_ADMIN');
-    setIsPlatformUnlocked(true);
-    setActiveTab('master-admin');
-    setAdminToast('⚡ Acceso SuperAdmin Autorizado');
-    setTimeout(() => setAdminToast(null), 4000);
   };
 
   const handleLogoutSuperAdmin = () => {
@@ -296,13 +284,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
-      <SuperAdminAuthModal
-        isOpen={showSuperAdminModal}
-        onClose={() => setShowSuperAdminModal(false)}
-        onSuccess={handleSuperAdminSuccess}
-      />
-
-      {/* TOAST FLOTANTE DE NOTIFICACIÓN CLAVE 1326 */}
+      {/* TOAST FLOTANTE DE NOTIFICACIÓN ADMINISTRADOR */}
       {adminToast && (
         <div className="fixed top-5 right-5 z-50 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top duration-300 border border-amber-300">
           <Sparkles className="w-4 h-4 text-black" />
@@ -337,7 +319,6 @@ export default function App() {
           activeSport={activeSport}
           setActiveSport={setActiveSport}
           isSuperAdminAuth={isSuperAdminAuth}
-          onOpenSuperAdminAuth={() => setShowSuperAdminModal(true)}
           onLogoutSuperAdmin={handleLogoutSuperAdmin}
         />
       </div>
@@ -357,7 +338,7 @@ export default function App() {
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col min-h-full">
-          {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (ACTIVO CON 1326) */}
+          {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (AUTORIZADO CON CREDENCIALES) */}
           {isSuperAdminAuth && isPlatformUnlocked && (
             <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
               <div className="flex items-center gap-2.5">
@@ -428,7 +409,6 @@ export default function App() {
               setActiveSport={setActiveSport}
               onOpenOnboarding={() => setShowAffiliationModal(true)}
               isSuperAdminAuth={isSuperAdminAuth}
-              onOpenSuperAdminAuth={() => setShowSuperAdminModal(true)}
               onLogoutSuperAdmin={handleLogoutSuperAdmin}
               onReturnToScrollytelling={handleReturnToScrollytelling}
             />
@@ -447,8 +427,6 @@ export default function App() {
                 onOpenAffiliation={() => setShowAffiliationModal(true)}
                 onAddTenant={handleAddTenant}
                 setUserRole={setUserRole}
-                isSuperAdminAuth={isSuperAdminAuth}
-                onSuperAdminAuthSuccess={handleSuperAdminSuccess}
               />
             )}
 
@@ -463,41 +441,22 @@ export default function App() {
           />
         )}
 
-        {(activeTab === 'master-admin' || activeTab === 'master-admin-crm') && (
-          isSuperAdminAuth ? (
-            <MasterAdminDashboard
-              tenants={tenants}
-              sports={sports}
-              subscriptions={subscriptions}
-              migrationTickets={migrationTickets}
-              onAddTenant={handleAddTenant}
-              matches={matches}
-              events={events}
-              activeTenantId={activeTenantId}
-              activeSport={activeSport}
-              onAddTicket={handleAddMigrationTicket}
-              onChronicleGenerated={handleAddChronicle}
-              initialAdminTab={activeTab === 'master-admin-crm' ? 'crm' : 'overview'}
-              onExitAdminMode={handleLogoutSuperAdmin}
-            />
-          ) : (
-            <div className="bg-[#0a0a0a] border border-amber-500/30 rounded-3xl p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-2xl">
-              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400">
-                <Shield className="w-8 h-8" />
-              </div>
-              <h2 className="text-xl font-black text-white">Panel Maestro Protegido</h2>
-              <p className="text-xs text-white/60">
-                Este panel contiene herramientas avanzadas de administración global, CRM confidencial de ligas, gestión de licencias multi-tenant e ingesta inteligente de datos.
-              </p>
-              <button
-                onClick={() => setShowSuperAdminModal(true)}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Lock className="w-4 h-4" />
-                <span>Ingresar al Modo Administrador</span>
-              </button>
-            </div>
-          )
+        {(activeTab === 'master-admin' || activeTab === 'master-admin-crm') && isSuperAdminAuth && (
+          <MasterAdminDashboard
+            tenants={tenants}
+            sports={sports}
+            subscriptions={subscriptions}
+            migrationTickets={migrationTickets}
+            onAddTenant={handleAddTenant}
+            matches={matches}
+            events={events}
+            activeTenantId={activeTenantId}
+            activeSport={activeSport}
+            onAddTicket={handleAddMigrationTicket}
+            onChronicleGenerated={handleAddChronicle}
+            initialAdminTab={activeTab === 'master-admin-crm' ? 'crm' : 'overview'}
+            onExitAdminMode={handleLogoutSuperAdmin}
+          />
         )}
 
         {activeTab === 'league' && (
@@ -555,13 +514,6 @@ export default function App() {
               <p className="text-xs text-white/60">
                 La ingesta inteligente de datos de ligas (3 Caminos) es una herramienta disponible únicamente en el Panel de Administración Maestro.
               </p>
-              <button
-                onClick={() => setShowSuperAdminModal(true)}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Shield className="w-4 h-4" />
-                <span>Acceder como Administrador</span>
-              </button>
             </div>
           )
         )}
@@ -611,13 +563,6 @@ export default function App() {
                 >
                   <FileText className="w-4 h-4" />
                   <span>Ver Blog & Crónicas Publicadas</span>
-                </button>
-                <button
-                  onClick={() => setShowSuperAdminModal(true)}
-                  className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-amber-300 font-bold text-xs rounded-xl transition-all border border-amber-500/30 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Acceso Administrador Maestro</span>
                 </button>
               </div>
             </div>

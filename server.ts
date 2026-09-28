@@ -3,19 +3,38 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import { deporversoRouter } from "./server/routes/deporversoRoutes";
+import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes";
+import { 
+  antiScrapingMiddleware, 
+  rateLimiterMiddleware, 
+  securityHeadersMiddleware 
+} from "./server/security/rateLimiter";
 
 async function startServer() {
   const app = express();
-  // En el contenedor de AI Studio, NGINX ya está corriendo en el puerto 8080 y hace proxy al 3000.
-  // Por lo tanto, el servidor Express DEBE escuchar en el puerto 3000.
-  // En Google Cloud Run (producción autónoma), no existe NGINX y el contenedor debe escuchar en process.env.PORT (8080).
+
+  // Endurecimiento Perimetral y Protección CIG
+  app.use(securityHeadersMiddleware);
+  app.use(antiScrapingMiddleware);
+  app.use(rateLimiterMiddleware);
+  // Detección de puerto robusta:
+  // 1. Argumento CLI (--port 3000)
+  // 2. Variables de entorno AI Studio (DEFAULT_APP_PORT / NGINX_PORT)
+  // 3. Modo desarrollo: siempre puerto 3000
+  // 4. Modo producción standalone (Cloud Run): process.env.PORT || 8080
+  const portArgIndex = process.argv.indexOf('--port');
+  const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
+  const isDevMode = process.env.NODE_ENV !== 'production';
   const isAiStudioContainer = Boolean(process.env.DEFAULT_APP_PORT || process.env.NGINX_PORT);
-  const PORT = isAiStudioContainer ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080);
+  const PORT = cliPort || (isAiStudioContainer || isDevMode ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080));
 
   app.use(express.json({ limit: "10mb" }));
 
   // DeporVerso Enterprise Multi-Tenant & Heroes VR API
   app.use("/api/deporverso", deporversoRouter);
+
+  // CIG Security, Cryptographic Seal & Anti-Scraping Audit API
+  app.use("/api/cig", cigSecurityRouter);
 
   // Initialize Gemini AI Client (Server Side)
   const getGenAIClient = () => {

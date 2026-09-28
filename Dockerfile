@@ -1,53 +1,63 @@
-# =========================================================
-# DEPORVERSO - DOCKERFILE MULTI-STAGE FOR GOOGLE CLOUD RUN
-# =========================================================
+# ==============================================================================
+# CORPORACIÓN E INNOVACIÓN GUERRA (CIG) - DEPORVERSO PRODUCTION CONTAINER
+# Multi-Stage Secure Build for Google Cloud Run (Non-Root, Hardened Runtime)
+# ==============================================================================
 
-# --- ETAPA 1: BUILDER ---
-FROM node:20-slim AS builder
+# ------------------------------------------------------------------------------
+# Stage 1: Build, Obfuscation & Cryptographic Sealing
+# ------------------------------------------------------------------------------
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copiar manifiestos de dependencias
+# Instalar herramientas necesarias para compilación nativa si hicieran falta
+RUN apk add --no-cache python3 make g++
+
+# Aprovechar caché de capas de Docker para dependencias
 COPY package*.json ./
+RUN npm ci
 
-# Instalar dependencias para la compilación (funciona con o sin package-lock.json)
-RUN npm install --no-audit --no-fund
-
-# Copiar el código fuente completo
+# Copiar todo el código fuente del proyecto
 COPY . .
 
-# Construir el frontend (Vite) y el backend empaquetado (dist/server.cjs)
-ENV NODE_ENV=production
+# Ejecutar compilación completa: Vite SPA + esbuild Server + Ofuscación + Sellado IP SHA-256
 RUN npm run build
 
-# --- ETAPA 2: RUNNER PRODUCCIÓN ULTRA-LIGERO ---
-FROM node:20-slim AS runner
+# ------------------------------------------------------------------------------
+# Stage 2: Minimalist, Hardened Production Runner (Zero Root Privileges)
+# ------------------------------------------------------------------------------
+FROM node:22-alpine AS runner
+
+# Definir variables de entorno de producción
+ENV NODE_ENV=production \
+    PORT=8080 \
+    HOST=0.0.0.0
 
 WORKDIR /app
 
-# Instalar variables de entorno de producción (8080 es el estándar de Cloud Run)
-ENV NODE_ENV=production
-ENV PORT=8080
+# Crear usuario y grupo del sistema sin privilegios root (Principle of Least Privilege)
+RUN addgroup -g 10001 -S ciggroup && \
+    adduser -u 10001 -S ciguser -G ciggroup
 
-# Usuario no root por seguridad
-RUN groupadd --system --gid 1001 nodejs && \
-    useradd --system --uid 1001 -g nodejs deporverso
-
-# Copiar package.json y dependencias de producción únicamente
+# Copiar manifiesto de dependencias e instalar estrictamente módulos de producción
 COPY package*.json ./
-RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force
 
-# Copiar artefactos compilados desde el builder
-COPY --from=builder /app/dist ./dist
+# Copiar artefactos compilados y ofuscados desde la etapa builder
+COPY --from=builder --chown=ciguser:ciggroup /app/dist ./dist
+COPY --from=builder --chown=ciguser:ciggroup /app/CIG-SECURITY-MANIFEST.* ./
+COPY --from=builder --chown=ciguser:ciggroup /app/.cig-security/cig-public.pem ./.cig-security/cig-public.pem
 
-# Asignar permisos correctos
-RUN chown -R deporverso:nodejs /app
+# Asignar permisos y cambiar al usuario seguro
+USER ciguser:ciggroup
 
-USER deporverso
-
-# Puertos expuestos para Google Cloud Run (8080 estándar, 3000 alternativo)
+# Puerto estándar de Google Cloud Run
 EXPOSE 8080
-EXPOSE 3000
 
-# Comando de inicio del servidor CommonJS compilado
+# Healthcheck interno del contenedor
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/api/health || exit 1
+
+# Comando de arranque del servidor de producción ofuscado
 CMD ["node", "dist/server.cjs"]

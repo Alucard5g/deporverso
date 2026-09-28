@@ -75,53 +75,53 @@ export const Act03Ecosystem: React.FC<Act03EcosystemProps> = ({ onNextAct, onSel
       />
 
       {/* Navigation Sub-Tabs within Act III */}
-      <div className="relative z-10 mt-8 mb-10 flex flex-wrap items-center justify-center gap-2 bg-slate-950/80 p-2 rounded-2xl border border-slate-800 backdrop-blur-xl">
+      <div className="relative z-10 mt-8 mb-10 flex flex-wrap items-center justify-center gap-1.5 deporverso-segmented-nav max-w-xl mx-auto">
         <button
           onClick={() => setActiveSubTab('var')}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeSubTab === 'var'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white'
+              ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+              : 'deporverso-tab-pill-inactive'
           }`}
         >
-          <Video className="w-4 h-4" />
+          <Video className="w-3.5 h-3.5" />
           <span>VAR a la Carta</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('clubs')}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeSubTab === 'clubs'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white'
+              ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+              : 'deporverso-tab-pill-inactive'
           }`}
         >
-          <Shield className="w-4 h-4" />
+          <Shield className="w-3.5 h-3.5" />
           <span>Club Cards (4)</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('fanzone')}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeSubTab === 'fanzone'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white'
+              ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+              : 'deporverso-tab-pill-inactive'
           }`}
         >
-          <Users className="w-4 h-4" />
-          <span>Fan Zone Editorial</span>
+          <Users className="w-3.5 h-3.5" />
+          <span>Fan Zone</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('merch')}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeSubTab === 'merch'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white'
+              ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+              : 'deporverso-tab-pill-inactive'
           }`}
         >
-          <ShoppingBag className="w-4 h-4" />
-          <span>Merchandising</span>
+          <ShoppingBag className="w-3.5 h-3.5" />
+          <span>Merch</span>
         </button>
       </div>
 

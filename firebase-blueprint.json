@@ -148,6 +148,28 @@
         "certificateCode": { "type": "string" }
       },
       "required": ["id", "tenantId", "playerId", "originTeamId", "destinationTeamId", "status"]
+    },
+    "var_incident": {
+      "title": "VarIncident",
+      "description": "VAR video review incident report, forensic snapshot and official disciplinary ruling",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "matchId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "timestampSeconds": { "type": "number" },
+        "ruling": { "type": "string" },
+        "category": { "type": "string" },
+        "defenderLineX": { "type": "number" },
+        "attackerLineX": { "type": "number" },
+        "evidenceSnapshotUrl": { "type": "string" },
+        "reviewedBy": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "matchId", "ruling"]
     }
   },
   "firestore": {
@@ -166,6 +188,10 @@
     "/vocalia_reports/{reportId}": {
       "schema": "vocalia_report",
       "description": "Official live digital vocalia reports detailed by league subdomain and persisted in real time"
+    },
+    "/var_incidents/{incidentId}": {
+      "schema": "var_incident",
+      "description": "Official VAR forensic review records and disciplinary tribunal evidences"
     },
     "/players/{playerId}": {
       "schema": "player",

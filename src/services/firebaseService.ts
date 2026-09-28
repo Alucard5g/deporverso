@@ -399,3 +399,50 @@ export function subscribeToTransfers(
   }
 }
 
+// Sincronizar un acta o incidencia forense del VAR en tiempo real para el Tribunal de Penas
+export async function syncVarIncidentToFirebase(incident: {
+  id: string;
+  matchId: string;
+  tenantId?: string;
+  homeTeam: string;
+  awayTeam: string;
+  timestampSeconds: number;
+  ruling: string;
+  category: string;
+  defenderLineX: number;
+  attackerLineX: number;
+  evidenceSnapshotUrl?: string;
+  reviewedBy?: string;
+  notes?: string;
+  createdAt?: string;
+}): Promise<boolean> {
+  try {
+    const incidentRef = doc(db, 'var_incidents', incident.id);
+    const payload = {
+      ...incident,
+      createdAt: incident.createdAt || new Date().toISOString()
+    };
+    await setDoc(incidentRef, payload, { merge: true });
+    console.log(`[Firebase] Incidencia VAR ${incident.id} guardada en Firestore para Tribunal de Penas.`);
+    return true;
+  } catch (error) {
+    console.warn('[Firebase] Error al sincronizar incidencia VAR en Firestore:', error);
+    return false;
+  }
+}
+
+// Obtener actas e incidencias de VAR guardadas en Firestore
+export async function fetchVarIncidentsFromFirebase(matchId?: string): Promise<any[]> {
+  try {
+    const varCol = collection(db, 'var_incidents');
+    const q = matchId
+      ? query(varCol, where('matchId', '==', matchId))
+      : query(varCol);
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data());
+  } catch (error) {
+    console.warn('[Firebase] Fallo al consultar incidencias VAR de Firestore:', error);
+    return [];
+  }
+}
+

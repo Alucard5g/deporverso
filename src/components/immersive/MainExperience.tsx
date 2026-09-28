@@ -13,12 +13,43 @@ import { X, ExternalLink, Shield, Trophy } from 'lucide-react';
 import { ScrollytellingLightbox } from './ScrollytellingLightbox';
 import { PresentationTourControl } from './PresentationTourControl';
 import deporversoDarkBg from '../../assets/images/deporverso_dark_bg_1789426720628.jpg';
+import canchaTierraImg from '../../assets/images/acto1_cancha_tierra_1789418204541.jpg';
+import despertarDigitalImg from '../../assets/images/acto2_despertar_digital_1789418217850.jpg';
+import estadioVarImg from '../../assets/images/acto3_estadio_var_1789418234243.jpg';
+import multiverseCosmicoImg from '../../assets/images/acto4_multiverso_cosmico_1789418246887.jpg';
 
 interface MainExperienceProps {
   onEnterPlatform: () => void;
   onOpenOnboarding?: () => void;
   onSelectTab?: (tabKey: string) => void;
 }
+
+const ACT_BACKGROUND_SCENES = [
+  {
+    act: 1,
+    img: canchaTierraImg,
+    alt: 'Acto 01 • El Origen - Cancha de Tierra Barrial',
+    glowColor: 'rgba(217, 119, 6, 0.25)'
+  },
+  {
+    act: 2,
+    img: despertarDigitalImg,
+    alt: 'Acto 02 • El Despertar Digital - Arquitectura Cloud y Subdominios',
+    glowColor: 'rgba(6, 182, 212, 0.25)'
+  },
+  {
+    act: 3,
+    img: estadioVarImg,
+    alt: 'Acto 03 • El Ecosistema Pro - Estadio Moderno y VAR 4K',
+    glowColor: 'rgba(16, 185, 129, 0.25)'
+  },
+  {
+    act: 4,
+    img: multiverseCosmicoImg,
+    alt: 'Acto 04 • El Multiverso Deportivo - Convergencia y Realidad Virtual',
+    glowColor: 'rgba(99, 102, 241, 0.25)'
+  }
+];
 
 export const MainExperience: React.FC<MainExperienceProps> = ({
   onEnterPlatform,
@@ -46,19 +77,44 @@ export const MainExperience: React.FC<MainExperienceProps> = ({
 
   return (
     <div className="relative min-h-screen bg-[#03060f] text-white selection:bg-cyan-500 selection:text-black overflow-x-hidden">
-      {/* 0. High-Tech Deporverso Dark Stadium Cinematic Ambient Texture */}
+      {/* 0. Dynamic Cinematic Background Scenery: Actual Modern Imagery Synchronized With Each Act */}
       <div 
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden" 
         aria-hidden="true"
       >
+        {/* Base dark high-tech stadium texture */}
         <img
           src={deporversoDarkBg}
           alt=""
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center opacity-30 mix-blend-screen filter brightness-90 contrast-125 saturate-110"
+          className="w-full h-full object-cover object-center opacity-20 mix-blend-screen filter brightness-75 contrast-125"
         />
+
+        {/* Dynamic Act Scene Images with Smooth Crossfade and Slow Cinematic Zoom */}
+        {ACT_BACKGROUND_SCENES.map((scene) => {
+          const isActive = activeAct === scene.act;
+          return (
+            <div
+              key={scene.act}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                isActive ? 'opacity-30' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={scene.img}
+                alt={scene.alt}
+                referrerPolicy="no-referrer"
+                className={`w-full h-full object-cover object-center filter brightness-90 contrast-125 saturate-110 transform transition-transform duration-[12000ms] ${
+                  isActive ? 'scale-105' : 'scale-100'
+                }`}
+              />
+            </div>
+          );
+        })}
+
+        {/* Soft Vignette and Vignette Gradient Overlays for Flawless Readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#03060f]/90 via-[#03060f]/80 to-[#03060f]/95" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#03060f]/50 to-[#03060f]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#03060f]/60 to-[#03060f]" />
       </div>
 
       {/* 1. Global Three.js / 2D Adaptive Canvas Background */}

@@ -102,6 +102,11 @@ service cloud.firestore {
       allow delete: if request.auth != null;
     }
 
+    // Actas e Incidentes de Video Arbitraje (VAR) y Evidencias Forenses
+    match /var_incidents/{incidentId} {
+      allow read, write: if true;
+    }
+
     // Colección de verificación de conectividad
     match /test/{testId} {
       allow read, write: if true;

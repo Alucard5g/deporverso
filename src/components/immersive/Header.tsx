@@ -8,6 +8,33 @@ interface HeaderProps {
   onStartTour?: () => void;
 }
 
+const ACT_SCENE_INFO: Record<number, { title: string; subtitle: string; color: string; badge: string }> = {
+  1: {
+    title: 'Acto 01 • El Origen',
+    subtitle: 'La Cancha de Tierra Barrial',
+    color: '#f59e0b',
+    badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+  },
+  2: {
+    title: 'Acto 02 • Despertar Digital',
+    subtitle: 'Matriz Cloud & Subdominios',
+    color: '#06b6d4',
+    badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+  },
+  3: {
+    title: 'Acto 03 • El Ecosistema Pro',
+    subtitle: 'Estadio Tecnológico & VAR 4K',
+    color: '#10b981',
+    badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+  },
+  4: {
+    title: 'Acto 04 • El Multiverso',
+    subtitle: 'VR & Scouting Tridimensional',
+    color: '#818cf8',
+    badge: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+  }
+};
+
 export const Header: React.FC<HeaderProps> = ({ 
   onNavigateAct, 
   onEnterPlatform, 
@@ -16,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const currentScene = ACT_SCENE_INFO[activeAct] || ACT_SCENE_INFO[1];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,16 +57,16 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-500 ${
         scrolled
-          ? 'py-3 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/60'
-          : 'py-6 bg-transparent border-b border-transparent'
+          ? 'py-2.5 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/60'
+          : 'py-5 bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* Brand Logo */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
+        {/* Brand Logo & Active Scene Identifier */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigateAct(1)}
-            className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
+            className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none shrink-0"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-amber-300 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -59,15 +87,23 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
           </button>
+
+          {/* ACTIVE SCENE PILL (Matches the background animation & image) */}
+          <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border backdrop-blur-md text-[11px] font-mono transition-all duration-500 shadow-sm"
+               style={{ backgroundColor: `${currentScene.color}10`, borderColor: `${currentScene.color}40` }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentScene.color }} />
+            <span className="text-slate-400 font-semibold uppercase">{currentScene.title}:</span>
+            <span className="text-white font-bold tracking-tight">{currentScene.subtitle}</span>
+          </div>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
           <button
             onClick={() => onNavigateAct(1)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 1
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
@@ -75,9 +111,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             onClick={() => onNavigateAct(2)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 2
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
@@ -85,9 +121,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             onClick={() => onNavigateAct(3)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 3
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
@@ -95,9 +131,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             onClick={() => onNavigateAct(4)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 4
-                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
+                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
@@ -107,32 +143,33 @@ export const Header: React.FC<HeaderProps> = ({
             href="https://heroesdeldeporte.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 text-xs text-slate-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+            className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-amber-300 flex items-center gap-1 transition-colors whitespace-nowrap"
           >
             Héroes
             <ExternalLink className="w-3 h-3 text-slate-500" />
           </a>
         </nav>
 
-        {/* Action Button: [ ENTRAR ] */}
-        <div className="hidden sm:flex items-center gap-3">
+        {/* Action Buttons: [ Auto-Tour ] and [ ENTRAR ] */}
+        <div className="hidden sm:flex items-center gap-2.5 shrink-0">
           {onStartTour && (
             <button
               onClick={onStartTour}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer shadow-md"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer shadow-md whitespace-nowrap"
               title="Iniciar Modo Conferencia / Auto-Tour a Dirigentes"
             >
-              <Presentation className="w-3.5 h-3.5 text-amber-400" />
+              <Presentation className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Auto-Tour</span>
             </button>
           )}
 
           <button
             onClick={onEnterPlatform}
-            className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center gap-2 shadow-lg shadow-cyan-500/20 hover:scale-105 transition-all cursor-pointer border border-emerald-300/40"
+            className="px-4 lg:px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center gap-2 shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-all cursor-pointer border border-emerald-300/40 whitespace-nowrap"
           >
-            <span>ENTRA AL DEPORVERSO COMPLETO</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
+            <span className="hidden lg:inline">ENTRA AL DEPORVERSO COMPLETO</span>
+            <span className="lg:hidden">ENTRAR</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-950 stroke-[2.5] shrink-0" />
           </button>
         </div>
 

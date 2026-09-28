@@ -17,7 +17,6 @@ interface NavbarProps {
   activeSport: SportCode;
   setActiveSport: (sport: SportCode) => void;
   isSuperAdminAuth?: boolean;
-  onOpenSuperAdminAuth?: () => void;
   onLogoutSuperAdmin?: () => void;
 }
 
@@ -165,7 +164,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeSport,
   setActiveSport,
   isSuperAdminAuth,
-  onOpenSuperAdminAuth,
   onLogoutSuperAdmin
 }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -259,21 +257,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* SIDEBAR CONTAINER (DESKTOP & MOBILE DRAWER) */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#040711] border-r border-cyan-500/20 
-        flex flex-col justify-between transition-all duration-300 shadow-2xl
+        fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#070b14] border-r border-white/[0.07] 
+        flex flex-col justify-between transition-all duration-300 shadow-2xl backdrop-blur-xl
         ${collapsed ? 'lg:w-20' : 'lg:w-72'}
         ${mobileMenuOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'}
       `}>
         
         {/* TOP SECTION: BRAND */}
-        <div className="p-4 border-b border-white/10 bg-[#050914]">
+        <div className="p-4 border-b border-white/[0.06] bg-[#090e1a]/70">
           <div className="flex items-center justify-between">
             <div 
-              className="flex items-center gap-3 cursor-pointer overflow-hidden" 
+              className="flex items-center gap-3 cursor-pointer overflow-hidden group" 
               onClick={() => { setActiveTab('welcome'); setMobileMenuOpen(false); }}
             >
-              <div className={`w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-tr ${theme.bgGradient} p-0.5 shadow-lg ${theme.glowClass} relative group`}>
-                <div className="w-full h-full bg-[#050811] rounded-[14px] flex items-center justify-center font-bold text-lg">
+              <div className={`w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr ${theme.bgGradient} p-[1.5px] shadow-md relative`}>
+                <div className="w-full h-full bg-[#080d1a] rounded-[10px] flex items-center justify-center font-bold text-base transition-transform group-hover:scale-105">
                   {theme.icon}
                 </div>
               </div>
@@ -281,14 +279,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               {!collapsed && (
                 <div className="transition-opacity duration-200">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-black text-xl tracking-tight text-white">
+                    <span className="font-extrabold text-lg tracking-tight text-white">
                       Depor<span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">verso</span>
                     </span>
-                    <span className="bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">
-                      MULTIVERSO
+                    <span className="bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md tracking-wider">
+                      PRO
                     </span>
                   </div>
-                  <p className="text-[10px] text-white/50 font-mono tracking-wider uppercase truncate">Plataforma Inteligente</p>
+                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">Plataforma Multideporte</p>
                 </div>
               )}
             </div>
@@ -296,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Desktop Collapse Button */}
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="hidden lg:flex p-1.5 rounded-xl bg-[#090e1c] hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-colors cursor-pointer"
+              className="hidden lg:flex p-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] text-slate-400 hover:text-white transition-colors cursor-pointer"
               title={collapsed ? 'Expandir Menú' : 'Colapsar Menú'}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -305,16 +303,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* NAVIGATION MENUS COLUMN */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3 space-y-5 no-scrollbar">
           {navGroups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-1">
               {!collapsed && (
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/30 px-3 py-1 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400/80 px-3 py-1 block">
                   {group.title}
                 </span>
               )}
 
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;
@@ -323,38 +321,32 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <button
                       key={item.id}
                       onClick={() => {
-                        if (item.id === 'master-admin-auth') {
-                          onOpenSuperAdminAuth?.();
-                        } else {
-                          setActiveTab(item.id);
-                        }
+                        setActiveTab(item.id);
                         setMobileMenuOpen(false);
                       }}
                       title={collapsed ? item.label : undefined}
                       className={`
-                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer group relative
+                        w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer group relative
                         ${isActive
-                          ? 'bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent text-white border border-emerald-500/40 shadow-lg shadow-emerald-500/15'
-                          : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'}
+                          ? 'bg-gradient-to-r from-cyan-500/15 via-emerald-500/10 to-transparent text-white font-semibold border border-cyan-500/25 shadow-sm'
+                          : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] font-medium border border-transparent'}
                       `}
                     >
-                      {/* Neon Active Edge Pill */}
+                      {/* Refined Active Edge Pill */}
                       {isActive && (
-                        <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+                        <div className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-emerald-400"></div>
                       )}
 
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400 scale-110' : item.color} transition-transform group-hover:scale-110`} />
+                      <Icon className={`w-4 h-4 shrink-0 transition-all ${isActive ? 'text-cyan-300 scale-105' : 'text-slate-400 group-hover:text-slate-200'}`} />
 
                       {!collapsed && (
-                        <span className={`truncate flex-1 text-left ${isActive ? 'font-black tracking-tight text-white' : 'font-medium'}`}>
+                        <span className="truncate flex-1 text-left tracking-normal">
                           {item.label}
                         </span>
                       )}
 
                       {isActive && !collapsed && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          ACTIVO
-                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]"></span>
                       )}
                     </button>
                   );
@@ -364,23 +356,23 @@ export const Navbar: React.FC<NavbarProps> = ({
           ))}
         </div>
 
-        {/* FOOTER USER / SPORT ACCENT SUMMARY & 3D TELEMETRY */}
+        {/* FOOTER USER / STATUS CAPSULE */}
         {!collapsed && (
-          <div className="p-3 border-t border-white/10 bg-[#06080c] space-y-2">
-            <div className="flex items-center justify-between px-1">
+          <div className="p-3 border-t border-white/[0.06] bg-[#090e1a]/60 space-y-2">
+            <div className="flex items-center justify-between px-1 text-[10px]">
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="font-mono text-[9px] text-emerald-400 font-bold uppercase tracking-wider">
-                  WebGL 3D Active
+                <span className="text-slate-300 font-medium tracking-wide">
+                  Motor Cuántico
                 </span>
               </div>
-              <span className="font-mono text-[9px] text-white/40">60 FPS</span>
+              <span className="font-mono text-emerald-400/90 font-medium">En Línea</span>
             </div>
 
             {isSuperAdminAuth && (
               <button
                 onClick={onLogoutSuperAdmin}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-black transition-all cursor-pointer shadow-md mt-1"
+                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm mt-1"
                 title="Cerrar panel de administrador y regresar al modo público"
               >
                 <LogOut className="w-3.5 h-3.5 text-rose-400" />
@@ -388,26 +380,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <div className="text-[11px] text-white/50 flex items-center justify-between pt-1 border-t border-white/5">
+            <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1 border-t border-white/[0.04]">
               <div className="flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="font-bold text-white text-xs">Deporverso 2026</span>
+                <Award className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="font-medium text-slate-300 text-xs">Deporverso 2026</span>
               </div>
-              {isSuperAdminAuth ? (
+              {isSuperAdminAuth && (
                 <button
                   onClick={onLogoutSuperAdmin}
-                  className="font-mono text-[9px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30 cursor-pointer transition-colors"
+                  className="font-mono text-[9px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/20 cursor-pointer transition-colors"
                   title="Cerrar Sesión SuperAdmin"
                 >
-                  Salir Admin
-                </button>
-              ) : (
-                <button
-                  onClick={onOpenSuperAdminAuth}
-                  className="font-mono text-[9px] text-white/30 hover:text-amber-400 p-1 rounded transition-colors cursor-pointer"
-                  title="Acceso Administrativo"
-                >
-                  <Lock className="w-3.5 h-3.5" />
+                  Admin Activo
                 </button>
               )}
             </div>

@@ -350,26 +350,26 @@ export const Act04Multiverse: React.FC<Act04MultiverseProps> = ({
         </div>
 
         {/* 3 Main Action CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 pb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 pb-8 max-w-4xl mx-auto w-full">
           <button
             id="btn-act4-enter-deporverso-main"
             onClick={onEnterPlatform}
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/30 hover:scale-105 transition-all cursor-pointer border border-emerald-300/40"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 hover:scale-[1.02] transition-all cursor-pointer border border-emerald-300/40 whitespace-nowrap"
           >
             <span>ENTRA AL DEPORVERSO COMPLETO</span>
-            <ArrowRight className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+            <ArrowRight className="w-4 h-4 text-slate-950 stroke-[2.5]" />
           </button>
 
           <button
             onClick={onOpenOnboarding}
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-slate-500 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider bg-slate-900/90 hover:bg-slate-800 text-white border border-slate-700/80 hover:border-slate-500 flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap"
           >
             <span>AFILIAR MI LIGA AL DEPORVERSO</span>
           </button>
 
           <button
             onClick={onScrollToTop}
-            className="w-full sm:w-auto px-6 py-4 rounded-2xl text-xs font-mono text-slate-400 hover:text-white bg-slate-950/60 hover:bg-slate-900 border border-slate-800 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-5 py-3.5 rounded-2xl text-xs font-mono text-slate-400 hover:text-white bg-slate-950/60 hover:bg-slate-900 border border-slate-800 transition-colors cursor-pointer whitespace-nowrap"
           >
             ↑ Volver al Origen
           </button>

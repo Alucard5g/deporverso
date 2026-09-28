@@ -7,6 +7,7 @@ import { INITIAL_MATCHES, INITIAL_TEAMS } from '../../data/mockData';
 import { SmartIngester } from '../SmartIngestion/SmartIngester';
 import { AiChronicleGenerator } from '../Chronicle/AiChronicleGenerator';
 import { AdminCRM } from './AdminCRM';
+import { CigSecurityPanel } from './CigSecurityPanel';
 import { syncVocaliaReportToFirebase } from '../../services/firebaseService';
 
 interface MasterAdminDashboardProps {
@@ -21,7 +22,7 @@ interface MasterAdminDashboardProps {
   activeTenantId?: string;
   activeSport?: SportCode;
   onAddTicket?: (ticket: Omit<MigrationTicket, 'id' | 'created_at'>) => void;
-  initialAdminTab?: 'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql';
+  initialAdminTab?: 'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
   onChronicleGenerated?: (chronicle: AiChronicle) => void;
   onExitAdminMode?: () => void;
 }
@@ -44,7 +45,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql'>(initialAdminTab);
+  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab);
   const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants[0]?.id || '1');
 
   // Form State for new Tenant
@@ -524,6 +525,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
           }`}
         >
           Script SQL Supabase DDL
+        </button>
+        <button
+          onClick={() => setActiveAdminTab('cig-security')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+            activeAdminTab === 'cig-security'
+              ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 shadow-md shadow-emerald-500/10'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5 text-emerald-400" />
+          Seguridad CIG & Sello IP
         </button>
       </div>
 
@@ -1154,6 +1166,11 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             {FULL_SUPABASE_SQL_SCRIPT}
           </pre>
         </div>
+      )}
+
+      {/* TAB: CIG INDUSTRIAL SECURITY & CRYPTOGRAPHIC SEAL */}
+      {activeAdminTab === 'cig-security' && (
+        <CigSecurityPanel />
       )}
 
       {/* ADD TENANT MODAL */}

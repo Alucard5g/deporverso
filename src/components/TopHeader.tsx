@@ -18,7 +18,6 @@ interface TopHeaderProps {
   setActiveSport: (sport: SportCode) => void;
   onOpenOnboarding: () => void;
   isSuperAdminAuth?: boolean;
-  onOpenSuperAdminAuth?: () => void;
   onLogoutSuperAdmin?: () => void;
   onReturnToScrollytelling?: () => void;
 }
@@ -52,7 +51,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   setActiveSport,
   onOpenOnboarding,
   isSuperAdminAuth,
-  onOpenSuperAdminAuth,
   onLogoutSuperAdmin,
   onReturnToScrollytelling
 }) => {
@@ -73,40 +71,40 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#06080c]/90 backdrop-blur-xl border-b border-white/[0.08] px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+    <header className="sticky top-0 z-50 bg-[#070b14]/90 backdrop-blur-xl border-b border-white/[0.07] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
       {/* TÍTULO & BREADCRUMB CONTEXTUAL */}
       <div className="flex items-center gap-3">
-        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500/20 via-cyan-500/15 to-transparent border border-emerald-500/30 items-center justify-center text-emerald-400 font-extrabold text-sm shadow-inner shadow-emerald-500/10">
+        <div className="hidden sm:flex w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] items-center justify-center text-emerald-400 font-extrabold text-sm shadow-inner">
           {currentSportTheme.icon}
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-sm sm:text-base font-black text-white tracking-tight">
+            <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
               {currentTabInfo.title}
             </h1>
-            <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border hidden md:inline-flex items-center gap-1 ${currentSportTheme.badgeClass}`}>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border hidden md:inline-flex items-center gap-1 ${currentSportTheme.badgeClass}`}>
               <span>{currentSportTheme.icon}</span>
               <span>{currentSportTheme.name}</span>
             </span>
           </div>
-          <p className="text-[11px] text-white/50 truncate max-w-md hidden sm:block font-medium">
+          <p className="text-[11px] text-slate-400 truncate max-w-md hidden sm:block font-normal">
             {currentTabInfo.subtitle}
           </p>
         </div>
       </div>
 
       {/* TELEMETRÍA EN VIVO Y BARRA DE ACCIONES RÁPIDAS */}
-      <div className="flex items-center gap-2.5 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
         {/* TELEMETRY HUD PILL */}
-        <div className="hidden xl:flex items-center gap-2 bg-[#0a0f16] border border-white/10 px-3 py-1.5 rounded-xl text-[11px] font-mono shadow-sm">
-          <span className="flex items-center gap-1.5 text-emerald-400 font-black">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            LIVE STREAM
+        <div className="hidden xl:flex items-center gap-2 bg-white/[0.02] border border-white/[0.06] px-2.5 py-1 rounded-lg text-[10px] font-mono shadow-sm">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            LIVE
           </span>
-          <span className="text-white/20">|</span>
-          <span className="text-white/50">PING <span className="text-cyan-400 font-bold">12ms</span></span>
-          <span className="text-white/20">|</span>
-          <span className="text-white/50">VAR <span className="text-emerald-400 font-bold">EDGE 4K</span></span>
+          <span className="text-white/15">|</span>
+          <span className="text-slate-400">LATENCIA <span className="text-cyan-400 font-semibold">12ms</span></span>
+          <span className="text-white/15">|</span>
+          <span className="text-slate-400">VAR <span className="text-emerald-400 font-semibold">4K EDGE</span></span>
         </div>
 
         {/* SELECTOR DE DEPORTE RÁPIDO */}
@@ -117,16 +115,16 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               setShowRoleDropdown(false);
               setShowTenantDropdown(false);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#121212] border border-white/10 text-xs text-white hover:border-white/20 transition-all cursor-pointer font-bold"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 hover:border-white/20 transition-all cursor-pointer font-medium"
           >
             <span>{currentSportTheme.icon}</span>
             <span className="hidden md:inline">{currentSportTheme.name}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
           {showSportDropdown && (
-            <div className="absolute right-0 mt-2 w-52 bg-[#0c0c0c] border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
-              <span className="text-[10px] font-bold text-white/40 px-2 uppercase tracking-wider block mb-1">
+            <div className="absolute right-0 mt-2 w-52 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-1.5 space-y-0.5 z-50">
+              <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider block">
                 Seleccionar Disciplina
               </span>
               {Object.entries(SPORT_THEMES).map(([code, st]) => (
@@ -141,10 +139,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     }
                     setShowSportDropdown(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
                     activeSport === code
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30'
+                      : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -167,17 +165,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                 setShowRoleDropdown(false);
                 setShowSportDropdown(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#121212] border border-[#00ff66]/40 text-xs text-[#00ff66] hover:border-[#00ff66] transition-all cursor-pointer font-black uppercase tracking-wider shadow-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer font-semibold"
             >
-              <Building2 className="w-3.5 h-3.5 text-[#00ff66]" />
-              <span className="truncate max-w-[130px] uppercase font-black text-[#00ff66]">{currentTenant?.name || 'LIGA'}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#00ff66]/70" />
+              <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="truncate max-w-[130px] font-medium">{currentTenant?.name || 'LIGA'}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-emerald-400/70" />
             </button>
 
             {showTenantDropdown && (
-              <div className="absolute right-0 mt-2 w-72 bg-[#0c0c0c] border border-[#00ff66]/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
-                <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/10">
-                  <span className="text-[10px] font-bold text-[#A0A0A0] uppercase tracking-wider">
+              <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
+                <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/[0.06]">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                     Ligas Registradas
                   </span>
                   <button
@@ -185,7 +183,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                       setShowTenantDropdown(false);
                       onOpenOnboarding();
                     }}
-                    className="text-[10px] font-bold text-[#00ff66] hover:underline cursor-pointer"
+                    className="text-[10px] font-semibold text-cyan-400 hover:underline cursor-pointer"
                   >
                     + Nueva Liga
                   </button>
@@ -198,22 +196,22 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                       setActiveSport(t.sport_code);
                       setShowTenantDropdown(false);
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
                       activeTenantId === t.id
-                        ? 'bg-[#00ff66]/15 text-[#00ff66] border border-[#00ff66]/30'
-                        : 'text-white/80 hover:bg-white/5 hover:text-white'
+                        ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold'
+                        : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
                     }`}
                   >
                     <div className="text-left truncate">
                       <div className="flex items-center gap-1.5">
-                        <span className="block truncate uppercase font-bold text-white">{t.name}</span>
+                        <span className="block truncate font-medium text-white">{t.name}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[9px] text-[#00ff66] font-mono font-bold block">{t.domain}</span>
-                        <span className="text-[8px] bg-white/10 text-white/70 px-1 rounded uppercase">{t.sport_code}</span>
+                        <span className="text-[9px] text-cyan-400/90 font-mono font-medium block">{t.domain}</span>
+                        <span className="text-[8px] bg-white/10 text-slate-300 px-1 rounded uppercase">{t.sport_code}</span>
                       </div>
                     </div>
-                    {activeTenantId === t.id && <Check className="w-3.5 h-3.5 shrink-0 text-[#00ff66]" />}
+                    {activeTenantId === t.id && <Check className="w-3.5 h-3.5 shrink-0 text-cyan-400" />}
                   </button>
                 ))}
               </div>
@@ -229,7 +227,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               setShowTenantDropdown(false);
               setShowSportDropdown(false);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${roleLabels[userRole].color}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${roleLabels[userRole].color}`}
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{roleLabels[userRole].label}</span>
@@ -237,8 +235,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {showRoleDropdown && (
-            <div className="absolute right-0 mt-2 w-56 bg-[#0c0c0c] border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
-              <span className="text-[10px] font-bold text-white/40 px-2 uppercase tracking-wider block mb-1">
+            <div className="absolute right-0 mt-2 w-56 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-1.5 space-y-0.5 z-50">
+              <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider block">
                 Cambiar Perfil de Usuario
               </span>
               {(Object.keys(roleLabels) as UserRole[])
@@ -250,50 +248,34 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     setUserRole(r);
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
                     userRole === r
-                      ? 'bg-white/10 text-white border border-white/20'
-                      : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      ? 'bg-white/10 text-white font-semibold border border-white/20'
+                      : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
                   }`}
                 >
                   <span>{roleLabels[r].label}</span>
                   {userRole === r && <Check className="w-3.5 h-3.5 text-emerald-400" />}
                 </button>
               ))}
-
-              {!isSuperAdminAuth && (
-                <button
-                  onClick={() => {
-                    setShowRoleDropdown(false);
-                    onOpenSuperAdminAuth?.();
-                  }}
-                  className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer mt-1"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5" />
-                    <span>Acceso de Administración</span>
-                  </span>
-                  <Lock className="w-3 h-3 text-amber-400" />
-                </button>
-              )}
             </div>
           )}
         </div>
 
         {/* INDICADOR Y BOTÓN DE SALIDA MODO ADMIN */}
         {isSuperAdminAuth && (
-          <div className="flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/40 px-2.5 py-1.5 rounded-xl shadow-sm">
+          <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/25 px-2.5 py-1 rounded-lg shadow-sm">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
             </span>
-            <span className="text-[11px] font-black text-amber-300 uppercase tracking-wide hidden sm:inline">
+            <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wide hidden sm:inline">
               Modo Admin
             </span>
             {onLogoutSuperAdmin && (
               <button
                 onClick={onLogoutSuperAdmin}
-                className="flex items-center gap-1 text-[10px] font-bold text-rose-300 hover:text-white bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1 text-[10px] font-medium text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/25 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
                 title="Salir del Modo Administrador"
               >
                 <LogOut className="w-3 h-3 text-rose-400" />
@@ -304,17 +286,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         )}
 
         {/* INSIGNIA FIREBASE FIRESTORE EN VIVO */}
-        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-300 shadow-sm" title="Base de datos en tiempo real Google Firebase Firestore activa">
-          <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-          <span className="text-white/70">Firestore:</span>
-          <span className="text-amber-400 font-mono text-[10px]">thin-aloe-bbndl</span>
+        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.02] border border-white/[0.06] text-[10px] text-slate-300" title="Base de datos en tiempo real Google Firebase Firestore activa">
+          <Flame className="w-3 h-3 text-amber-400" />
+          <span className="text-slate-400">Cloud Sync:</span>
+          <span className="text-amber-400/90 font-mono text-[9px]">En Línea</span>
         </div>
 
         {/* BOTÓN VOLVER A PRESENTACIÓN SCROLLYTELLING */}
         {onReturnToScrollytelling && (
           <button
             onClick={onReturnToScrollytelling}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-cyan-500/25 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold transition-all shadow-sm cursor-pointer whitespace-nowrap"
             title="Volver a la Presentación Cinematográfica Scrollytelling"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
@@ -325,7 +307,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* BOTÓN CREAR LIGA DIRECTO */}
         <button
           onClick={onOpenOnboarding}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-black text-xs px-3.5 py-1.5 rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap"
+          className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-3.5 h-3.5" />
           <span className="hidden lg:inline">Crear Mi Liga</span>

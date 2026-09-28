@@ -189,43 +189,43 @@ export const Act02DigitalAwakening: React.FC<Act02DigitalAwakeningProps> = ({ on
             </div>
 
             {/* Subdomain Router tabs */}
-            <div className="flex items-center gap-1.5 mb-4 overflow-x-auto pb-1 text-[11px]">
+            <div className="deporverso-segmented-nav flex items-center gap-1 mb-4 overflow-x-auto pb-1 text-[11px] max-w-md">
               <button
                 onClick={() => setActiveSubdomainTab('root')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`whitespace-nowrap cursor-pointer ${
                   activeSubdomainTab === 'root'
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+                    : 'deporverso-tab-pill-inactive'
                 }`}
               >
                 Panel Club
               </button>
               <button
                 onClick={() => setActiveSubdomainTab('fanzone')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`whitespace-nowrap cursor-pointer ${
                   activeSubdomainTab === 'fanzone'
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+                    : 'deporverso-tab-pill-inactive'
                 }`}
               >
                 /fan-zone
               </button>
               <button
                 onClick={() => setActiveSubdomainTab('tienda')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`whitespace-nowrap cursor-pointer ${
                   activeSubdomainTab === 'tienda'
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+                    : 'deporverso-tab-pill-inactive'
                 }`}
               >
                 /tienda
               </button>
               <button
                 onClick={() => setActiveSubdomainTab('stats')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`whitespace-nowrap cursor-pointer ${
                   activeSubdomainTab === 'stats'
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'deporverso-tab-pill-active text-slate-950 font-bold'
+                    : 'deporverso-tab-pill-inactive'
                 }`}
               >
                 /estadisticas

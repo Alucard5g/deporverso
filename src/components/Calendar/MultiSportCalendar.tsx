@@ -246,19 +246,24 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
       </div>
 
       {/* FILTER & VIEW CONTROLS */}
-      <div className="bg-[#080d16] rounded-2xl border border-white/10 p-4 space-y-4 shadow-xl">
+      <div className="bg-[#080d1a]/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-4 sm:p-5 space-y-4 shadow-xl">
         {/* SPORT SELECTOR CHIPS */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setSelectedSportFilter('ALL')}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               selectedSportFilter === 'ALL'
-                ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/25 scale-105'
-                : 'bg-black/40 text-white/70 hover:text-white hover:bg-white/5 border border-white/5'
+                ? 'deporverso-tab-pill-active font-semibold'
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Compass className="w-3.5 h-3.5" />
-            <span>Todos los Deportes ({matches.length})</span>
+            <Compass className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Todos los Deportes</span>
+            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+              selectedSportFilter === 'ALL' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-slate-400'
+            }`}>
+              {matches.length}
+            </span>
           </button>
 
           {(['FUTBOL', 'BALONCESTO', 'ECUAVOLEY', 'PADEL', 'FUTSAL'] as SportCode[]).map(code => {
@@ -269,15 +274,17 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
               <button
                 key={code}
                 onClick={() => setSelectedSportFilter(code)}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                className={`whitespace-nowrap flex items-center gap-2 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-black shadow-lg scale-105'
-                    : 'bg-black/40 text-white/70 hover:text-white hover:bg-white/5 border border-white/5'
+                    ? 'deporverso-tab-pill-active font-semibold'
+                    : 'deporverso-tab-pill-inactive'
                 }`}
               >
                 <span>{theme.icon}</span>
                 <span>{theme.name}</span>
-                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-black/30 text-black' : 'bg-white/10 text-white/50'}`}>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                  isSelected ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-slate-400'
+                }`}>
                   {count}
                 </span>
               </button>
@@ -286,16 +293,16 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
         </div>
 
         {/* STATUS, ROUND & SEARCH CONTROLS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-white/[0.06]">
           {/* SEARCH INPUT */}
           <div className="relative">
-            <Search className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Buscar por equipo, estadio, árbitro..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/60 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400 transition-colors"
+              className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-cyan-500/50 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
             />
           </div>
 
@@ -303,51 +310,51 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
           <select
             value={selectedStatusFilter}
             onChange={(e) => setSelectedStatusFilter(e.target.value as any)}
-            className="bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors cursor-pointer"
+            className="bg-white/[0.03] border border-white/[0.08] focus:border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none transition-colors cursor-pointer"
           >
-            <option value="ALL">Todos los Estados</option>
-            <option value="IN_PROGRESS">🔴 En Vivo Ahora</option>
-            <option value="SCHEDULED">⏳ Programados / Próximos</option>
-            <option value="FINISHED">✅ Finalizados</option>
+            <option value="ALL" className="bg-[#090e1a] text-slate-200">Todos los Estados</option>
+            <option value="IN_PROGRESS" className="bg-[#090e1a] text-slate-200">🔴 En Vivo Ahora</option>
+            <option value="SCHEDULED" className="bg-[#090e1a] text-slate-200">⏳ Programados / Próximos</option>
+            <option value="FINISHED" className="bg-[#090e1a] text-slate-200">✅ Finalizados</option>
           </select>
 
           {/* ROUND / JORNADA SELECTOR */}
           <select
             value={selectedRoundFilter}
             onChange={(e) => setSelectedRoundFilter(e.target.value)}
-            className="bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors cursor-pointer"
+            className="bg-white/[0.03] border border-white/[0.08] focus:border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none transition-colors cursor-pointer"
           >
-            <option value="ALL">Todas las Jornadas / Fechas</option>
+            <option value="ALL" className="bg-[#090e1a] text-slate-200">Todas las Jornadas / Fechas</option>
             {uniqueRounds.map(r => (
-              <option key={r} value={r}>{r}</option>
+              <option key={r} value={r} className="bg-[#090e1a] text-slate-200">{r}</option>
             ))}
           </select>
 
           {/* VIEW SWITCHER */}
-          <div className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10">
+          <div className="deporverso-segmented-nav flex items-center p-1 text-xs">
             <button
               onClick={() => setViewMode('grid')}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-center cursor-pointer ${
-                viewMode === 'grid' ? 'bg-cyan-500 text-black' : 'text-white/60 hover:text-white'
+              className={`flex-1 py-1.5 rounded-lg text-center transition-all cursor-pointer ${
+                viewMode === 'grid' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
             >
-              Cuadrícula 3D
+              Cuadrícula
             </button>
             <button
               onClick={() => setViewMode('agenda')}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-center cursor-pointer ${
-                viewMode === 'agenda' ? 'bg-cyan-500 text-black' : 'text-white/60 hover:text-white'
+              className={`flex-1 py-1.5 rounded-lg text-center transition-all cursor-pointer ${
+                viewMode === 'agenda' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
             >
               Agenda
             </button>
             <button
               onClick={() => setViewMode('month')}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-center cursor-pointer ${
-                viewMode === 'month' ? 'bg-cyan-500 text-black' : 'text-white/60 hover:text-white'
+              className={`flex-1 py-1.5 rounded-lg text-center transition-all cursor-pointer ${
+                viewMode === 'month' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
             >
-              Calendario
+              Mes
             </button>
           </div>
         </div>

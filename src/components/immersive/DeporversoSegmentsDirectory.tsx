@@ -106,16 +106,6 @@ export const DEPORVERSO_SEGMENTS: DeporversoSegment[] = [
     icon: <Activity className="w-5 h-5" />,
     accentColor: '#14b8a6', // Teal
     highlightSpecs: ['Votación auditada', 'Alertas WhatsApp', 'Actas automáticas']
-  },
-  {
-    id: 'seg-admin',
-    tabKey: 'master-admin',
-    title: 'Super Admin CRM & Clave 1326',
-    categoryBadge: 'PANEL MAESTRO CONFIDENCIAL',
-    shortDesc: 'Control de cobros anuales ($180 USD), activación de nuevas ligas en 60 segundos y atención al 0958610578.',
-    icon: <Lock className="w-5 h-5" />,
-    accentColor: '#f97316', // Orange
-    highlightSpecs: ['Clave secreta 1326', 'CRM de ligas afiliadas', 'WhatsApp directo']
   }
 ];
 
@@ -161,7 +151,7 @@ export const DeporversoSegmentsDirectory: React.FC<DeporversoSegmentsDirectoryPr
             <button
               id="btn-directory-enter-platform-top"
               onClick={onEnterFullPlatform}
-              className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 transition-all cursor-pointer border border-emerald-300/40"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 transition-all cursor-pointer border border-emerald-300/40 whitespace-nowrap"
             >
               <span>ENTRA AL DEPORVERSO COMPLETO</span>
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]" />
@@ -170,7 +160,7 @@ export const DeporversoSegmentsDirectory: React.FC<DeporversoSegmentsDirectoryPr
             {onOpenOnboarding && (
               <button
                 onClick={onOpenOnboarding}
-                className="px-5 py-3.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="px-5 py-3.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <span>Afiliar mi Liga</span>
               </button>
@@ -267,7 +257,7 @@ export const DeporversoSegmentsDirectory: React.FC<DeporversoSegmentsDirectoryPr
           <button
             id="btn-directory-enter-platform-bottom"
             onClick={onEnterFullPlatform}
-            className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 transition-all cursor-pointer shrink-0 border border-emerald-300/40"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 transition-all cursor-pointer shrink-0 border border-emerald-300/40 whitespace-nowrap"
           >
             <span>ENTRA AL DEPORVERSO COMPLETO</span>
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]" />

@@ -886,15 +886,15 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
 
           {/* Center Timer & Match Controls */}
           <div className="px-4 text-center space-y-3 shrink-0">
-            <div className="flex items-center justify-center gap-1.5 flex-wrap">
+            <div className="deporverso-segmented-nav flex items-center justify-center p-1 gap-1">
               {['1ST_HALF', 'HALF_TIME', '2ND_HALF', 'EXTRA_TIME', 'FINISHED'].map((p) => (
                 <button
                   key={p}
                   onClick={() => setCurrentPeriod(p)}
-                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer font-mono ${
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition-all cursor-pointer ${
                     currentPeriod === p 
-                      ? 'bg-[#00ff66] text-black shadow-lg shadow-[#00ff66]/30' 
-                      : 'bg-black/50 text-white/50 hover:text-white border border-white/10'
+                      ? 'deporverso-tab-pill-active font-bold' 
+                      : 'deporverso-tab-pill-inactive'
                   }`}
                 >
                   {p === '1ST_HALF' ? '1T' : p === 'HALF_TIME' ? 'ET' : p === '2ND_HALF' ? '2T' : p === 'EXTRA_TIME' ? 'PR' : 'FIN'}
@@ -988,26 +988,26 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           </div>
 
           {/* View Mode Toggle: Dual side-by-side or Tabs */}
-          <div className="flex items-center bg-[#121212] p-1 rounded-xl border border-white/10 self-start sm:self-auto text-xs">
+          <div className="deporverso-segmented-nav flex items-center p-1 text-xs self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setPanelViewMode('DUAL')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                panelViewMode === 'DUAL' ? 'bg-[#00ff66] text-black shadow-md' : 'text-[#A0A0A0] hover:text-white'
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                panelViewMode === 'DUAL' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
-              <span>Vista Dual (Dos Equipos)</span>
+              <Users className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Vista Dual</span>
             </button>
             <button
               type="button"
               onClick={() => setPanelViewMode('TABS')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                panelViewMode === 'TABS' ? 'bg-cyan-500 text-black shadow-md' : 'text-[#A0A0A0] hover:text-white'
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                panelViewMode === 'TABS' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
             >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Vista por Pestañas</span>
+              <Eye className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Por Pestañas</span>
             </button>
           </div>
         </div>
@@ -1044,25 +1044,25 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
         ) : (
           /* Tabs mode */
           <div className="space-y-4">
-            <div className="flex items-center gap-2 bg-[#121212] p-1.5 rounded-2xl border border-white/10">
+            <div className="deporverso-segmented-nav flex items-center p-1 text-xs">
               <button
                 type="button"
                 onClick={() => setActiveTeamTab('HOME')}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                  activeTeamTab === 'HOME' ? 'bg-cyan-500 text-black shadow-md' : 'text-[#A0A0A0] hover:text-white'
+                className={`flex-1 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  activeTeamTab === 'HOME' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
                 }`}
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-cyan-400"></div>
+                <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
                 <span>{homeTeam?.name || 'Local'} ({homeGoalsFromStats} Goles)</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTeamTab('AWAY')}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                  activeTeamTab === 'AWAY' ? 'bg-teal-500 text-black shadow-md' : 'text-[#A0A0A0] hover:text-white'
+                className={`flex-1 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  activeTeamTab === 'AWAY' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
                 }`}
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-teal-400"></div>
+                <div className="w-2 h-2 rounded-full bg-teal-400"></div>
                 <span>{awayTeam?.name || 'Visitante'} ({awayGoalsFromStats} Goles)</span>
               </button>
             </div>

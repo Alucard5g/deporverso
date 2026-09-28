@@ -8,8 +8,6 @@ interface WelcomePageProps {
   onOpenAffiliation?: () => void;
   onAddTenant?: (tenant: Omit<Tenant, 'id' | 'created_at'>) => void;
   setUserRole?: (role: UserRole) => void;
-  isSuperAdminAuth?: boolean;
-  onSuperAdminAuthSuccess?: () => void;
 }
 
 export const WelcomePage: React.FC<WelcomePageProps> = ({

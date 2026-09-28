@@ -4,7 +4,7 @@ import {
   Heart, Sparkles, MessageCircle, Search, Filter, Award, Flame, 
   AlertTriangle, Check, ArrowRight, Eye, Star, Zap, Clock, MapPin, 
   ChevronRight, ExternalLink, Download, FileText, Activity, ChevronDown,
-  Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft
+  Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft, Tv
 } from 'lucide-react';
 import { Tenant, Match, Team, Player, Sport, AiChronicle } from '../../types';
 import { FanAuthModal } from '../Fan/FanAuthModal';
@@ -14,6 +14,8 @@ import { ClubAndRosterDetail } from './ClubAndRosterDetail';
 import { PlayerTransfersManager } from './PlayerTransfersManager';
 import { SPORT_VISUAL_THEMES } from '../../data/sportThemesData';
 import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
+import { InscriptionsAndStreaming } from './InscriptionsAndStreaming';
+import { LiveStreamingPanel } from './LiveStreamingPanel';
 import heroBannerImg from '../../assets/images/soccer_hero_banner_1785853921446.jpg';
 import basketballHeroImg from '../../assets/images/basketball_hero_bg_1785854264293.jpg';
 import volleyballHeroImg from '../../assets/images/volleyball_hero_bg_1785854282070.jpg';
@@ -65,6 +67,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 }) => {
   const currentSportBg = getSportHeroBg(tenant.sport_code, sport?.name);
   const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
+  const [streamingMode, setStreamingMode] = useState<'vocalia' | 'var' | 'tv'>('vocalia');
   const [playerForTransfer, setPlayerForTransfer] = useState<Player | null>(null);
   const [standingsSubTab, setStandingsSubTab] = useState<'table' | 'scorers' | 'fairplay'>('table');
   const [selectedCategory, setSelectedCategory] = useState<string>('Primera Senior');
@@ -274,32 +277,32 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </div>
         </div>
 
-        {/* Right Menu Items (Minimalist & Refined) */}
-        <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider">
+        {/* Right Menu Items (Minimalist & Refined Segmented Bar) */}
+        <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
           <button
             onClick={() => setActiveTab('inicio')}
-            className={`relative py-2 transition-all cursor-pointer ${
-              activeTab === 'inicio' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+              activeTab === 'inicio' 
+                ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30' 
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
-            INICIO
-            {activeTab === 'inicio' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
-            )}
+            Inicio
           </button>
 
           {/* Categorías Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="flex items-center gap-1.5 py-2 text-slate-400 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all cursor-pointer font-medium"
             >
-              <span>CATEGORÍAS</span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <span>{selectedCategory}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {showCategoryDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-52 bg-[#080d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
+              <div className="absolute top-full right-0 mt-2 w-52 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 space-y-0.5">
+                <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider block">Categoría</span>
                 {categories.map((cat) => (
                   <button
                     key={cat}
@@ -308,8 +311,10 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                       setShowCategoryDropdown(false);
                       setActiveTab('standings');
                     }}
-                    className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
-                      selectedCategory === cat ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    className={`w-full text-left px-3 py-1.5 rounded-xl text-xs transition-all ${
+                      selectedCategory === cat 
+                        ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30' 
+                        : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
                     }`}
                   >
                     {cat}
@@ -321,55 +326,96 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('transfers')}
-            className={`relative py-2 transition-all cursor-pointer ${
-              activeTab === 'transfers' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+              activeTab === 'transfers' 
+                ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30' 
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
-            PASES & FICHAJES
-            {activeTab === 'transfers' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
-            )}
+            Pases & Fichajes
           </button>
 
           <button
             onClick={() => setActiveTab('blog')}
-            className={`relative py-2 transition-all cursor-pointer ${
-              activeTab === 'blog' ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+              activeTab === 'blog' 
+                ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30' 
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
-            BLOG & CRÓNICAS
-            {activeTab === 'blog' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"></span>
-            )}
+            Blog & Crónicas
           </button>
 
           {/* En Línea Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowOnlineDropdown(!showOnlineDropdown)}
-              className="flex items-center gap-1.5 py-2 text-slate-400 hover:text-white transition-all cursor-pointer"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium ${
+                activeTab === 'online'
+                  ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+              }`}
             >
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                EN LÍNEA
-              </span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>En Vivo</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {showOnlineDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-56 bg-[#080d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
+              <div className="absolute top-full right-0 mt-2 w-60 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 space-y-0.5">
                 <button
-                  onClick={() => { setActiveTab('online'); setShowOnlineDropdown(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                  onClick={() => { 
+                    setActiveTab('online'); 
+                    setStreamingMode('vocalia'); 
+                    setShowOnlineDropdown(false); 
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
+                    activeTab === 'online' && streamingMode === 'vocalia'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                  }`}
                 >
-                  <Radio className="w-3.5 h-3.5 text-emerald-400" /> Vocalía Digital Live
+                  <Radio className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="block">Vocalía Digital Live</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Marcador y acta en vivo</span>
+                  </div>
                 </button>
                 <button
-                  onClick={() => { setActiveTab('matches'); setMatchdayFilter('LIVE'); setShowOnlineDropdown(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                  onClick={() => { 
+                    setActiveTab('online'); 
+                    setStreamingMode('var'); 
+                    setShowOnlineDropdown(false); 
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
+                    activeTab === 'online' && streamingMode === 'var'
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                  }`}
                 >
-                  <Activity className="w-3.5 h-3.5 text-rose-400" /> Transmisión VAR Local
+                  <Activity className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <span className="block">Transmisión VAR Local</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Repetición & señales de cancha</span>
+                  </div>
                 </button>
+                <div className="pt-1 mt-1 border-t border-white/5">
+                  <button
+                    onClick={() => { 
+                      setActiveTab('online'); 
+                      setStreamingMode('tv'); 
+                      setShowOnlineDropdown(false); 
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      activeTab === 'online' && streamingMode === 'tv'
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Tv className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <span>Streaming TV Oficial (SRS/RTMP)</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -468,93 +514,104 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
       <main className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
 
         {/* Minimalist Segmented Navigation Tabs Bar */}
-        <div className="p-1.5 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-md flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
+        <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto text-xs font-medium">
           <button
             onClick={() => setActiveTab('inicio')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'inicio' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Globe className="w-4 h-4" /> Resumen Portal
+            <Globe className="w-3.5 h-3.5 text-cyan-400" /> Resumen Portal
           </button>
 
           <button
             onClick={() => setActiveTab('standings')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'standings' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Trophy className="w-4 h-4" /> Posiciones
+            <Trophy className="w-3.5 h-3.5 text-amber-400" /> Posiciones
           </button>
 
           <button
             onClick={() => setActiveTab('matches')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'matches' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Calendar className="w-4 h-4" /> Calendario & Marcadores
+            <Calendar className="w-3.5 h-3.5 text-emerald-400" /> Calendario & Marcadores
           </button>
 
           <button
             onClick={() => setActiveTab('teams')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'teams' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Users className="w-4 h-4" /> Clubes, Jugadores & Carnets
+            <Users className="w-3.5 h-3.5 text-indigo-400" /> Clubes, Jugadores & Carnets
           </button>
 
           <button
             onClick={() => setActiveTab('transfers')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'transfers' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <ArrowRightLeft className="w-4 h-4" /> Pases & Transferencias
+            <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-400" /> Pases & Transferencias
           </button>
 
           <button
             onClick={() => setActiveTab('blog')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'blog' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <FileText className="w-4 h-4" /> Blog & Crónicas
+            <FileText className="w-3.5 h-3.5 text-rose-400" /> Blog & Crónicas
+          </button>
+
+          <button
+            onClick={() => { setActiveTab('online'); setStreamingMode('vocalia'); }}
+            className={`whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'online' 
+                ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
+                : 'deporverso-tab-pill-inactive'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> En Vivo ({streamingMode === 'var' ? 'VAR' : streamingMode === 'tv' ? 'TV' : 'Vocalía'})
           </button>
 
           <button
             onClick={() => setActiveTab('rules')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'rules' 
-                ? 'bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Shield className="w-4 h-4" /> Reglamento
+            <Shield className="w-3.5 h-3.5 text-amber-400" /> Inscripciones & Reglamento
           </button>
 
           <button
             onClick={() => setActiveTab('3d-stadium')}
-            className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === '3d-stadium' 
-                ? 'bg-gradient-to-r from-emerald-500/25 via-cyan-500/20 to-emerald-500/15 text-emerald-300 border border-emerald-500/40 shadow-sm font-bold' 
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
+                : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-emerald-400" /> Experiencia 3D
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Experiencia 3D
           </button>
         </div>
 
@@ -715,45 +772,47 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
         {/* SECTION: STANDINGS */}
         {activeTab === 'standings' && (
-          <div className="bg-[#0d0d0d] rounded-2xl border border-white/10 p-7 space-y-6 shadow-2xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+          <div className="bg-[#080d1a]/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-6 sm:p-7 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Trophy className="w-6 h-6 text-amber-400" />
+                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-400" />
                   Tabla de Clasificación & Estadísticas — {selectedCategory}
                 </h2>
-                <p className="text-xs text-[#A0A0A0] font-normal mt-1">Criterios: Puntos &gt; Gol Diferencia &gt; Goles a Favor</p>
+                <p className="text-xs text-slate-400 font-normal mt-0.5">Criterios: Puntos &gt; Gol Diferencia &gt; Goles a Favor</p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setStandingsSubTab('table')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    standingsSubTab === 'table' ? 'bg-[#00d2b5] text-black font-extrabold shadow-md' : 'bg-white/5 text-[#A0A0A0] hover:text-white hover:bg-white/10 font-medium'
-                  }`}
-                >
-                  Tabla General
-                </button>
-                <button
-                  onClick={() => setStandingsSubTab('scorers')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    standingsSubTab === 'scorers' ? 'bg-[#00d2b5] text-black font-extrabold shadow-md' : 'bg-white/5 text-[#A0A0A0] hover:text-white hover:bg-white/10 font-medium'
-                  }`}
-                >
-                  Goleadores
-                </button>
-                <button
-                  onClick={() => setStandingsSubTab('fairplay')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    standingsSubTab === 'fairplay' ? 'bg-[#00d2b5] text-black font-extrabold shadow-md' : 'bg-white/5 text-[#A0A0A0] hover:text-white hover:bg-white/10 font-medium'
-                  }`}
-                >
-                  Fair Play
-                </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="deporverso-segmented-nav flex items-center gap-1 text-xs">
+                  <button
+                    onClick={() => setStandingsSubTab('table')}
+                    className={`transition-all cursor-pointer ${
+                      standingsSubTab === 'table' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
+                    }`}
+                  >
+                    Tabla General
+                  </button>
+                  <button
+                    onClick={() => setStandingsSubTab('scorers')}
+                    className={`transition-all cursor-pointer ${
+                      standingsSubTab === 'scorers' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
+                    }`}
+                  >
+                    Goleadores
+                  </button>
+                  <button
+                    onClick={() => setStandingsSubTab('fairplay')}
+                    className={`transition-all cursor-pointer ${
+                      standingsSubTab === 'fairplay' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
+                    }`}
+                  >
+                    Fair Play
+                  </button>
+                </div>
 
                 <button
                   onClick={handleShareStandings}
-                  className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs cursor-pointer transition-all"
+                  className="p-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white rounded-lg border border-white/[0.08] text-xs cursor-pointer transition-all"
                   title="Compartir Tabla"
                 >
                   <Share2 className="w-4 h-4 text-cyan-400" />
@@ -994,39 +1053,27 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </div>
         )}
 
-        {/* SECTION: REGLAMENTO */}
+        {/* SECTION: STREAMING EN VIVO REAL (VOCALÍA DIGITAL & VAR LOCAL) */}
+        {activeTab === 'online' && (
+          <LiveStreamingPanel
+            tenant={tenant}
+            sport={sport}
+            matches={matches}
+            teams={teams}
+            players={players}
+            defaultMode={streamingMode}
+          />
+        )}
+
+        {/* SECTION: INSCRIPCIONES, REGLAMENTO & STREAMING EN VIVO */}
         {activeTab === 'rules' && (
-          <div className="bg-[#0d0d0d] rounded-2xl border border-white/10 p-7 space-y-6 shadow-2xl">
-            <div className="border-b border-white/10 pb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Shield className="w-6 h-6 text-amber-400" />
-                Reglamento Oficial de Torneo
-              </h2>
-              <p className="text-xs text-[#A0A0A0] font-normal mt-1">Estructura de sanciones y reglas para {tenant.sport_code}.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-2 shadow-md">
-                <span className="font-bold text-amber-400 uppercase tracking-wider block">Sistema Puntos</span>
-                <p className="text-white/80 font-normal">Victoria: 3 Puntos</p>
-                <p className="text-white/80 font-normal">Empate: 1 Punto</p>
-                <p className="text-white/80 font-normal">Derrota: 0 Puntos</p>
-              </div>
-
-              <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-2 shadow-md">
-                <span className="font-bold text-amber-400 uppercase tracking-wider block">Multas Disciplinarias</span>
-                <p className="text-white/80 font-normal">Tarjeta Amarilla: $1.00 USD</p>
-                <p className="text-white/80 font-normal">Tarjeta Roja Directa: $5.00 USD</p>
-                <p className="text-white/80 font-normal">Ausencia Vocalía: $20.00 USD</p>
-              </div>
-
-              <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-2 shadow-md">
-                <span className="font-bold text-amber-400 uppercase tracking-wider block">Acreditación</span>
-                <p className="text-white/80 font-normal">Carnet QR Obligatorio</p>
-                <p className="text-white/80 font-normal">Hasta 5 cambios por partido</p>
-              </div>
-            </div>
-          </div>
+          <InscriptionsAndStreaming
+            tenant={tenant}
+            sport={sport}
+            matches={matches}
+            teams={teams}
+            players={players}
+          />
         )}
 
         {/* SECTION: 3D STADIUM & TROPHY EXPERIENCE */}

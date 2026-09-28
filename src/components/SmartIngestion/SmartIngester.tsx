@@ -61,16 +61,16 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="bg-[#0a0a0a] p-6 rounded-2xl border border-white/10 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#080d1a]/80 backdrop-blur-xl p-6 sm:p-7 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+            <span className="bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               Ingesta Multideporte Inteligente
             </span>
-            <span className="text-white/40 text-xs font-mono">3 Caminos de Carga</span>
+            <span className="text-slate-400 text-xs font-mono font-medium">3 Caminos de Carga</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Módulo de Ingesta Inteligente de Datos</h1>
-          <p className="text-xs text-white/50 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Módulo de Ingesta Inteligente de Datos</h1>
+          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Convierte documentos Word, Excel o PDF mediante Gemini AI o solicita migración asistida desde tu sistema anterior.
           </p>
         </div>
@@ -82,45 +82,45 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
           onClick={() => setActiveMode('ai-parse')}
           className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
             activeMode === 'ai-parse'
-              ? 'bg-[#121212] border-cyan-500/50 shadow-lg'
-              : 'bg-[#0a0a0a] border-white/10 hover:bg-white/5'
+              ? 'bg-cyan-500/10 border-cyan-500/50 shadow-md ring-1 ring-cyan-500/30'
+              : 'bg-[#080d1a]/70 border-white/[0.08] hover:border-white/20'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-white text-sm">Camino 1: Gemini AI Parser</span>
-            <Sparkles className="w-5 h-5 text-cyan-400" />
+            <span className="font-semibold text-white text-sm">Camino 1: Gemini AI Parser</span>
+            <Sparkles className="w-4 h-4 text-cyan-400" />
           </div>
-          <p className="text-xs text-white/50">Pega el contenido de archivos Word/Excel/PDF para extraer equipos y calendarios automáticamente.</p>
+          <p className="text-xs text-slate-400 leading-relaxed">Pega el contenido de archivos Word/Excel/PDF para extraer equipos y calendarios automáticamente.</p>
         </button>
 
         <button
           onClick={() => setActiveMode('legacy')}
           className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
             activeMode === 'legacy'
-              ? 'bg-[#121212] border-cyan-500/50 shadow-lg'
-              : 'bg-[#0a0a0a] border-white/10 hover:bg-white/5'
+              ? 'bg-teal-500/10 border-teal-500/50 shadow-md ring-1 ring-teal-500/30'
+              : 'bg-[#080d1a]/70 border-white/[0.08] hover:border-white/20'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-white text-sm">Camino 2: Migración Asistida de Datos</span>
-            <Upload className="w-5 h-5 text-teal-400" />
+            <span className="font-semibold text-white text-sm">Camino 2: Migración Asistida</span>
+            <Upload className="w-4 h-4 text-teal-400" />
           </div>
-          <p className="text-xs text-white/50">Solicita ayuda técnica para importar bases de datos antiguas, hojas de cálculo o archivos PDF.</p>
+          <p className="text-xs text-slate-400 leading-relaxed">Solicita ayuda técnica para importar bases de datos antiguas, hojas de cálculo o archivos PDF.</p>
         </button>
 
         <button
           onClick={() => setActiveMode('manual')}
           className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
             activeMode === 'manual'
-              ? 'bg-[#121212] border-cyan-500/50 shadow-lg'
-              : 'bg-[#0a0a0a] border-white/10 hover:bg-white/5'
+              ? 'bg-amber-500/10 border-amber-500/50 shadow-md ring-1 ring-amber-500/30'
+              : 'bg-[#080d1a]/70 border-white/[0.08] hover:border-white/20'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-white text-sm">Camino 3: Registro Manual</span>
-            <FileText className="w-5 h-5 text-amber-400" />
+            <span className="font-semibold text-white text-sm">Camino 3: Registro Manual</span>
+            <FileText className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="text-xs text-white/50">Creación tradicional paso a paso de categorías, equipos y programación de partidos.</p>
+          <p className="text-xs text-slate-400 leading-relaxed">Creación tradicional paso a paso de categorías, equipos y programación de partidos.</p>
         </button>
       </div>
 

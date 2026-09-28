@@ -1,0 +1,155 @@
+name: CIG Industrial Security & Automated Cloud Run Deployment
+
+# ==============================================================================
+# CORPORACIÓN E INNOVACIÓN GUERRA (CIG) - CI/CD PIPELINE
+# Flujo de Protección Criptográfica, Ofuscación y Despliegue Soberano
+# ==============================================================================
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || 'sportiaplataform' }}
+  SERVICE_NAME: deporverso-platform
+  REGION: us-central1
+  IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID || 'sportiaplataform' }}/deporverso-app:latest
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # FASE 1: AUDITORÍA DE CÓDIGO, OFUSCACIÓN Y SELLADO CRIPTOGRÁFICO DE IP
+  # ----------------------------------------------------------------------------
+  build-and-seal:
+    name: "CIG Core: Compilación, Ofuscación y Sellado SHA-256"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Descargar Código Fuente
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Entorno Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 3. Instalación Determinista de Dependencias
+        run: npm ci
+
+      - name: 4. Verificación de Tipos y Sintaxis (Linter)
+        run: npm run lint
+
+      - name: 5. Compilación Vite SPA + Backend + Ofuscación + Sellado Criptográfico
+        run: npm run build
+
+      - name: 6. Validación Pericial de Firma Ed25519 e Integridad (verify-seal)
+        run: npm run verify-seal
+
+      - name: 7. Archivar Evidencia Pericial Inmutable (JSON + SIG + OTS + PUBKEY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cig-security-evidence-bundle
+          path: |
+            CIG-SECURITY-MANIFEST.json
+            CIG-SECURITY-MANIFEST.sig
+            CIG-SECURITY-MANIFEST.ots
+            .cig-security/cig-public.pem
+          retention-days: 180
+
+  # ----------------------------------------------------------------------------
+  # FASE 2: EMPAQUETADO EN CONTENEDOR SEGURO Y DESPLIEGUE EN GOOGLE CLOUD RUN
+  # ----------------------------------------------------------------------------
+  deploy-cloud-run:
+    name: "CIG Cloud: Firma de Imagen (Cosign) y Despliegue en Google Cloud Run"
+    needs: build-and-seal
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Requerido para firmado OIDC keyless con Sigstore / Cosign
+
+    steps:
+      - name: 1. Descargar Código Fuente
+        uses: actions/checkout@v4
+
+      - name: 2. Descargar Manifiesto y Evidencia Pericial
+        uses: actions/download-artifact@v4
+        with:
+          name: cig-security-evidence-bundle
+
+      - name: 3. Instalar Cosign (Firma Criptográfica Sigstore)
+        uses: sigstore/cosign-installer@v3.8.0
+
+      - name: 4. Autenticación en Google Cloud Platform
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: 5. Configurar Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: 6. Autenticar Docker con Google Container / Artifact Registry
+        run: gcloud auth configure-docker --quiet
+
+      - name: 7. Construir Contenedor Seguro Multi-Stage (No-Root)
+        run: |
+          docker build \
+            --tag $IMAGE_NAME \
+            --build-arg NODE_ENV=production \
+            .
+
+      - name: 8. Publicar Imagen en Google Cloud Registry
+        run: docker push $IMAGE_NAME
+
+      - name: 9. Firma Criptográfica del Contenedor con Cosign / Sigstore
+        run: |
+          echo "============================================================"
+          echo " [CIG COSIGN] FIRMANDO IMAGEN DE PRODUCCIÓN CON SIGSTORE    "
+          echo "============================================================"
+          cosign sign --yes $IMAGE_NAME
+
+      - name: 10. Adjuntar Atestación del Manifiesto CIG a la Imagen
+        run: |
+          cosign attest --yes \
+            --predicate CIG-SECURITY-MANIFEST.json \
+            --type https://cig.lat/security/manifest/v1 \
+            $IMAGE_NAME
+
+      - name: 11. Verificación de Integridad y Firma de la Imagen (Gate de Producción)
+        run: |
+          cosign verify $IMAGE_NAME \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+          echo "✓ Firma e identidad del contenedor verificadas correctamente."
+
+      - name: 12. Desplegar en Google Cloud Run (Instancia Soberana CIG)
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          image: ${{ env.IMAGE_NAME }}
+          region: ${{ env.REGION }}
+          flags: |
+            --allow-unauthenticated
+            --port=8080
+            --memory=1Gi
+            --cpu=1
+            --min-instances=0
+            --max-instances=10
+            --execution-environment=gen2
+            --set-env-vars=NODE_ENV=production
+
+      - name: 13. Despacho de Notificación Notarial CIG (Discord / Slack / Telegram)
+        if: always()
+        env:
+          CIG_AUDIT_WEBHOOK_URL: ${{ secrets.CIG_AUDIT_WEBHOOK_URL }}
+        run: |
+          node scripts/cig-notify.js CLOUD_DEPLOYED
+
+      - name: 14. Reporte Final de Despliegue y URL de Producción
+        run: |
+          echo "✓ Despliegue de DeporVerso completado satisfactoriamente."
+          echo "✓ Entidad: CORPORACIÓN E INNOVACIÓN GUERRA (CIG)"
+          echo "✓ Imagen Firmada: $IMAGE_NAME"
+          echo "✓ Servicio Cloud Run: https://${{ env.SERVICE_NAME }}-${{ env.REGION }}.run.app"
