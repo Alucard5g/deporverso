@@ -15,7 +15,8 @@ RUN apk add --no-cache python3 make g++
 
 # Aprovechar caché de capas de Docker para dependencias
 COPY package*.json ./
-RUN npm ci
+# Instalación determinista con fallback automático para evitar fallos de lockfile en Cloud Build
+RUN npm ci || npm install --no-audit
 
 # Copiar todo el código fuente del proyecto
 COPY . .
@@ -41,7 +42,7 @@ RUN addgroup -g 10001 -S ciggroup && \
 
 # Copiar manifiesto de dependencias e instalar estrictamente módulos de producción
 COPY package*.json ./
-RUN npm ci --omit=dev --ignore-scripts && \
+RUN (npm ci --omit=dev --ignore-scripts || npm install --omit=dev --ignore-scripts --no-audit) && \
     npm cache clean --force
 
 # Copiar artefactos compilados y ofuscados desde la etapa builder

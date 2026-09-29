@@ -2,13 +2,13 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-09-28T14:00:45.507Z",
-  "epoch_timestamp_ms": 1790604045507,
+  "timestamp_utc": "2026-09-29T12:50:00.058Z",
+  "epoch_timestamp_ms": 1790686200058,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "eeedc80c321c70b15fad4a3ac81e27fd5e63d771ddc3e5ba6cd26d57f366fc75",
-  "signature_base64": "XJ6A+LkmcqTJCID2QMXJaGI1+nxbSYzDIcebzvjAA1+qNE3qiO5Bpu4UjAKwXHW5QreVct8lG2OxQMrYWDhTCg==",
+  "merkle_master_root_hash": "a5b1e4589951998e6636007f342aef272ee229aa0716c0c566390392035c7ac9",
+  "signature_base64": "3tL+K2qwy87y97C312BH3KccamntlqFMUywSkfKF0anRkge4DkV1BWeeenE7z6OJxWuFL+O4vi1nxlHFhlFpAw==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
@@ -58,8 +58,8 @@
     },
     {
       "path": "Dockerfile",
-      "sizeBytes": 2421,
-      "sha256": "53ae5c62e4549cc5255ddf5ec593c7bc8bce8de24f5ab313b5aef530f368b3e0"
+      "sizeBytes": 2602,
+      "sha256": "0749b127e978caee786a3585f2c2e298e3294c5434c4014c20c792e2905daa1e"
     },
     {
       "path": "firebase-applet-config.json",

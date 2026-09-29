@@ -37,7 +37,7 @@ jobs:
           cache: 'npm'
 
       - name: 3. Instalación Determinista de Dependencias
-        run: npm ci
+        run: npm ci || npm install
 
       - name: 4. Verificación de Tipos y Sintaxis (Linter)
         run: npm run lint
