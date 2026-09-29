@@ -4,6 +4,9 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import { deporversoRouter } from "./server/routes/deporversoRoutes";
 import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes";
+import { varHighlightRouter } from "./server/routes/varHighlightRoutes";
+import { pdfReportRouter } from "./server/routes/pdfReportRoutes";
+import { workerRoutes } from "./server/routes/workerRoutes";
 import { 
   antiScrapingMiddleware, 
   rateLimiterMiddleware, 
@@ -35,6 +38,23 @@ async function startServer() {
 
   // CIG Security, Cryptographic Seal & Anti-Scraping Audit API
   app.use("/api/cig", cigSecurityRouter);
+
+  // AutoHighlightGenerator (Python 3 + FFmpeg) & VAR A la Carta Media API
+  app.use("/api/media", varHighlightRouter);
+  app.use("/api/var-highlights", varHighlightRouter);
+
+  // Puppeteer PDF Scouting & VAR Reports API
+  app.use("/api/reports", pdfReportRouter);
+
+  // CIG Serverless Vision & VAR Worker API (YOLOv8 + EasyOCR + PyTorch)
+  app.use("/api/worker", workerRoutes);
+
+  // Servir estáticamente los clips verticales generados y reportes PDF
+  const clipsStaticDir = path.join(process.cwd(), 'public', 'generated-clips');
+  app.use('/generated-clips', express.static(clipsStaticDir));
+
+  const reportsStaticDir = path.join(process.cwd(), 'public', 'generated-reports');
+  app.use('/generated-reports', express.static(reportsStaticDir));
 
   // Initialize Gemini AI Client (Server Side)
   const getGenAIClient = () => {

@@ -2,18 +2,18 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-09-29T12:50:00.058Z",
-  "epoch_timestamp_ms": 1790686200058,
+  "timestamp_utc": "2026-09-29T15:14:07.500Z",
+  "epoch_timestamp_ms": 1790694847500,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "a5b1e4589951998e6636007f342aef272ee229aa0716c0c566390392035c7ac9",
-  "signature_base64": "3tL+K2qwy87y97C312BH3KccamntlqFMUywSkfKF0anRkge4DkV1BWeeenE7z6OJxWuFL+O4vi1nxlHFhlFpAw==",
+  "merkle_master_root_hash": "a3df6cdfcf7ff02aca26305b062628135e1524cdc68cf4890b8f33625fad8a93",
+  "signature_base64": "z4Im0wTriSx7EojZP4U/TxSt7ozQGgUjNcHkUxohVl8SK/5v4Zj9PoOqdkcKpuB5SlW9TLXqZcHTu8MLO4LFAA==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 140,
+  "total_audited_files": 151,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "path": "bun.lock",
-      "sizeBytes": 161291,
-      "sha256": "be297ce71eb8c0bd2833d223049f742613170534707c510e544df9c2b8da5152"
+      "sizeBytes": 167251,
+      "sha256": "6ab9f63162d282bf60d00c74899d6d9f31549ed1b5ac1343bed7f14ac7719173"
     },
     {
       "path": "cloudbuild.yaml",
@@ -58,8 +58,13 @@
     },
     {
       "path": "Dockerfile",
-      "sizeBytes": 2602,
-      "sha256": "0749b127e978caee786a3585f2c2e298e3294c5434c4014c20c792e2905daa1e"
+      "sizeBytes": 3079,
+      "sha256": "2817630ebfcfc0ebae49411df59b23dfd0e5d465799cb272fab7478240c92d4c"
+    },
+    {
+      "path": "Dockerfile.worker",
+      "sizeBytes": 1384,
+      "sha256": "5280323d870177d76666ba2f3ab1afdd88b045efbe8a560927a8138804aaa1d0"
     },
     {
       "path": "firebase-applet-config.json",
@@ -87,14 +92,29 @@
       "sha256": "5ffa425fbe4c9009db2384c0cf19f605d0c760572fa49e98be40d3c9f64dc66c"
     },
     {
+      "path": "main_serverless_worker.py",
+      "sizeBytes": 5764,
+      "sha256": "bf88c860309df2421b1114a96e327a7b064a802dec56fb600acd2e8f354e7027"
+    },
+    {
       "path": "metadata.json",
       "sizeBytes": 427,
       "sha256": "38ff02f00c1ef132e72a907cdffc76f57752e40f93377f29421ba6c9bf0d7510"
     },
     {
       "path": "package.json",
-      "sizeBytes": 1684,
-      "sha256": "3886dc15c888c4701abeaad055f73da5a7e0157f3637872d64e0467644c002e9"
+      "sizeBytes": 1713,
+      "sha256": "8f00a976479206d699df0b0ddf7e8ce94417fa62a4bf6c6eb5b0ebfca1b74547"
+    },
+    {
+      "path": "public/generated-reports/acta_var_1790693971194.pdf",
+      "sizeBytes": 90751,
+      "sha256": "c499ada421e793215c6112a9450106321868bfee8154778117d009b654bfa822"
+    },
+    {
+      "path": "public/generated-reports/scouting_10_1790693958099.pdf",
+      "sizeBytes": 78052,
+      "sha256": "55c8e688cf2a2885d747c367eae2d168dc26068f7ba92dc8ddca3de1096fcd0c"
     },
     {
       "path": "public/sports/atletismo.webp",
@@ -222,6 +242,11 @@
       "sha256": "6a39bc7f78ad8a92a14583a937f30ad66d4ccd2cd30bdc0bf58c0dc01ea17c8e"
     },
     {
+      "path": "requirements.txt",
+      "sizeBytes": 209,
+      "sha256": "406e61d54da0863fa63a81da0dd285580d47a07305887fb84cac273cf88eba24"
+    },
+    {
       "path": "scripts/cig-notify.js",
       "sizeBytes": 4786,
       "sha256": "01150ebd688c13b94af87f1e4fadefd218eff173e560330ba786c8a0b54124b1"
@@ -248,8 +273,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 7841,
-      "sha256": "2b32e36c9b63e56237cf139a94aa5d94039c804fecf59c85af57a44636905ad5"
+      "sizeBytes": 8791,
+      "sha256": "8e67fa306ef9eb3155cc1f25775bce87a727a9d46735f694b18b66a7875b165b"
     },
     {
       "path": "server/config/database.ts",
@@ -277,6 +302,21 @@
       "sha256": "85849f76ed8afcfe3302d40a09a88c6fcf5b7ec2b4e56e5863aa2e308025c46c"
     },
     {
+      "path": "server/media/auto_highlight_generator.py",
+      "sizeBytes": 4521,
+      "sha256": "61fdc99d555ee0cabf1834151cf958f2fb389db798e7b651a8350570906e60e7"
+    },
+    {
+      "path": "server/media/highlightService.ts",
+      "sizeBytes": 5178,
+      "sha256": "2af700214e459ea05302c1eab0a7bd9cfccca2ba6aa41953170b1ae5493e9e69"
+    },
+    {
+      "path": "server/reports/scoutingPdfGenerator.ts",
+      "sizeBytes": 10706,
+      "sha256": "2d26e962f98c85a3002190220c1f38362272ebf8d0e9e88d2b6809d243d4af23"
+    },
+    {
       "path": "server/routes/cigSecurityRoutes.ts",
       "sizeBytes": 4341,
       "sha256": "33ea89f0bb0b8c21ecba3c636beec368b0ac8a5c66fd452f160204349630f119"
@@ -285,6 +325,21 @@
       "path": "server/routes/deporversoRoutes.ts",
       "sizeBytes": 6215,
       "sha256": "adfd01362dd759d58930692b1a0c316a90167633543726ab2583ea45ba530cee"
+    },
+    {
+      "path": "server/routes/pdfReportRoutes.ts",
+      "sizeBytes": 5687,
+      "sha256": "ae6076f0d3b0ac328f9987d1a6937db97c81c7ddf010c659d4a7a7c24d91375d"
+    },
+    {
+      "path": "server/routes/varHighlightRoutes.ts",
+      "sizeBytes": 2362,
+      "sha256": "d4780bae135bc10c51b1c54443ceed2100e2fd4c795bd6e2b6ed83cf4145369e"
+    },
+    {
+      "path": "server/routes/workerRoutes.ts",
+      "sizeBytes": 2801,
+      "sha256": "cf7f49e898a077f8f74898591eaa716f59ac604af79a652d2e6fa7c50cc958cf"
     },
     {
       "path": "server/schemas/deporversoMaster.sql",
@@ -583,13 +638,13 @@
     },
     {
       "path": "src/components/VarModule/VarModule.tsx",
-      "sizeBytes": 9609,
-      "sha256": "38511ddfef5e76f7e1c7c28a6c109a72bd1c6288712e9c03a298441620239aa9"
+      "sizeBytes": 22321,
+      "sha256": "2b0f79e179ae0c25b075f4841306ad8f998dcff9e01cf67e8d73811d1e983c26"
     },
     {
       "path": "src/components/Vocalia/ComputerVisionEdge.tsx",
-      "sizeBytes": 6605,
-      "sha256": "a1a0129a17334e70301ecb9ffa660df90a113bca846b057c4005d767a6577f68"
+      "sizeBytes": 28721,
+      "sha256": "0361843244b072ae896bc02f0fa6a8d478cb77b38ef288d7a3642601abe1d1bc"
     },
     {
       "path": "src/components/Vocalia/ContinuousQrScannerModal.tsx",

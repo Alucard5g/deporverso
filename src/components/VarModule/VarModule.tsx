@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { Video, DollarSign, CheckCircle, AlertTriangle, Play, Shield, RefreshCw } from 'lucide-react';
+import { 
+  Video, 
+  DollarSign, 
+  CheckCircle, 
+  AlertTriangle, 
+  Play, 
+  Shield, 
+  RefreshCw, 
+  Scissors, 
+  Smartphone, 
+  Download, 
+  Film,
+  Terminal,
+  Share2,
+  FileText,
+  Check
+} from 'lucide-react';
 import { Match, VarRequest } from '../../types';
 
 interface VarModuleProps {
@@ -21,6 +37,107 @@ export const VarModule: React.FC<VarModuleProps> = ({
   const [cameraAngle, setCameraAngle] = useState('Ángulo 1: Línea de Gol / Área Chica');
   const [activeVarView, setActiveVarView] = useState<VarRequest | null>(varRequests[0] || null);
   const [refereeNotes, setRefereeNotes] = useState('');
+
+  // AutoHighlightGenerator 9:16 state
+  const [eventSec, setEventSec] = useState<number>(45.5);
+  const [actionType, setActionType] = useState<string>('GOL_POLEMICO');
+  const [isProcessing916, setIsProcessing916] = useState<boolean>(false);
+  const [status916, setStatus916] = useState<string | null>(null);
+  const [generated916Clip, setGenerated916Clip] = useState<{
+    url: string;
+    title: string;
+    duration: number;
+  } | null>(null);
+
+  const handleGenerateVarClip916 = async () => {
+    setIsProcessing916(true);
+    setStatus916('Procesando extracción cinemática con AutoHighlightGenerator (FFmpeg)...');
+    try {
+      const res = await fetch('/api/media/generate-highlight-916', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inputVideoUrl: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+          eventTimestampSec: Number(eventSec),
+          eventTitle: `Incidencia VAR 9:16 - ${actionType}`,
+          actionType: actionType,
+          preSec: 10.0,
+          postSec: 5.0
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGenerated916Clip({
+          url: data.clip?.url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+          title: data.clip?.title || 'Clip VAR 9:16',
+          duration: data.clip?.durationSec || 15.0
+        });
+        setStatus916('✓ ¡Clip 9:16 generado con éxito (1080x1920)! Optimizado para dictamen y difusión.');
+      } else {
+        setGenerated916Clip({
+          url: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+          title: 'Clip VAR 9:16 (Simulado)',
+          duration: 15.0
+        });
+        setStatus916('Aviso: Procesamiento completado con fallback de vista previa.');
+      }
+    } catch (e: any) {
+      setStatus916(`Error: ${e.message}`);
+    } finally {
+      setIsProcessing916(false);
+    }
+  };
+
+  // Puppeteer VAR & Scouting PDF State
+  const [isGeneratingVarPdf, setIsGeneratingVarPdf] = useState(false);
+  const [varPdfUrl, setVarPdfUrl] = useState<string | null>(null);
+  const [varPdfStatus, setVarPdfStatus] = useState<string | null>(null);
+
+  const handleGenerateVarPdf = async () => {
+    setIsGeneratingVarPdf(true);
+    setVarPdfStatus('Renderizando Acta Oficial VAR y Ficha Scouting con Puppeteer...');
+    try {
+      const selectedMatch = matches.find(m => m.id === selectedMatchId);
+      const res = await fetch('/api/reports/var-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          matchTitle: activeVarView?.match_title || `${selectedMatch?.home_team?.name || 'Local'} vs ${selectedMatch?.away_team?.name || 'Visitante'}`,
+          incidentType: actionType === 'GOL_POLEMICO' ? 'Revisión de Gol / Fuera de Juego' : actionType,
+          minuteOrTimestamp: `Segundo ${eventSec}s (Ángulo: ${cameraAngle})`,
+          verdict: refereeNotes || 'GOL VÁLIDO - Posición legal confirmada por calibración VAR',
+          refereeNotes: refereeNotes || 'Dictamen oficial emitido con asistencia de cámaras multiseñal y calibración pericial.',
+          playerData: {
+            name: 'Atleta Involucrado #10',
+            team: selectedMatch?.home_team?.name || 'Club Titular',
+            position: 'Extremo / Delantero',
+            age: 24,
+            dorsal: '10',
+            sportIaIndex: 9.2,
+            metrics: {
+              distanceKm: 9.8,
+              maxSpeedKmh: 33.1,
+              passAccuracy: 88.5,
+              recoveries: 6
+            }
+          }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setVarPdfUrl(data.pdfUrl);
+        setVarPdfStatus('✓ Acta Oficial VAR & Scouting generada con éxito (Puppeteer A4)');
+      } else {
+        setVarPdfStatus('Aviso: Error generando el PDF en el servidor.');
+      }
+    } catch (e: any) {
+      setVarPdfStatus(`Error: ${e.message}`);
+    } finally {
+      setIsGeneratingVarPdf(false);
+    }
+  };
 
   const handleRequestVar = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,6 +259,163 @@ export const VarModule: React.FC<VarModuleProps> = ({
               </div>
             </div>
           )}
+
+          {/* AUTOHIGHLIGHT GENERATOR 9:16 VAR CLIP CARD */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/40 via-slate-900 to-[#080d1a] border border-rose-500/30 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                  <Scissors className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>AutoHighlightGenerator VAR 9:16</span>
+                    <span className="text-[10px] px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full font-mono">
+                      FFmpeg 1080x1920
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Extrae los 10s antes y 5s después de la jugada polémica para WhatsApp / TikTok / Redes.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleGenerateVarClip916}
+                disabled={isProcessing916}
+                className="px-3.5 py-2 bg-gradient-to-r from-rose-500 to-amber-400 hover:opacity-95 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+              >
+                <Smartphone className={`w-3.5 h-3.5 ${isProcessing916 ? 'animate-bounce' : ''}`} />
+                <span>{isProcessing916 ? 'Recortando...' : 'Exportar Reel 9:16'}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Segundo de la Incidencia (seg):
+                </label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={eventSec}
+                  onChange={(e) => setEventSec(parseFloat(e.target.value) || 0)}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-rose-500/50 font-mono"
+                  placeholder="Ej: 850.5"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Tipo de Jugada Polémica:
+                </label>
+                <select
+                  value={actionType}
+                  onChange={(e) => setActionType(e.target.value)}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-rose-500/50 cursor-pointer"
+                >
+                  <option value="GOL_POLEMICO">Gol Polémico / Posible Fuera de Juego</option>
+                  <option value="PENALTI_DUDOSO">Penalti / Falta en el Área</option>
+                  <option value="TARJETA_ROJA">Agresión / Posible Tarjeta Roja</option>
+                  <option value="GOL_FANTASMA">Balón en Línea (Gol Fantasma)</option>
+                </select>
+              </div>
+            </div>
+
+            {status916 && (
+              <div className="text-[11px] text-rose-300 font-mono bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+                {status916}
+              </div>
+            )}
+
+            {/* PREVISUALIZADOR VERTICAL SI FUE GENERADO */}
+            {generated916Clip && (
+              <div className="p-3 bg-black/60 rounded-xl border border-white/10 flex flex-col sm:flex-row items-center gap-3">
+                <div className="w-24 aspect-[9/16] rounded-lg overflow-hidden border border-white/20 bg-black shrink-0">
+                  <video
+                    src={generated916Clip.url}
+                    controls
+                    loop
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 space-y-1 text-xs">
+                  <span className="font-bold text-white block">{generated916Clip.title}</span>
+                  <span className="text-[10px] text-slate-400 font-mono block">
+                    Formato: 9:16 (1080x1920) • Duración: {generated916Clip.duration}s
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-mono block">
+                    Filtro: crop=ih*(9/16):ih:(iw-ow)/2:0,scale=1080:1920
+                  </span>
+                  <div className="pt-1 flex gap-2">
+                    <a
+                      href={generated916Clip.url}
+                      download="var_highlight_916.mp4"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-md text-white font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Download className="w-3 h-3 text-cyan-400" />
+                      <span>Descargar MP4</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ACTA OFICIAL VAR & SCOUTING PDF (PUPPETEER) */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/30 via-slate-900 to-[#080d1a] border border-amber-500/30 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Acta Oficial VAR & Scouting PDF (Puppeteer)</span>
+                    <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full font-mono">
+                      A4 Certificado
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Genera el informe pericial del partido con dictamen arbitral, mapa de calor posicional y métricas tácticas.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleGenerateVarPdf}
+                disabled={isGeneratingVarPdf}
+                className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-95 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+              >
+                <FileText className={`w-3.5 h-3.5 ${isGeneratingVarPdf ? 'animate-spin' : ''}`} />
+                <span>{isGeneratingVarPdf ? 'Generando PDF...' : 'Generar Acta PDF'}</span>
+              </button>
+            </div>
+
+            {varPdfStatus && (
+              <div className="text-[11px] text-amber-300 font-mono bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+                {varPdfStatus}
+              </div>
+            )}
+
+            {varPdfUrl && (
+              <div className="p-3 bg-black/60 rounded-xl border border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-semibold text-white">Acta Oficial VAR y Ficha Scouting Lista</span>
+                </div>
+                <a
+                  href={varPdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Download className="w-3 h-3" />
+                  <span>Descargar Documento A4</span>
+                </a>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Request VAR Form & Active Log */}

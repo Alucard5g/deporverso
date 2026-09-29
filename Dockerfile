@@ -10,8 +10,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Instalar herramientas necesarias para compilación nativa si hicieran falta
-RUN apk add --no-cache python3 make g++
+# Instalar herramientas necesarias para compilación nativa, FFmpeg y dependencias Chromium
+RUN apk add --no-cache python3 make g++ ffmpeg chromium nss freetype harfbuzz ca-certificates ttf-freefont
 
 # Aprovechar caché de capas de Docker para dependencias
 COPY package*.json ./
@@ -36,6 +36,11 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
+# Instalar Python 3, FFmpeg y Chromium headless para generación de reportes PDF en producción
+RUN apk add --no-cache python3 ffmpeg chromium nss freetype harfbuzz ca-certificates ttf-freefont
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 # Crear usuario y grupo del sistema sin privilegios root (Principle of Least Privilege)
 RUN addgroup -g 10001 -S ciggroup && \
     adduser -u 10001 -S ciguser -G ciggroup
@@ -47,6 +52,8 @@ RUN (npm ci --omit=dev --ignore-scripts || npm install --omit=dev --ignore-scrip
 
 # Copiar artefactos compilados y ofuscados desde la etapa builder
 COPY --from=builder --chown=ciguser:ciggroup /app/dist ./dist
+COPY --from=builder --chown=ciguser:ciggroup /app/server/media ./server/media
+COPY --from=builder --chown=ciguser:ciggroup /app/public ./public
 COPY --from=builder --chown=ciguser:ciggroup /app/CIG-SECURITY-MANIFEST.* ./
 COPY --from=builder --chown=ciguser:ciggroup /app/.cig-security/cig-public.pem ./.cig-security/cig-public.pem
 

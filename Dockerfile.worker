@@ -1,0 +1,55 @@
+# ==========================================
+# CORPORACIÓN E INNOVACIÓN GUERRA (CIG)
+# WORKER SERVERLESS DE VISIÓN ARTIFICIAL & VAR
+# ==========================================
+
+# ==========================================
+# ETAPA 1: Construcción de Dependencias
+# ==========================================
+FROM python:3.10-slim AS builder
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+# Instalación de paquetes de visión e IA optimizados
+RUN pip install --no-cache-dir --user \
+    ultralytics \
+    opencv-python-headless \
+    torch torchvision --index-url https://download.pytorch.org/whl/cpu \
+    easyocr \
+    numpy
+
+# ==========================================
+# ETAPA 2: Imagen Final Ejecutable
+# ==========================================
+FROM python:3.10-slim AS runner
+
+WORKDIR /app
+
+# Copiar paquetes instalados y binarios del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /root/.local /root/.local
+COPY . /app
+
+ENV PATH=/root/.local/bin:$PATH
+ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["python", "main_serverless_worker.py"]
