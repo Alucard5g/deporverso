@@ -2,18 +2,18 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-09-29T15:14:07.500Z",
-  "epoch_timestamp_ms": 1790694847500,
+  "timestamp_utc": "2026-10-01T20:07:45.733Z",
+  "epoch_timestamp_ms": 1790885265733,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "a3df6cdfcf7ff02aca26305b062628135e1524cdc68cf4890b8f33625fad8a93",
-  "signature_base64": "z4Im0wTriSx7EojZP4U/TxSt7ozQGgUjNcHkUxohVl8SK/5v4Zj9PoOqdkcKpuB5SlW9TLXqZcHTu8MLO4LFAA==",
+  "merkle_master_root_hash": "b6c2245cd805838d7b81f1787eb4fd9325692b0fb2d813502a6356f4566064a7",
+  "signature_base64": "UktsaiRkNvoN9fexWmtDjNcRuNrxYEMYcP94rTZjvtVPhT2IMHHgIUJPz6zRhCM6ckFw3cIhUZ4jWzuTgqIqDg==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 151,
+  "total_audited_files": 154,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
     {
@@ -273,8 +273,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 8791,
-      "sha256": "8e67fa306ef9eb3155cc1f25775bce87a727a9d46735f694b18b66a7875b165b"
+      "sizeBytes": 8906,
+      "sha256": "4eed535369c57d804884ced0e1afe7a29b1439c9aba1dec73d0709a7cac63a43"
     },
     {
       "path": "server/config/database.ts",
@@ -363,8 +363,8 @@
     },
     {
       "path": "src/App.tsx",
-      "sizeBytes": 27852,
-      "sha256": "ed3afdb15479e5cea9b0245074ea83f0efa62874f2d700561d7352edecd771e2"
+      "sizeBytes": 29997,
+      "sha256": "590019eda7429185a0a26857f0d4929c224601d0de4f302d3263a235e0b1cbac"
     },
     {
       "path": "src/assets/images/acto1_cancha_tierra_1789418204541.jpg",
@@ -442,9 +442,14 @@
       "sha256": "6e88492a63b1ed3ba3ee3b4b37b53e0ee9f808828d62d822198f007e12adf585"
     },
     {
+      "path": "src/components/Auth/LoginGate.tsx",
+      "sizeBytes": 20291,
+      "sha256": "42e74b3aa24be1fca225faec03724e59050c1585a400e707d06671011b8338a1"
+    },
+    {
       "path": "src/components/Calendar/MultiSportCalendar.tsx",
-      "sizeBytes": 41516,
-      "sha256": "8aa75debd56febfc52c04637ca824e992178b1cc5dbbf547695826050ac08006"
+      "sizeBytes": 41579,
+      "sha256": "1cd1aad9b857f69ac89873b52a2ee1293ad21aadd5d342b28cc3c9196edbc3f2"
     },
     {
       "path": "src/components/CalendarCardGenerator.tsx",
@@ -538,8 +543,8 @@
     },
     {
       "path": "src/components/LeaguePortal/LeagueDashboard.tsx",
-      "sizeBytes": 77421,
-      "sha256": "b0c8d45924174e0aca8c5a52137db57e14417fef7954c2797491c83d3c8b5861"
+      "sizeBytes": 77442,
+      "sha256": "1d2415438e3f536c24ea3032bbba7041f3e02674f623d62b6ed2f0124a45b957"
     },
     {
       "path": "src/components/LeaguePortal/LeagueFixtureTable.tsx",
@@ -592,14 +597,19 @@
       "sha256": "108b6a7a72f22e11905d6ecdf65e1354509996e5de6408bc65bcf386a20d9299"
     },
     {
+      "path": "src/components/MasterAdmin/AdminUserManager.tsx",
+      "sizeBytes": 21746,
+      "sha256": "a6c7d0049e2c962226497b7b1c7dffebfe9e8b658c5b736351a6332eafe77b7c"
+    },
+    {
       "path": "src/components/MasterAdmin/CigSecurityPanel.tsx",
       "sizeBytes": 17139,
       "sha256": "154f6c86c4f34943e5b43c671f98ce2805bcb5e4c469e9eadcde2647bf639b16"
     },
     {
       "path": "src/components/MasterAdmin/MasterAdminDashboard.tsx",
-      "sizeBytes": 83160,
-      "sha256": "7b88564ce92eeb1da722ed6f9e4df15a72830dd9941826c1777c814c96089a17"
+      "sizeBytes": 84044,
+      "sha256": "95fd6e01448255b550779b7f31550dab3379491488aca5e02d730bac36ffedca"
     },
     {
       "path": "src/components/Navbar.tsx",
@@ -633,8 +643,8 @@
     },
     {
       "path": "src/components/TopHeader.tsx",
-      "sizeBytes": 16763,
-      "sha256": "6641d5175284714a1788ba4a29da915cec7e2a73495cdbe3af943f7a1550f90f"
+      "sizeBytes": 17947,
+      "sha256": "e439d96b8184fe3f485303b709598b77668768d2d14bac6cf4058e677c43dd56"
     },
     {
       "path": "src/components/VarModule/VarModule.tsx",
@@ -653,8 +663,8 @@
     },
     {
       "path": "src/components/Vocalia/VocaliaDigital.tsx",
-      "sizeBytes": 82385,
-      "sha256": "a608912ed34a973a2556716f06fb342f9ff92fa6a8b2a5504571aec3c6db9689"
+      "sizeBytes": 82405,
+      "sha256": "969c52448b698f25f137a6f012de8ec128d1d6dd3cada5e7b28e5942616a5182"
     },
     {
       "path": "src/data/clubs.ts",
@@ -737,14 +747,19 @@
       "sha256": "4b41072cbd168876a8597b6b180b2aee712bd99fd6892e47056bd9865489fbbf"
     },
     {
+      "path": "src/services/authService.ts",
+      "sizeBytes": 8473,
+      "sha256": "82f3df9320f95431f6427ea5c6462e59583c3c1953888c7038f2efbb47e0d9fe"
+    },
+    {
       "path": "src/services/firebaseService.ts",
       "sizeBytes": 15392,
       "sha256": "f5a8c1d4aed0528a5483fbc1bbcfc2d5eedc91095d745809447f23edf2d938eb"
     },
     {
       "path": "src/types.ts",
-      "sizeBytes": 9460,
-      "sha256": "2071392703fecc518d3e7e817eb339ab5219755cbbe06da73443e4ee1b8bc617"
+      "sizeBytes": 9470,
+      "sha256": "84760395d87324c7a49d8e48f86b05cb76a23ac5d65bbaa28eaf7f19af64bb41"
     },
     {
       "path": "src/utils/playerStatsHelper.ts",
@@ -768,8 +783,8 @@
     },
     {
       "path": "vite.config.ts",
-      "sizeBytes": 1412,
-      "sha256": "8a1f784e9fc8ef4438d37f6c268e90284d1855162fecf28a835b92a57b4e012f"
+      "sizeBytes": 1316,
+      "sha256": "df9ee3dcddd30868e83e44dcbd6cd1eb72bf019ebdeb012720870faadc98e948"
     }
   ]
 }

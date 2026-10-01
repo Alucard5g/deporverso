@@ -1,4 +1,4 @@
-export type UserRole = 'SUPER_ADMIN' | 'LEAGUE_ADMIN' | 'TEAM_DELEGATE' | 'REFEREE' | 'PLAYER';
+export type UserRole = 'SUPER_ADMIN' | 'LEAGUE_ADMIN' | 'TEAM_DELEGATE' | 'REFEREE' | 'PLAYER' | 'SCOUT';
 
 export type SportCode = 
   | 'FUTBOL' 

@@ -59,9 +59,9 @@ const getSportHeroBg = (sportCode?: string, sportName?: string) => {
 export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
   tenant,
   sport,
-  matches,
-  teams,
-  players,
+  matches = [],
+  teams = [],
+  players = [],
   publishedChronicles = [],
   onPlayerTransferred
 }) => {
@@ -649,7 +649,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                   <span className="text-slate-400 text-xs font-medium">Jugadores Carnetizados</span>
                   <Award className="w-4 h-4 text-emerald-400 opacity-80 group-hover:scale-110 transition-transform" />
                 </div>
-                <span className="text-3xl sm:text-4xl font-black text-emerald-400 block tracking-tight font-mono">{players.length}</span>
+                <span className="text-3xl sm:text-4xl font-black text-emerald-400 block tracking-tight font-mono">{players?.length || 0}</span>
                 <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Carnet QR 3D

@@ -8,6 +8,7 @@ import { SmartIngester } from '../SmartIngestion/SmartIngester';
 import { AiChronicleGenerator } from '../Chronicle/AiChronicleGenerator';
 import { AdminCRM } from './AdminCRM';
 import { CigSecurityPanel } from './CigSecurityPanel';
+import { AdminUserManager } from './AdminUserManager';
 import { syncVocaliaReportToFirebase } from '../../services/firebaseService';
 
 interface MasterAdminDashboardProps {
@@ -22,20 +23,20 @@ interface MasterAdminDashboardProps {
   activeTenantId?: string;
   activeSport?: SportCode;
   onAddTicket?: (ticket: Omit<MigrationTicket, 'id' | 'created_at'>) => void;
-  initialAdminTab?: 'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
+  initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
   onChronicleGenerated?: (chronicle: AiChronicle) => void;
   onExitAdminMode?: () => void;
 }
 
 export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
-  tenants,
-  sports,
-  subscriptions,
-  migrationTickets,
+  tenants = [],
+  sports = [],
+  subscriptions = [],
+  migrationTickets = [],
   onAddTenant,
-  matches,
-  events,
-  vocaliaReports,
+  matches = [],
+  events = [],
+  vocaliaReports = [],
   activeTenantId,
   activeSport,
   onAddTicket,
@@ -45,8 +46,8 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab);
-  const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants[0]?.id || '1');
+  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab);
+  const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants?.[0]?.id || '1');
 
   // Form State for new Tenant
   const [newTenantName, setNewTenantName] = useState('');
@@ -246,10 +247,10 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   };
 
   // Calculations
-  const totalTenants = tenants.length;
+  const totalTenants = tenants?.length || 0;
   const annualLicensesTotal = totalTenants * 25.00;
   
-  const mrrTotal = subscriptions.reduce((acc, sub) => acc + Number(sub.price_monthly), 0);
+  const mrrTotal = (subscriptions || []).reduce((acc, sub) => acc + Number(sub.price_monthly || 0), 0);
   const arrTotal = (mrrTotal * 12) + annualLicensesTotal;
 
   const generateRandomKey = (slug: string) => {
@@ -453,6 +454,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
           CRM Ligas & Ventas (Confidencial)
         </button>
         <button
+          onClick={() => setActiveAdminTab('users-management')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+            activeAdminTab === 'users-management'
+              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-md shadow-amber-500/10'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Key className="w-3.5 h-3.5 text-amber-400" />
+          Gestión Personal de Usuarios & Contraseñas
+        </button>
+        <button
           onClick={() => setActiveAdminTab('vocalia-reports')}
           className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
             activeAdminTab === 'vocalia-reports'
@@ -633,6 +645,11 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
       {/* TAB: CRM LIGAS & VENTAS (CONFIDENCIAL) */}
       {activeAdminTab === 'crm' && (
         <AdminCRM />
+      )}
+
+      {/* TAB: GESTIÓN PERSONAL DE USUARIOS & CONTRASEÑAS */}
+      {activeAdminTab === 'users-management' && (
+        <AdminUserManager />
       )}
 
       {/* TAB: INFORMES DE VOCALÍA EN VIVO (SUBDOMINIOS & FIREBASE) */}

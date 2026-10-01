@@ -20,16 +20,11 @@ async function startServer() {
   app.use(securityHeadersMiddleware);
   app.use(antiScrapingMiddleware);
   app.use(rateLimiterMiddleware);
-  // Detección de puerto robusta:
-  // 1. Argumento CLI (--port 3000)
-  // 2. Variables de entorno AI Studio (DEFAULT_APP_PORT / NGINX_PORT)
-  // 3. Modo desarrollo: siempre puerto 3000
-  // 4. Modo producción standalone (Cloud Run): process.env.PORT || 8080
+  // Detección de puerto estricta para AI Studio (debe escuchar en 3000):
+  // NGINX escucha en 8080 y hace proxy interno al puerto 3000 (DEFAULT_APP_PORT)
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const isDevMode = process.env.NODE_ENV !== 'production';
-  const isAiStudioContainer = Boolean(process.env.DEFAULT_APP_PORT || process.env.NGINX_PORT);
-  const PORT = cliPort || (isAiStudioContainer || isDevMode ? 3000 : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080));
+  const PORT = cliPort || (process.env.DEFAULT_APP_PORT ? parseInt(process.env.DEFAULT_APP_PORT, 10) : 3000);
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -205,7 +200,10 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
   // Vite middleware setup
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);
@@ -223,7 +221,20 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
 
   mainServer.on("error", (err: any) => {
     console.error(`[DeporVerso Server] Error on port ${PORT}:`, err.message);
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[DeporVerso Server] Port ${PORT} already in use. Exiting to allow clean restart...`);
+      process.exit(1);
+    }
   });
+
+  // Graceful shutdown
+  const shutdown = () => {
+    mainServer.close(() => {
+      process.exit(0);
+    });
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 startServer();

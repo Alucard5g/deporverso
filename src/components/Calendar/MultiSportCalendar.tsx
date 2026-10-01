@@ -17,9 +17,9 @@ interface MultiSportCalendarProps {
 }
 
 export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
-  matches,
-  teams,
-  tenants,
+  matches = [],
+  teams = [],
+  tenants = [],
   activeSport,
   onSelectSport,
   onNavigateTab
@@ -34,19 +34,19 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
 
   // Helper to get Team
   const getTeam = (teamId: string): Team | undefined => {
-    return teams.find(t => t.id === teamId);
+    return (teams || []).find(t => t.id === teamId);
   };
 
   // Helper to get Tenant name
   const getTenantName = (tenantId: string): string => {
-    const t = tenants.find(item => item.id === tenantId);
+    const t = (tenants || []).find(item => item.id === tenantId);
     return t ? t.name : 'Liga General';
   };
 
   // Extract unique rounds from matches
   const uniqueRounds = useMemo(() => {
     const rounds = new Set<string>();
-    matches.forEach(m => {
+    (matches || []).forEach(m => {
       if (m.match_data?.round) {
         rounds.add(m.match_data.round);
       }
@@ -161,9 +161,9 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
   };
 
   // Stats
-  const liveCount = matches.filter(m => m.status === 'IN_PROGRESS').length;
-  const schedCount = matches.filter(m => m.status === 'SCHEDULED').length;
-  const finishCount = matches.filter(m => m.status === 'FINISHED').length;
+  const liveCount = (matches || []).filter(m => m.status === 'IN_PROGRESS').length;
+  const schedCount = (matches || []).filter(m => m.status === 'SCHEDULED').length;
+  const finishCount = (matches || []).filter(m => m.status === 'FINISHED').length;
 
   return (
     <div className="space-y-6">

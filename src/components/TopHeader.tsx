@@ -20,6 +20,8 @@ interface TopHeaderProps {
   isSuperAdminAuth?: boolean;
   onLogoutSuperAdmin?: () => void;
   onReturnToScrollytelling?: () => void;
+  userEmail?: string;
+  onLogout?: () => void;
 }
 
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
@@ -44,7 +46,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   setActiveTab,
   userRole,
   setUserRole,
-  tenants,
+  tenants = [],
   activeTenantId,
   setActiveTenantId,
   activeSport,
@@ -52,7 +54,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onOpenOnboarding,
   isSuperAdminAuth,
   onLogoutSuperAdmin,
-  onReturnToScrollytelling
+  onReturnToScrollytelling,
+  userEmail,
+  onLogout
 }) => {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
@@ -67,7 +71,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     LEAGUE_ADMIN: { label: 'Admin de Liga', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
     TEAM_DELEGATE: { label: 'Delegado de Club', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
     REFEREE: { label: 'Árbitro / Vocal', color: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-    PLAYER: { label: 'Jugador / Aficionado', color: 'bg-purple-500/10 text-purple-400 border-purple-500/30' }
+    PLAYER: { label: 'Jugador / Aficionado', color: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+    SCOUT: { label: 'Ojeador (Scout)', color: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30' }
   };
 
   return (
@@ -157,7 +162,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
 
         {/* SELECTOR DE LIGA / TENANT */}
-        {tenants.length > 0 && (
+        {(tenants?.length || 0) > 0 && (
           <div className="relative">
             <button
               onClick={() => {
@@ -263,26 +268,42 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
 
         {/* INDICADOR Y BOTÓN DE SALIDA MODO ADMIN */}
-        {isSuperAdminAuth && (
+        {isSuperAdminAuth ? (
           <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/25 px-2.5 py-1 rounded-lg shadow-sm">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
             </span>
             <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wide hidden sm:inline">
-              Modo Admin
+              Super Admin
             </span>
-            {onLogoutSuperAdmin && (
+            {(onLogoutSuperAdmin || onLogout) && (
               <button
-                onClick={onLogoutSuperAdmin}
+                onClick={onLogoutSuperAdmin || onLogout}
                 className="flex items-center gap-1 text-[10px] font-medium text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/25 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
-                title="Salir del Modo Administrador"
+                title="Cerrar sesión de administrador y bloquear plataforma"
               >
                 <LogOut className="w-3 h-3 text-rose-400" />
                 <span>Salir</span>
               </button>
             )}
           </div>
+        ) : (
+          onLogout && (
+            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] px-2.5 py-1 rounded-lg">
+              <div className="flex flex-col text-right hidden sm:block">
+                <span className="text-[10px] text-slate-400 font-mono truncate max-w-[120px]">{userEmail || 'Usuario'}</span>
+              </div>
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-1 text-[10px] font-medium text-slate-300 hover:text-rose-300 bg-white/5 hover:bg-rose-500/10 border border-white/10 hover:border-rose-500/30 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                title="Cerrar sesión y bloquear plataforma"
+              >
+                <LogOut className="w-3 h-3 text-slate-400 group-hover:text-rose-400" />
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
+          )
         )}
 
         {/* INSIGNIA FIREBASE FIRESTORE EN VIVO */}

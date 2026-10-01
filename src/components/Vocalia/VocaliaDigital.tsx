@@ -33,18 +33,18 @@ interface VocaliaDigitalProps {
 }
 
 export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
-  matches,
+  matches = [],
   tenant,
   teams = [],
   sport,
-  players,
-  events,
+  players = [],
+  events = [],
   onAddEvent,
   onUpdateScore,
   onSaveVocalia
 }) => {
-  const [selectedMatchId, setSelectedMatchId] = useState<string>(matches[0]?.id || '');
-  const activeMatch = matches.find(m => m.id === selectedMatchId) || matches[0];
+  const [selectedMatchId, setSelectedMatchId] = useState<string>(matches?.[0]?.id || '');
+  const activeMatch = matches?.find(m => m.id === selectedMatchId) || matches?.[0];
 
   // View layout mode for player panels: 'DUAL' (both teams side-by-side) or 'TABS' (toggle tabs)
   const [panelViewMode, setPanelViewMode] = useState<'DUAL' | 'TABS'>('DUAL');
