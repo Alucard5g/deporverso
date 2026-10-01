@@ -39,8 +39,9 @@ gcloud run deploy "$SERVICE_NAME" \
   --platform managed \
   --allow-unauthenticated \
   --port 8080 \
-  --memory 512Mi \
+  --memory 1Gi \
   --cpu 1 \
+  --timeout 300s \
   --cpu-boost \
   --min-instances 0 \
   --max-instances 10 \

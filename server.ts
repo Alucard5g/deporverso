@@ -20,11 +20,30 @@ async function startServer() {
   app.use(securityHeadersMiddleware);
   app.use(antiScrapingMiddleware);
   app.use(rateLimiterMiddleware);
-  // Detección de puerto estricta para AI Studio (debe escuchar en 3000):
-  // NGINX escucha en 8080 y hace proxy interno al puerto 3000 (DEFAULT_APP_PORT)
+  // Detección de puerto universal (Google Cloud Run vs Entorno AI Studio):
+  // 1. Argumento CLI explícito (--port 3000 o --port 8080)
+  // 2. En Google Cloud Run (K_SERVICE o K_REVISION definido, o producción standalone sin DEFAULT_APP_PORT):
+  //    Debe escuchar en process.env.PORT (8080 por defecto en Cloud Run).
+  // 3. En contenedor AI Studio (DEFAULT_APP_PORT definido):
+  //    Debe escuchar en process.env.DEFAULT_APP_PORT (3000) para responder al proxy de desarrollo.
+  // 4. Fallback estándar de desarrollo: 3000
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const PORT = cliPort || (process.env.DEFAULT_APP_PORT ? parseInt(process.env.DEFAULT_APP_PORT, 10) : 3000);
+  const isCloudRun = Boolean(process.env.K_SERVICE || process.env.K_REVISION || (process.env.NODE_ENV === 'production' && !process.env.DEFAULT_APP_PORT));
+  const isAiStudio = Boolean(process.env.DEFAULT_APP_PORT || process.env.NGINX_PORT);
+
+  let PORT = 3000;
+  if (cliPort) {
+    PORT = cliPort;
+  } else if (isCloudRun) {
+    PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
+  } else if (isAiStudio) {
+    PORT = process.env.DEFAULT_APP_PORT ? parseInt(process.env.DEFAULT_APP_PORT, 10) : 3000;
+  } else if (process.env.PORT) {
+    PORT = parseInt(process.env.PORT, 10);
+  } else {
+    PORT = 3000;
+  }
 
   app.use(express.json({ limit: "10mb" }));
 

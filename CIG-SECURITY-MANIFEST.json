@@ -2,13 +2,13 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-10-01T20:07:45.733Z",
-  "epoch_timestamp_ms": 1790885265733,
+  "timestamp_utc": "2026-10-01T20:32:18.435Z",
+  "epoch_timestamp_ms": 1790886738435,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "b6c2245cd805838d7b81f1787eb4fd9325692b0fb2d813502a6356f4566064a7",
-  "signature_base64": "UktsaiRkNvoN9fexWmtDjNcRuNrxYEMYcP94rTZjvtVPhT2IMHHgIUJPz6zRhCM6ckFw3cIhUZ4jWzuTgqIqDg==",
+  "merkle_master_root_hash": "08c6d4fd0bac1c5d971dd2276b8595b204ffd15b9f8d5ae3e4d6cf4fe2fb2291",
+  "signature_base64": "XcA1TqnKVukS/yLoScZx3wrQ7xxBEIbaQpSZljaRw4+SHvKl8qKKppNX3NDpjaGuvePnbLnZIRr+7DXNfZ0cBA==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
@@ -43,13 +43,13 @@
     },
     {
       "path": "cloudbuild.yaml",
-      "sizeBytes": 1575,
-      "sha256": "f75e65e4e3763c3d86c5eab0362aba5efa5f5769cc29180f7b7ceb3cb207ab41"
+      "sizeBytes": 1608,
+      "sha256": "5a3b873c64491e248711d65dad6301898416fd5a98fdd0fdd0f021be2cd64c32"
     },
     {
       "path": "deploy.sh",
-      "sizeBytes": 2125,
-      "sha256": "d072bbbbc05c66d52c42e922fd8c39012875ee2f2e37591f1c1e52e9997af0dc"
+      "sizeBytes": 2142,
+      "sha256": "3b25462df2011168cf6aeae70e29e7bd2b58d6e4b45168cf22ae51c859b580a4"
     },
     {
       "path": "DEPLOYMENT.md",
@@ -273,8 +273,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 8906,
-      "sha256": "4eed535369c57d804884ced0e1afe7a29b1439c9aba1dec73d0709a7cac63a43"
+      "sizeBytes": 9792,
+      "sha256": "312eaffa0778611f70678051487eef51a2a753006d56bd2f55ffcdb9fe35ac76"
     },
     {
       "path": "server/config/database.ts",
