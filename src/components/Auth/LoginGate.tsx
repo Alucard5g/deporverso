@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Shield, Lock, Mail, Eye, EyeOff, ArrowRight, Sparkles, Key, 
-  AlertCircle, UserPlus, LogIn, User, CheckCircle 
+  Shield, Lock, Mail, Eye, EyeOff, ArrowRight, 
+  AlertCircle, UserPlus, LogIn, User, CheckCircle
 } from 'lucide-react';
 import { UserRole } from '../../types';
-import { authService, AppUser, MASTER_ADMIN_PASSWORDS } from '../../services/authService';
+import { authService, AppUser } from '../../services/authService';
 
 interface LoginGateProps {
   onLoginSuccess: (authData: {
@@ -15,19 +15,20 @@ interface LoginGateProps {
 }
 
 export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
-  // Modo de visualización: 'register' (Panel de Registro obligatorio al iniciar) o 'login' (Iniciar Sesión)
+  // Modo de visualización:
+  // 'register': Registro ágil de interesados (sin selector de rol)
+  // 'login': Iniciar Sesión para usuarios registrados (con correo y contraseña guardados en navegador/dispositivo)
   const [authMode, setAuthMode] = useState<'register' | 'login'>('register');
 
-  // Estados Formulario Inicio de Sesión
+  // Formulario Usuario Registrado (Inicio de Sesión)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Estados Formulario de Registro (Exclusivo del Inicio)
+  // Formulario de Registro para Interesados en la Plataforma
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
-  const [regRole, setRegRole] = useState<UserRole>('LEAGUE_ADMIN');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
   // Estados de retroalimentación
@@ -35,72 +36,17 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // =========================================================================
-  // DETECCIÓN GLOBAL DE TECLADO PARA ADMINISTRADOR:
-  // El administrador solo debe digitar su clave desde el teclado (ej: 0000 o 1326)
-  // para acceder inmediatamente a toda la app y a su panel maestro
-  // =========================================================================
-  useEffect(() => {
-    let keyBuffer = '';
-    let timeoutId: any = null;
-
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Registrar caracteres presionados
-      if (e.key && e.key.length === 1) {
-        keyBuffer += e.key;
-      }
-
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        keyBuffer = '';
-      }, 3000);
-
-      const bufferLower = keyBuffer.toLowerCase();
-
-      // Si la secuencia tecleada coincide con alguna clave maestra de admin (0000, 1326, admin, etc.)
-      const matchedMaster = MASTER_ADMIN_PASSWORDS.some(pass => bufferLower.endsWith(pass.toLowerCase()));
-
-      if (matchedMaster) {
-        keyBuffer = '';
-        setIsLoading(true);
-        setTimeout(() => {
-          setIsLoading(false);
-          onLoginSuccess({
-            role: 'SUPER_ADMIN',
-            email: 'roly3d.rg@gmail.com',
-            isSuperAdmin: true,
-          });
-        }, 200);
-      }
-    };
-
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown);
-      clearTimeout(timeoutId);
-    };
-  }, [onLoginSuccess]);
-
-  // Manejo de Inicio de Sesión
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  // Manejo de Inicio de Sesión de Usuarios Registrados
+  const handleUserLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
 
-    const trimmedPassword = password.trim();
     const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
-    if (!trimmedPassword) {
-      setError('Por favor ingresa tu contraseña.');
-      return;
-    }
-
-    // Regla estricta:
-    // Ningún usuario puede ingresar sin contraseña y correo, el administrador entra con su contraseña
-    const isMasterPassword = MASTER_ADMIN_PASSWORDS.includes(trimmedPassword.toLowerCase());
-
-    if (!trimmedEmail && !isMasterPassword) {
-      setError('Ningún usuario puede ingresar sin correo y contraseña. El administrador entra con su contraseña.');
+    if (!trimmedEmail || !trimmedPassword) {
+      setError('Por favor ingresa tu correo y contraseña registrados.');
       return;
     }
 
@@ -113,17 +59,17 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
         setIsLoading(false);
         onLoginSuccess({
           role: result.role,
-          email: result.user?.email || trimmedEmail || 'admin@deporverso.com',
+          email: result.user?.email || trimmedEmail,
           isSuperAdmin: result.isSuperAdmin,
         });
       } else {
         setIsLoading(false);
         setError(result.message || 'Credenciales no autorizadas. Por favor verifica tus datos.');
       }
-    }, 300);
+    }, 250);
   };
 
-  // Manejo de Registro Único en el Inicio
+  // Manejo de Registro Ágil para Interesados (Sin Perfil de Acceso)
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -148,7 +94,7 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
       return;
     }
 
-    // Verificar si el usuario ya existe
+    // Verificar si el correo ya existe
     const existingUsers = authService.getRegisteredUsers();
     if (existingUsers.some(u => u.email.toLowerCase() === trimmedEmail)) {
       setError('Este correo ya está registrado. Por favor inicia sesión.');
@@ -158,14 +104,13 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     setTimeout(() => {
-      const isSuper = regRole === 'SUPER_ADMIN' || trimmedEmail === 'roly3d.rg@gmail.com';
-
+      // Todo registro de interesado se crea como usuario activo de liga
       const newUser: AppUser = {
         id: `u-${Date.now()}`,
         email: trimmedEmail,
         password: trimmedPassword,
         name: trimmedName || trimmedEmail.split('@')[0],
-        role: isSuper ? 'SUPER_ADMIN' : regRole,
+        role: 'LEAGUE_ADMIN',
         status: 'ACTIVO',
         createdAt: new Date().toISOString().split('T')[0],
       };
@@ -173,33 +118,33 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
       authService.saveUser(newUser);
 
       setIsLoading(false);
-      setSuccessMsg('✓ Registro completado exitosamente. Ingresando a la plataforma...');
+      setSuccessMsg('✓ Registro completado exitosamente. Ingresando a DeporVerso...');
 
       setTimeout(() => {
         onLoginSuccess({
           role: newUser.role,
           email: newUser.email,
-          isSuperAdmin: isSuper,
+          isSuperAdmin: false,
         });
-      }, 700);
-    }, 400);
+      }, 600);
+    }, 350);
   };
 
   return (
     <div className="min-h-screen w-full bg-[#020617] relative flex items-center justify-center p-4 selection:bg-cyan-500 selection:text-black overflow-hidden font-sans">
-      {/* Fondo estético con cuadrícula y resplandores cibernéticos */}
+      {/* Fondo con cuadrícula cibernética y resplandores discretos */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#081325_1px,transparent_1px),linear-gradient(to_bottom,#081325_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Tarjeta de Inicio de Sesión y Registro Único */}
+      {/* Tarjeta de Acceso */}
       <div className="relative w-full max-w-md bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-7 sm:p-9 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-300">
         
         {/* Cabecera y Marca Oficial */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-widest uppercase">
             <Shield className="w-3 h-3 text-cyan-400" />
-            <span>CIG Enterprise Security</span>
+            <span>Plataforma Oficial CIG</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight pt-1">
@@ -207,141 +152,64 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
           </h1>
 
           <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-            Plataforma Global Multideporte, VAR a la Carta y Vocalía Digital.
+            Gestión Oficial de Fútbol (11, Indor 9, Indor 7 y Fútsal 5), Sistema VAR y Vocalía Digital.
           </p>
         </div>
 
-        {/* Pestañas de Alternancia: Registro Obligatorio al Iniciar / Iniciar Sesión */}
-        <div className="flex bg-slate-950 p-1 rounded-xl border border-white/10">
+        {/* Pestañas de Navegación de Acceso (Solo Registro de Interesados e Ingreso) */}
+        <div className="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-white/10 gap-1 text-[11px]">
           <button
             type="button"
             onClick={() => { setAuthMode('register'); setError(null); setSuccessMsg(null); }}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`py-2.5 px-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer truncate ${
               authMode === 'register'
                 ? 'bg-amber-400 text-slate-950 shadow-md font-black'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Crear Cuenta (Registro)</span>
+            <UserPlus className="w-3.5 h-3.5 shrink-0" />
+            <span>Registro de Interesados</span>
           </button>
 
           <button
             type="button"
             onClick={() => { setAuthMode('login'); setError(null); setSuccessMsg(null); }}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`py-2.5 px-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer truncate ${
               authMode === 'login'
                 ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Iniciar Sesión</span>
+            <LogIn className="w-3.5 h-3.5 shrink-0" />
+            <span>Ingresar a Mi Cuenta</span>
           </button>
         </div>
 
         {/* ================================================================ */}
-        {/* PESTAÑA 1: INICIAR SESIÓN */}
-        {/* ================================================================ */}
-        {authMode === 'login' && (
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            
-            {/* Campo Correo Electrónico */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Correo Electrónico</span>
-                </label>
-                <span className="text-[10px] font-mono text-amber-400/90 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
-                  Obligatorio (Admin entra sin correo)
-                </span>
-              </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ejemplo@deporverso.com"
-                className="w-full bg-slate-950/80 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 transition-all outline-none"
-              />
-            </div>
-
-            {/* Campo Contraseña */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Contraseña</span>
-                </label>
-                <span className="text-[10px] text-slate-400">
-                  Admin: entra con su contraseña
-                </span>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ingresa tu contraseña o clave de acceso"
-                  autoFocus
-                  className="w-full bg-slate-950/80 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-3.5 py-2.5 pr-10 text-sm text-white placeholder-slate-500 transition-all outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
-                  title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Mensajes de Feedback */}
-            {error && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2 animate-in fade-in">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Botón de Enviar */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-cyan-500 via-cyan-400 to-emerald-400 hover:opacity-95 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span>Ingresar a DeporVerso</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
-        )}
-
-        {/* ================================================================ */}
-        {/* PESTAÑA 2: EL ÚNICO REGISTRO EN LA APP (AL INICIO) */}
+        {/* PESTAÑA 1: REGISTRO DE INTERESADOS EN LA APP                     */}
         {/* ================================================================ */}
         {authMode === 'register' && (
-          <form onSubmit={handleRegisterSubmit} className="space-y-3.5 text-xs animate-in fade-in">
-            
-            {/* Nombre Completo */}
+          <form onSubmit={handleRegisterSubmit} autoComplete="on" className="space-y-3.5 text-xs animate-in fade-in">
+            <div className="bg-amber-400/10 border border-amber-400/20 p-2.5 rounded-xl text-slate-300 text-[11px] leading-relaxed">
+              <strong className="text-amber-300">Registro de Interesados:</strong> Crea tu cuenta gratuita para acceder a la plataforma. Tus datos quedarán guardados en tu dispositivo para acceso en 1 toque.
+            </div>
+
+            {/* Nombre Completo / Organización */}
             <div className="space-y-1">
               <label className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-amber-400" />
-                <span>Nombre Completo / Titular *</span>
+                <span>Nombre o Nombre de Liga / Club *</span>
               </label>
               <input
                 type="text"
+                id="register-name"
+                name="name"
+                autoComplete="name"
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
-                placeholder="Ej. Roberto Guerra"
+                placeholder="Ej. Carlos Mendoza (Liga Barrial)"
                 required
-                className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3 py-2 text-white placeholder-slate-500 outline-none"
+                className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 outline-none text-xs"
               />
             </div>
 
@@ -353,29 +221,15 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
               </label>
               <input
                 type="email"
+                id="register-email"
+                name="username"
+                autoComplete="username email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder="ejemplo@deporverso.com"
+                placeholder="ejemplo@correo.com"
                 required
-                className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3 py-2 text-white placeholder-slate-500 outline-none"
+                className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 outline-none text-xs"
               />
-            </div>
-
-            {/* Rol de Acceso */}
-            <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-amber-400" />
-                <span>Perfil de Acceso</span>
-              </label>
-              <select
-                value={regRole}
-                onChange={(e) => setRegRole(e.target.value as UserRole)}
-                className="w-full bg-slate-950 border border-white/10 focus:border-amber-400 rounded-xl px-3 py-2 text-white outline-none cursor-pointer"
-              >
-                <option value="LEAGUE_ADMIN">Administrador de Liga / Operador de Mesa</option>
-                <option value="SCOUT">Ojeador Deportivo / Scouting</option>
-                <option value="SUPER_ADMIN">Administrador Maestro CIG</option>
-              </select>
             </div>
 
             {/* Contraseña */}
@@ -387,16 +241,19 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
               <div className="relative">
                 <input
                   type={showRegPassword ? 'text' : 'password'}
+                  id="register-password"
+                  name="new-password"
+                  autoComplete="new-password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="Mínimo 4 caracteres"
                   required
-                  className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3 py-2 pr-9 text-white placeholder-slate-500 outline-none"
+                  className="w-full bg-slate-950/80 border border-white/10 focus:border-amber-400 rounded-xl px-3.5 py-2.5 pr-10 text-white placeholder-slate-500 outline-none text-xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowRegPassword(!showRegPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
                 >
                   {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -436,34 +293,90 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
           </form>
         )}
 
-        {/* Guía Rápida Confidencial de Teclado */}
-        <div className="pt-2 border-t border-white/5 space-y-2">
-          <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] text-[11px] text-slate-400 flex items-center gap-2">
-            <Key className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>
-              <strong className="text-amber-300">Regla de Acceso:</strong> Ningún usuario puede ingresar sin correo y contraseña. El administrador entra directamente con su contraseña.
-            </span>
-          </div>
+        {/* ================================================================ */}
+        {/* PESTAÑA 2: INICIAR SESIÓN (USUARIOS REGISTRADOS / GUARDADOS)    */}
+        {/* ================================================================ */}
+        {authMode === 'login' && (
+          <form onSubmit={handleUserLoginSubmit} autoComplete="on" className="space-y-4 animate-in fade-in">
+            <div className="bg-cyan-500/10 border border-cyan-500/20 p-2.5 rounded-xl text-slate-300 text-[11px] leading-relaxed">
+              <strong className="text-cyan-300">Fácil Acceso:</strong> Ingresa con tu correo y contraseña guardada en tu navegador (PC, celular o tablet).
+            </div>
 
-          <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
-            <span>Usuario titular CIG:</span>
+            {/* Campo Correo Electrónico */}
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-300 flex items-center gap-1.5 text-xs">
+                <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Correo Electrónico Registrado</span>
+              </label>
+              <input
+                type="email"
+                id="login-email"
+                name="username"
+                autoComplete="username email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@correo.com"
+                required
+                className="w-full bg-slate-950/80 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 transition-all outline-none"
+              />
+            </div>
+
+            {/* Campo Contraseña */}
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-300 flex items-center gap-1.5 text-xs">
+                <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Contraseña</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="login-password"
+                  name="current-password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Tu contraseña guardada"
+                  required
+                  className="w-full bg-slate-950/80 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-3.5 py-2.5 pr-10 text-sm text-white placeholder-slate-500 transition-all outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mensajes de Feedback */}
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Botón de Enviar */}
             <button
-              type="button"
-              onClick={() => {
-                setAuthMode('login');
-                setEmail('roly3d.rg@gmail.com');
-                setPassword('0000');
-                setError(null);
-              }}
-              className="text-cyan-400 hover:underline cursor-pointer"
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-gradient-to-r from-cyan-500 via-cyan-400 to-emerald-400 hover:opacity-95 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
             >
-              roly3d.rg@gmail.com
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>Ingresar a DeporVerso</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
-          </div>
-        </div>
+          </form>
+        )}
 
-        {/* Pie de Página */}
-        <div className="text-center text-[10px] text-slate-600 font-mono">
+        {/* Pie de Página Minimalista */}
+        <div className="text-center text-[10px] text-slate-600 font-mono pt-1">
           Corporación e Innovación Guerra (CIG) © 2026. Todos los derechos reservados.
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
-  Trophy, Shield, UserCheck, Plus, Sparkles, ChevronDown, 
-  Building2, QrCode, Globe, Check, Zap, AlertCircle, Lock, LogOut, Flame
+  Trophy, Shield, Plus, Sparkles, ChevronDown, 
+  Building2, QrCode, Globe, Check, Zap, LogOut, Flame
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 import { SPORT_THEMES } from './Navbar';
@@ -19,7 +19,7 @@ interface TopHeaderProps {
   onOpenOnboarding: () => void;
   isSuperAdminAuth?: boolean;
   onLogoutSuperAdmin?: () => void;
-  onReturnToScrollytelling?: () => void;
+  onElevateToSuperAdmin?: () => void;
   userEmail?: string;
   onLogout?: () => void;
 }
@@ -56,26 +56,22 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onOpenOnboarding,
   isSuperAdminAuth,
   onLogoutSuperAdmin,
-  onReturnToScrollytelling,
+  onElevateToSuperAdmin,
   userEmail,
   onLogout
 }) => {
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
   const [showSportDropdown, setShowSportDropdown] = useState(false);
 
   const currentTabInfo = TAB_TITLES[activeTab] || { title: 'Deporverso Engine', subtitle: 'Plataforma Multideporte Global' };
-  const currentTenant = tenants.find(t => t.id === activeTenantId) || tenants[0];
-  const currentSportTheme = SPORT_THEMES[activeSport] || SPORT_THEMES.FUTBOL;
+  
+  // Enfoque exclusivo en fútbol para lanzamiento (Fútbol 11, Indoor 7 y 9, Futsal 5)
+  const visibleTenants = isSuperAdminAuth 
+    ? tenants 
+    : (tenants || []).filter(t => t.sport_code === 'FUTBOL' || t.sport_code === 'FUTSAL');
 
-  const roleLabels: Record<UserRole, { label: string; color: string }> = {
-    SUPER_ADMIN: { label: 'SuperAdmin Maestro', color: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    LEAGUE_ADMIN: { label: 'Admin de Liga', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    TEAM_DELEGATE: { label: 'Delegado de Club', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
-    REFEREE: { label: 'Árbitro / Vocal', color: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-    PLAYER: { label: 'Jugador / Aficionado', color: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
-    SCOUT: { label: 'Ojeador (Scout)', color: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30' }
-  };
+  const currentTenant = visibleTenants.find(t => t.id === activeTenantId) || visibleTenants[0] || tenants[0];
+  const currentSportTheme = SPORT_THEMES[activeSport] || SPORT_THEMES.FUTBOL;
 
   return (
     <header className="sticky top-0 z-50 bg-[#070b14]/90 backdrop-blur-xl border-b border-white/[0.07] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
@@ -114,7 +110,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <span className="text-slate-400">VAR <span className="text-emerald-400 font-semibold">4K EDGE</span></span>
         </div>
 
-        {/* SELECTOR DE DEPORTE RÁPIDO */}
+        {/* SELECTOR DE MODALIDAD FÚTBOL (LANZAMIENTO EXCLUSIVO) */}
         <div className="relative">
           <button
             onClick={() => {
@@ -122,49 +118,60 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               setShowRoleDropdown(false);
               setShowTenantDropdown(false);
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 hover:border-white/20 transition-all cursor-pointer font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 hover:border-emerald-500/50 transition-all cursor-pointer font-bold shadow-xs"
+            title="Disciplina activa para el lanzamiento: Fútbol (11, Indor 9, Indor 7 y Futsal 5)"
           >
-            <span>{currentSportTheme.icon}</span>
-            <span className="hidden md:inline">{currentSportTheme.name}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-sm">⚽</span>
+            <span className="font-extrabold tracking-wide">FÚTBOL</span>
+            <span className="hidden lg:inline text-[10px] text-emerald-400/80 font-mono bg-emerald-500/15 px-1.5 py-0.5 rounded">11 • 9 • 7 • 5</span>
+            <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
           </button>
 
           {showSportDropdown && (
-            <div className="absolute right-0 mt-2 w-52 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-1.5 space-y-0.5 z-50">
-              <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider block">
-                Seleccionar Disciplina
-              </span>
-              {Object.entries(SPORT_THEMES).map(([code, st]) => (
-                <button
-                  key={code}
+            <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-2 py-1 border-b border-white/10 mb-1">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block font-mono">
+                  Fútbol por Lanzamiento
+                </span>
+                <span className="text-[10px] text-slate-400 block">
+                  Formatos oficiales activos en DeporVerso:
+                </span>
+              </div>
+
+              {[
+                { name: 'Fútbol 11', players: '11 Jugadores', desc: 'Cancha reglamentaria • Torneos federados y barriales' },
+                { name: 'Indor Fútbol 9', players: '9 Jugadores', desc: 'Césped sintético / tierra • Formato intermedio 9 vs 9' },
+                { name: 'Indor Fútbol 7', players: '7 Jugadores', desc: 'Cancha sintética • Formato rápido 7 vs 7' },
+                { name: 'Fútsal 5', players: '5 Jugadores', desc: 'Coliseo / sala / cemento • Formato 5 vs 5' },
+              ].map((m, idx) => (
+                <div
+                  key={idx}
                   onClick={() => {
-                    const nextSport = code as SportCode;
-                    setActiveSport(nextSport);
-                    const matchingTenant = tenants.find(t => t.sport_code === nextSport);
-                    if (matchingTenant) {
-                      setActiveTenantId(matchingTenant.id);
-                    }
+                    setActiveSport('FUTBOL');
                     setShowSportDropdown(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
-                    activeSport === code
-                      ? 'bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/30'
-                      : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
-                  }`}
+                  className="p-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 transition-all cursor-pointer group"
                 >
-                  <span className="flex items-center gap-2">
-                    <span>{st.icon}</span>
-                    <span>{st.name}</span>
-                  </span>
-                  {activeSport === code && <Check className="w-3.5 h-3.5" />}
-                </button>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5 group-hover:text-emerald-300">
+                      <span>⚽</span>
+                      <span>{m.name}</span>
+                    </span>
+                    <span className="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">
+                      {m.players}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                    {m.desc}
+                  </p>
+                </div>
               ))}
             </div>
           )}
         </div>
 
         {/* SELECTOR DE LIGA / TENANT */}
-        {(tenants?.length || 0) > 0 && (
+        {(visibleTenants?.length || 0) > 0 && (
           <div className="relative">
             <button
               onClick={() => {
@@ -195,7 +202,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     + Nueva Liga
                   </button>
                 </div>
-                {tenants.map(t => (
+                {visibleTenants.map(t => (
                   <button
                     key={t.id}
                     onClick={() => {
@@ -225,49 +232,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             )}
           </div>
         )}
-
-        {/* SELECTOR DE ROL DE USUARIO */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowRoleDropdown(!showRoleDropdown);
-              setShowTenantDropdown(false);
-              setShowSportDropdown(false);
-            }}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${roleLabels[userRole].color}`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{roleLabels[userRole].label}</span>
-            <ChevronDown className="w-3.5 h-3.5 opacity-60" />
-          </button>
-
-          {showRoleDropdown && (
-            <div className="absolute right-0 mt-2 w-56 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-1.5 space-y-0.5 z-50">
-              <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider block">
-                Cambiar Perfil de Usuario
-              </span>
-              {(Object.keys(roleLabels) as UserRole[])
-                .filter(r => r !== 'SUPER_ADMIN' || isSuperAdminAuth)
-                .map(r => (
-                <button
-                  key={r}
-                  onClick={() => {
-                    setUserRole(r);
-                    setShowRoleDropdown(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
-                    userRole === r
-                      ? 'bg-white/10 text-white font-semibold border border-white/20'
-                      : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
-                  }`}
-                >
-                  <span>{roleLabels[r].label}</span>
-                  {userRole === r && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* INDICADOR Y BOTÓN DE SALIDA MODO ADMIN */}
         {isSuperAdminAuth ? (

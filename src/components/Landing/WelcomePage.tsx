@@ -8,15 +8,13 @@ interface WelcomePageProps {
   onOpenAffiliation?: () => void;
   onAddTenant?: (tenant: Omit<Tenant, 'id' | 'created_at'>) => void;
   setUserRole?: (role: UserRole) => void;
-  initialMode?: 'futuristic' | 'scrollytelling';
 }
 
 export const WelcomePage: React.FC<WelcomePageProps> = ({
   onNavigateTab,
   onEnterFullPlatform,
   onOpenAffiliation,
-  onAddTenant,
-  initialMode = 'futuristic'
+  onAddTenant
 }) => {
   const handleEnter = (tabKey: string = 'league') => {
     if (onEnterFullPlatform) {
@@ -25,18 +23,6 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
       onNavigateTab(tabKey);
     }
   };
-
-  useEffect(() => {
-    if (initialMode === 'scrollytelling') {
-      const timer = setTimeout(() => {
-        const el = document.getElementById('scrollytelling-narrative');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [initialMode]);
 
   return (
     <div className="w-full min-h-screen relative">

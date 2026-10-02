@@ -21,25 +21,17 @@ export interface AppUser {
 
 const STORAGE_USERS_KEY = 'deporverso_registered_users';
 
-// Contraseñas maestras para acceso directo de administrador (sin requerir correo)
+// Contraseñas maestras para acceso directo de administrador (solo desde el perfil de administrador)
 export const MASTER_ADMIN_PASSWORDS = ['1326', 'admin', 'cig2026', '0000', 'admin1326', 'deporverso2026'];
+export const MASTER_ADMIN_EMAIL = 'roly3d.rg@gmail.com';
 
-// Usuarios base pre-registrados en la plataforma
+// Usuarios base pre-registrados en la plataforma: SOLO UN ADMINISTRADOR (roly3d.rg@gmail.com)
 const INITIAL_USERS: AppUser[] = [
   {
     id: 'u-roly3d',
     email: 'roly3d.rg@gmail.com',
     password: '0000',
-    name: 'Roly (Director CIG & SuperAdmin)',
-    role: 'SUPER_ADMIN',
-    status: 'ACTIVO',
-    createdAt: '2026-09-29',
-  },
-  {
-    id: 'u-superadmin',
-    email: 'admin@cig.corp',
-    password: '1326',
-    name: 'Administrador Maestro CIG',
+    name: 'Roly (Administrador Único CIG)',
     role: 'SUPER_ADMIN',
     status: 'ACTIVO',
     createdAt: '2026-09-29',
@@ -57,7 +49,7 @@ const INITIAL_USERS: AppUser[] = [
     id: 'u-scout',
     email: 'scouting@deporverso.com',
     password: '0000',
-    name: 'Ojeador Deportivo Internacional',
+    name: 'Ojeador Deportivo',
     role: 'SCOUT',
     status: 'ACTIVO',
     createdAt: '2026-09-29',
@@ -153,9 +145,60 @@ export const authService = {
   },
 
   /**
-   * Valida credenciales de acceso:
-   * - Si se proporciona solo contraseña y coincide con contraseñas de admin -> Super Admin
-   * - Si se proporciona correo y contraseña -> Valida contra base de datos de usuarios
+   * Validación exclusiva desde el perfil de administrador:
+   * Solo hay un administrador: roly3d.rg@gmail.com
+   * El administrador entra solo digitando su contraseña.
+   */
+  verifyAdminPassword(password: string): {
+    success: boolean;
+    user?: AppUser;
+    isSuperAdmin: boolean;
+    role: UserRole;
+    message?: string;
+  } {
+    const trimmedPass = (password || '').trim();
+    if (!trimmedPass) {
+      return {
+        success: false,
+        isSuperAdmin: false,
+        role: 'SUPER_ADMIN',
+        message: 'Por favor digita tu contraseña de administrador.'
+      };
+    }
+
+    const isMasterPassword = MASTER_ADMIN_PASSWORDS.includes(trimmedPass.toLowerCase());
+    const users = this.getRegisteredUsers();
+    const adminUser = users.find(u => u.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase());
+    const passMatches = isMasterPassword || (adminUser && adminUser.password === trimmedPass);
+
+    if (passMatches) {
+      return {
+        success: true,
+        isSuperAdmin: true,
+        role: 'SUPER_ADMIN',
+        user: {
+          id: adminUser?.id || 'u-roly3d',
+          email: MASTER_ADMIN_EMAIL,
+          password: '••••',
+          name: adminUser?.name || 'Roly (Administrador Único CIG)',
+          role: 'SUPER_ADMIN',
+          status: 'ACTIVO',
+          createdAt: adminUser?.createdAt || '2026-09-29'
+        }
+      };
+    }
+
+    return {
+      success: false,
+      isSuperAdmin: false,
+      role: 'SUPER_ADMIN',
+      message: 'Contraseña de administrador incorrecta.'
+    };
+  },
+
+  /**
+   * Valida credenciales de acceso para usuarios interesados y registrados:
+   * Requiere correo y contraseña.
    */
   verifyLogin(email: string, password: string): {
     success: boolean;
@@ -167,61 +210,28 @@ export const authService = {
     const trimmedPass = (password || '').trim();
     const trimmedEmail = (email || '').trim().toLowerCase();
 
-    // 1. Validación de campos obligatorios:
-    // El administrador entra con su contraseña (sin requerir correo)
-    const isMasterPassword = MASTER_ADMIN_PASSWORDS.includes(trimmedPass.toLowerCase());
-
-    if (!trimmedPass) {
+    if (!trimmedEmail || !trimmedPass) {
       return {
         success: false,
         isSuperAdmin: false,
         role: 'LEAGUE_ADMIN',
-        message: 'Por favor ingresa tu contraseña para acceder.'
+        message: 'Por favor ingresa tu correo y contraseña registrados.'
       };
     }
 
-    // Si no se proporcionó correo:
-    // SOLO el administrador entra con su contraseña. Ningún usuario puede ingresar sin correo y contraseña.
-    if (!trimmedEmail) {
-      if (isMasterPassword) {
-        return {
-          success: true,
-          isSuperAdmin: true,
-          role: 'SUPER_ADMIN',
-          user: {
-            id: 'admin-direct',
-            email: 'admin@deporverso.com',
-            password: '••••',
-            name: 'Super Administrador CIG',
-            role: 'SUPER_ADMIN',
-            status: 'ACTIVO',
-            createdAt: '2026-09-29'
-          }
-        };
-      } else {
-        return {
-          success: false,
-          isSuperAdmin: false,
-          role: 'LEAGUE_ADMIN',
-          message: 'Ningún usuario puede ingresar sin correo y contraseña. El administrador entra con su contraseña.'
-        };
-      }
-    }
-
-    // 2. Para todos los demás usuarios (con correo y contraseña obligatorios):
     const users = this.getRegisteredUsers();
 
-    // Comprobación específica para roly3d.rg@gmail.com
-    if (trimmedEmail === 'roly3d.rg@gmail.com' && (trimmedPass === '0000' || isMasterPassword)) {
+    // Verificación si inicia sesión con el correo oficial de administración
+    if (trimmedEmail === MASTER_ADMIN_EMAIL.toLowerCase() && (trimmedPass === '1326' || trimmedPass === '0000' || MASTER_ADMIN_PASSWORDS.includes(trimmedPass.toLowerCase()))) {
       return {
         success: true,
         isSuperAdmin: true,
         role: 'SUPER_ADMIN',
         user: {
           id: 'u-roly3d',
-          email: 'roly3d.rg@gmail.com',
+          email: MASTER_ADMIN_EMAIL,
           password: '••••',
-          name: 'Roly (Director CIG & SuperAdmin)',
+          name: 'Roly (Administrador CIG)',
           role: 'SUPER_ADMIN',
           status: 'ACTIVO',
           createdAt: '2026-09-29'
@@ -242,8 +252,8 @@ export const authService = {
         };
       }
 
-      if (matchedUser.password === trimmedPass || isMasterPassword) {
-        const isSuper = matchedUser.role === 'SUPER_ADMIN';
+      if (matchedUser.password === trimmedPass) {
+        const isSuper = matchedUser.role === 'SUPER_ADMIN' || matchedUser.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
         return {
           success: true,
           isSuperAdmin: isSuper,
@@ -260,29 +270,11 @@ export const authService = {
       }
     }
 
-    // 3. Si el correo no está registrado pero se ingresó una clave maestra de admin
-    if (trimmedEmail && isMasterPassword) {
-      return {
-        success: true,
-        isSuperAdmin: true,
-        role: 'SUPER_ADMIN',
-        user: {
-          id: 'admin-guest',
-          email: trimmedEmail,
-          password: '••••',
-          name: 'Administrador Maestro',
-          role: 'SUPER_ADMIN',
-          status: 'ACTIVO',
-          createdAt: '2026-09-29'
-        }
-      };
-    }
-
     return {
       success: false,
       isSuperAdmin: false,
       role: 'LEAGUE_ADMIN',
-      message: 'Usuario no encontrado o credenciales inválidas. Verifica tu correo y contraseña.'
+      message: 'Usuario no registrado. Por favor crea una cuenta desde la pestaña de Registro.'
     };
   }
 };

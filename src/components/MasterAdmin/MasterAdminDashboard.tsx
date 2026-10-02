@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { DollarSign, Shield, Building, Video, FileText, Plus, CheckCircle, Database, Copy, Download, RefreshCw, Calendar, Image, Sparkles, Cpu, LogOut, Users, Key, Check, ExternalLink, Search, Clock, AlertCircle, X, ChevronRight } from 'lucide-react';
+import { DollarSign, Shield, Building, Video, FileText, Plus, CheckCircle, Database, Copy, Download, RefreshCw, Calendar, Image, Sparkles, Cpu, LogOut, Users, Key, Check, ExternalLink, Search, Clock, AlertCircle, X, ChevronRight, ImageIcon } from 'lucide-react';
 import { Tenant, Sport, Subscription, MigrationTicket, Match, MatchEvent, SportCode, AiChronicle, VocaliaReportRecord } from '../../types';
 import { FULL_SUPABASE_SQL_SCRIPT } from '../../data/sqlScript';
 import { CalendarCardGenerator } from '../CalendarCardGenerator';
@@ -9,6 +9,7 @@ import { AiChronicleGenerator } from '../Chronicle/AiChronicleGenerator';
 import { AdminCRM } from './AdminCRM';
 import { CigSecurityPanel } from './CigSecurityPanel';
 import { AdminUserManager } from './AdminUserManager';
+import { CampaignBannersGenerator } from '../Marketing/CampaignBannersGenerator';
 import { syncVocaliaReportToFirebase } from '../../services/firebaseService';
 
 interface MasterAdminDashboardProps {
@@ -23,7 +24,7 @@ interface MasterAdminDashboardProps {
   activeTenantId?: string;
   activeSport?: SportCode;
   onAddTicket?: (ticket: Omit<MigrationTicket, 'id' | 'created_at'>) => void;
-  initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
+  initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
   onChronicleGenerated?: (chronicle: AiChronicle) => void;
   onExitAdminMode?: () => void;
 }
@@ -46,7 +47,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab);
+  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab || 'overview');
   const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants?.[0]?.id || '1');
 
   // Form State for new Tenant
@@ -507,6 +508,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         >
           <Image className="w-3.5 h-3.5 text-emerald-400" />
           Generador de Calendario HD JPG
+        </button>
+        <button
+          onClick={() => setActiveAdminTab('campaign-banners')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+            activeAdminTab === 'campaign-banners'
+              ? 'bg-purple-500/25 text-purple-300 border border-purple-500/50 shadow-md shadow-purple-500/10'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+          Banners de Campaña (Exclusivo Admin)
         </button>
         <button
           onClick={() => setActiveAdminTab('subscriptions')}
@@ -1116,6 +1128,28 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
               </ul>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* TAB: BANNERS DE CAMPAÑA (EXCLUSIVO DEL ADMINISTRADOR) */}
+      {activeAdminTab === 'campaign-banners' && (
+        <div className="space-y-4">
+          <div className="bg-[#0b101d] p-5 rounded-2xl border border-purple-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <span className="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Módulo Exclusivo SuperAdmin
+              </span>
+              <h2 className="text-lg font-bold text-white mt-1">Generador de Banners Publicitarios de Campaña</h2>
+              <p className="text-xs text-slate-400">Genera y descarga piezas gráficas de alta conversión (1:1, 9:16 y 16:9) con la promoción del 50% ($35/Eq).</p>
+            </div>
+            <button
+              onClick={() => setActiveAdminTab('overview')}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-xl border border-white/10 transition-colors cursor-pointer self-start md:self-auto"
+            >
+              Volver al Panel Principal
+            </button>
+          </div>
+          <CampaignBannersGenerator onOpenCheckout={() => setActiveAdminTab('subscriptions')} />
         </div>
       )}
 

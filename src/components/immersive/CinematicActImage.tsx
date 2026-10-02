@@ -82,23 +82,7 @@ export const CinematicActImage: React.FC<CinematicActImageProps> = ({
             >
               {actNumber} • {tag}
             </span>
-            <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-mono text-white/50 backdrop-blur-sm bg-black/40 border border-white/5">
-              {meta}
-            </span>
           </div>
-
-          <button
-            type="button"
-            aria-label="Ver imagen en alta resolución"
-            className="pointer-events-auto p-1.5 sm:p-2 rounded-xl bg-black/60 hover:bg-black/90 text-white/60 hover:text-white border border-white/10 hover:border-white/25 backdrop-blur-md transition-all flex items-center gap-1.5 text-[11px] font-mono"
-            onClick={(e) => {
-              e.stopPropagation();
-              onExpand?.();
-            }}
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Ampliar</span>
-          </button>
         </div>
 
         {/* Cinematic Photographic Aspect View */}
@@ -129,12 +113,6 @@ export const CinematicActImage: React.FC<CinematicActImageProps> = ({
             <p className="text-xs text-white/60 font-light leading-relaxed max-w-3xl">
               {caption}
             </p>
-          </div>
-
-          <div className="shrink-0 flex items-center gap-2 pt-1 sm:pt-0">
-            <span className={`text-[10px] font-mono px-2.5 py-1 rounded-lg border ${accentConfig.pill}`}>
-              Visual Original DeporVerso
-            </span>
           </div>
         </div>
       </div>

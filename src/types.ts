@@ -234,6 +234,7 @@ export interface MatchData {
   weather_temp?: string;
   ticket_status?: string;
   stream_url?: string;
+  modality?: string;
 }
 
 export interface Match {

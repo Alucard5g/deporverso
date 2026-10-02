@@ -269,12 +269,6 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
             >
               Sistema VAR
             </button>
-            <button
-              onClick={() => onNavigateTab('campaign-banners')}
-              className="px-3 py-1 rounded-full text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-            >
-              Banners
-            </button>
           </nav>
 
           {/* ACCIONES TOP */}
@@ -325,23 +319,23 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
           
           <div className="text-center max-w-4xl mx-auto pt-6 pb-4">
             
-            {/* Píldora Superior: Badge Plataforma Multideporte */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F172A]/80 backdrop-blur-xl border border-white/15 shadow-[0_0_20px_rgba(0,102,255,0.3)] text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-ping" />
-              <span>PLATAFORMA MULTIDEPORTE GLOBAL • SOFTWARE INTEGRAL EN LA NUBE</span>
+            {/* Píldora Superior: Badge Plataforma de Fútbol */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F172A]/80 backdrop-blur-xl border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.25)] text-xs font-semibold text-emerald-300 tracking-wider uppercase mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>LANZAMIENTO OFICIAL • FÚTBOL 11, INDOR 9, INDOR 7 Y FÚTSAL 5</span>
             </div>
 
             {/* Título Principal */}
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.08] mb-6">
-              La Evolución de la <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-[#00F0FF]">
-                Gestión Multideporte Global
+              La Evolución Digital del <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-100 to-[#00F0FF]">
+                Fútbol Organizado
               </span>
             </h1>
 
             {/* Párrafo Descriptivo Secundario */}
             <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed mb-8">
-              Orquestación integral de ligas y torneos en tiempo real: automatización inteligente de fixtures, sistema VAR oficial, vocalía digital y analítica deportiva de alto rendimiento.
+              Orquestación integral de torneos de fútbol en sus 4 modalidades oficiales: <strong>Fútbol 11</strong> (Once jugadores), <strong>Indor 9</strong> y <strong>Indor 7</strong> (Siete y Nueve jugadores) y <strong>Fútsal 5</strong> (Cinco jugadores). Vocalía digital sin papel, sistema VAR oficial y carnets QR antifraude.
             </p>
 
             {/* Botones de Acción */}
@@ -361,14 +355,6 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                 <Shield className="w-4 h-4 text-[#00F0FF]" />
                 <span>Ver Módulos del Sistema</span>
                 <ChevronDown className="w-3.5 h-3.5 text-[#00F0FF]" />
-              </button>
-
-              <button
-                onClick={() => onNavigateTab('campaign-banners')}
-                className="px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-semibold text-slate-200 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/15 hover:border-purple-400/50 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
-              >
-                <ImageIcon className="w-4 h-4 text-purple-400" />
-                <span>Banners de Campaña</span>
               </button>
               
               <button
@@ -393,9 +379,9 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
               <div className="w-4 h-4 rounded-full bg-[#00F0FF] shadow-[0_0_30px_#00F0FF] z-10" />
             </div>
 
-            {/* Píldoras Flotantes Alrededor del Vórtice */}
+            {/* Píldoras Flotantes Alrededor del Vórtice: 4 MODALIDADES DE FÚTBOL */}
             
-            {/* 1. Fútbol Pro */}
+            {/* 1. Fútbol 11 (Once vs Once) */}
             <div 
               onClick={() => {
                 setActiveDiscipline('futbol');
@@ -404,72 +390,73 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
               }}
               className="absolute top-12 left-4 sm:left-10 lg:left-16 cursor-pointer transform hover:scale-105 transition-all z-20"
             >
-              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-white/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-[#00F0FF] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all">
-                <div className="w-9 h-9 rounded-xl bg-[#0066FF]/30 border border-[#00F0FF]/40 flex items-center justify-center text-[#00F0FF]">
+              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-emerald-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] transition-all">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
                   ⚽
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Fútbol Pro</p>
-                  <p className="text-[10px] text-[#00F0FF]/80 font-mono">11v11 • Indor 7 & 9</p>
+                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Fútbol 11</p>
+                  <p className="text-[10px] text-emerald-300/80 font-mono">11 vs 11 • Reglamentario</p>
                 </div>
               </div>
             </div>
 
-            {/* 2. Baloncesto */}
+            {/* 2. Indor Fútbol 9 (Nueve vs Nueve) */}
             <div 
               onClick={() => {
-                setActiveDiscipline('baloncesto');
-                if (onSelectSport) onSelectSport('BALONCESTO');
+                setActiveDiscipline('futbol');
+                if (onSelectSport) onSelectSport('FUTBOL');
                 onNavigateTab('league');
               }}
               className="absolute bottom-24 left-4 sm:left-16 lg:left-24 cursor-pointer transform hover:scale-105 transition-all z-20"
             >
-              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-white/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-orange-400 hover:shadow-[0_0_25px_rgba(251,146,60,0.4)] transition-all">
-                <div className="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-400/40 flex items-center justify-center text-orange-400">
-                  🏀
+              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-all">
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
+                  ⚽
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Baloncesto</p>
-                  <p className="text-[10px] text-orange-300/80 font-mono">FIBA • Shot Clock</p>
+                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Indor Fútbol 9</p>
+                  <p className="text-[10px] text-cyan-300/80 font-mono">9 vs 9 • Cancha Sintética</p>
                 </div>
               </div>
             </div>
 
-            {/* 3. eSports */}
+            {/* 3. Indor Fútbol 7 (Siete vs Siete) */}
             <div 
               onClick={() => {
-                setActiveDiscipline('esports');
-                onNavigateTab('heroes-vr');
+                setActiveDiscipline('futbol');
+                if (onSelectSport) onSelectSport('FUTBOL');
+                onNavigateTab('league');
               }}
               className="absolute top-10 right-4 sm:right-10 lg:right-16 cursor-pointer transform hover:scale-105 transition-all z-20"
             >
-              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-white/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-purple-400 hover:shadow-[0_0_25px_rgba(192,132,252,0.4)] transition-all">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300">
-                  🎮
+              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-teal-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-teal-400 hover:shadow-[0_0_25px_rgba(20,184,166,0.4)] transition-all">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300">
+                  ⚽
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">eSports</p>
-                  <p className="text-[10px] text-purple-300/80 font-mono">Sim Racing • VR</p>
+                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Indor Fútbol 7</p>
+                  <p className="text-[10px] text-teal-300/80 font-mono">7 vs 7 • Formato Rápido</p>
                 </div>
               </div>
             </div>
 
-            {/* 4. Tenis & Pádel */}
+            {/* 4. Fútsal 5 (Cinco vs Cinco) */}
             <div 
               onClick={() => {
-                setActiveDiscipline('tennis');
-                if (onSelectSport) onSelectSport('TENNIS');
+                setActiveDiscipline('futbol');
+                if (onSelectSport) onSelectSport('FUTBOL');
                 onNavigateTab('league');
               }}
               className="absolute bottom-24 right-4 sm:right-16 lg:right-24 cursor-pointer transform hover:scale-105 transition-all z-20"
             >
-              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-white/15 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(52,211,153,0.4)] transition-all">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
-                  🎾
+              <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/80 backdrop-blur-xl border border-amber-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] transition-all">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                  ⚽
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Tenis & Pádel</p>
-                  <p className="text-[10px] text-emerald-300/80 font-mono">Sets • Tiebreak VAR</p>
+                  <p className="text-xs sm:text-sm font-bold text-white tracking-wide">Fútsal 5</p>
+                  <p className="text-[10px] text-amber-300/80 font-mono">5 vs 5 • Coliseo / Sala</p>
                 </div>
               </div>
             </div>
@@ -598,12 +585,12 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                 </h3>
                 
                 <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Métricas biomecánicas, mapas de calor interactivos, scouting predictivo de talentos y generación automática de crónicas periodísticas impulsadas por Gemini AI.
+                  Métricas biomecánicas, mapas de calor interactivos, scouting de talentos y generación automática de crónicas y actas oficiales del torneo.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-[#00F0FF]">
-                <span>GEMINI AI INSIGHTS</span>
+                <span>MOTOR DE ANALÍTICA AVANZADA</span>
                 <span className="flex items-center gap-1 font-semibold">SCOUTING <ChevronRight className="w-3.5 h-3.5" /></span>
               </div>
             </div>
@@ -626,16 +613,16 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                 </div>
                 
                 <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-[#00F0FF] transition-colors">
-                  Ecosistema Multideporte Escalable
+                  Fútbol Integral: 11, Indor 9, Indor 7 y Fútsal 5
                 </h3>
                 
                 <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Soporte nativo con reglamentos adaptables para Indor Fútbol, Baloncesto, Fútsal, Voleibol, Tenis, Pádel y deportes electrónicos en una misma cuenta unificada.
+                  Soporte oficial y actas digitales para Fútbol 11 (Once), Indor 9 (Nueve), Indor 7 (Siete) y Fútsal 5 (Cinco jugadores) con control dinámico de tiempos, faltas y sanciones.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-[#00F0FF]">
-                <span>CLOUD DISTRIBUTED</span>
+                <span>FÚTBOL 11 • 9 • 7 • 5</span>
                 <span className="flex items-center gap-1 font-semibold">CALENDARIO <ChevronRight className="w-3.5 h-3.5" /></span>
               </div>
             </div>
@@ -647,63 +634,43 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
         {/* ======================================================== */}
         {/* PARTE 3: PUENTE CINEMÁTICO HACIA LA HISTORIA EN 4 ACTOS */}
         {/* ======================================================== */}
-        <div id="scrollytelling-narrative" className="relative py-16 px-6 max-w-7xl mx-auto w-full text-center border-t border-b border-white/10 my-10 bg-gradient-to-r from-transparent via-[#0066FF]/10 to-transparent">
+        {/* ======================================================== */}
+        {/* PARTE 3: SECCIÓN DE CONVERSIÓN Y ACCIÓN DE SOFTWARE      */}
+        {/* ======================================================== */}
+        <div className="relative py-16 px-6 max-w-7xl mx-auto w-full text-center border-t border-b border-white/10 my-10 bg-gradient-to-r from-transparent via-[#0066FF]/10 to-transparent">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#080F24] border border-[#00F0FF]/40 text-xs font-mono text-[#00F0FF] mb-4">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span>NARRATIVA INMERSIVA SCROLLYTELLING</span>
+            <span>LANZAMIENTO OFICIAL LATAM</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-            De la Cancha de Tierra al Multiverso Global
+            Transforma la Operación de Tu Liga Hoy
           </h2>
 
           <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed mb-8">
-            Descubre en 4 actos interactivos la metamorfosis del deporte barrial: el paso de la planilla mojada en la lluvia a la federación digital de élite. Desliza hacia abajo para recorrer la historia.
+            Únete a la plataforma multideporte de alta precisión: sistema VAR oficial, vocalía digital en vivo, subdominio propio y carnets QR con un 50% de descuento ($35 por equipo en vez de $70) para las primeras 10 ligas.
           </p>
 
-          <button
-            onClick={() => handleNavigateAct(1)}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs sm:text-sm font-bold shadow-[0_0_25px_rgba(0,102,255,0.7)] transition-all cursor-pointer"
-          >
-            <span>Iniciar Viaje: Acto I (El Origen)</span>
-            <ChevronDown className="w-4 h-4 animate-bounce" />
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button
+              onClick={() => setShowCheckoutOfferModal(true)}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0066FF] hover:bg-[#0052cc] text-white text-sm font-bold shadow-[0_0_25px_rgba(0,102,255,0.7)] transition-all cursor-pointer active:scale-95"
+            >
+              <Tag className="w-4 h-4 text-[#00F0FF]" />
+              <span>Asegurar 50% OFF ($35/Equipo)</span>
+            </button>
+            <button
+              onClick={onEnterPlatform}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/[0.05] hover:bg-white/10 text-white text-sm font-semibold border border-white/15 transition-all cursor-pointer"
+            >
+              <span>Entrar a Plataforma</span>
+              <ArrowRight className="w-4 h-4 text-[#00F0FF]" />
+            </button>
+          </div>
         </div>
 
         {/* ======================================================== */}
-        {/* PARTE 4: LOS 4 ACTOS SCROLLYTELLING INTERACTIVOS         */}
-        {/* ======================================================== */}
-        
-        {/* ACTO I: EL ORIGEN */}
-        <Act01Origin
-          onNextAct={() => handleNavigateAct(2)}
-          onOpenLightbox={(idx) => setActiveLightboxIndex(idx)}
-        />
-
-        {/* ACTO II: EL DESPERTAR DIGITAL */}
-        <Act02DigitalAwakening
-          onNextAct={() => handleNavigateAct(3)}
-          onOpenLightbox={(idx) => setActiveLightboxIndex(idx)}
-        />
-
-        {/* ACTO III: EL ECOSISTEMA PRO & VAR */}
-        <Act03Ecosystem
-          onNextAct={() => handleNavigateAct(4)}
-          onSelectClubModal={(club) => setSelectedClubModal(club)}
-          onOpenLightbox={(idx) => setActiveLightboxIndex(idx)}
-        />
-
-        {/* ACTO IV: EL MULTIVERSO DEPORTIVO */}
-        <Act04Multiverse
-          onEnterPlatform={onEnterPlatform}
-          onOpenOnboarding={() => setShowCheckoutOfferModal(true)}
-          onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          onOpenLightbox={(idx) => setActiveLightboxIndex(idx)}
-          onSelectTab={(tab) => onNavigateTab(tab)}
-        />
-
-        {/* ======================================================== */}
-        {/* PARTE 5: FOOTER UNIFICADO DE ALTA GAMA                  */}
+        {/* PARTE 4: FOOTER UNIFICADO DE ALTA GAMA                  */}
         {/* ======================================================== */}
         <footer className="relative z-10 bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 text-slate-400 text-xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -729,42 +696,42 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                 </div>
               </div>
 
-              {/* Col 2: Los 4 Actos */}
+              {/* Col 2: Módulos de la Plataforma */}
               <div className="space-y-3">
                 <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider">
-                  Historia Scrollytelling
+                  Módulos de la Plataforma
                 </h4>
                 <ul className="space-y-2">
                   <li>
                     <button
-                      onClick={() => handleNavigateAct(1)}
-                      className="hover:text-amber-300 transition-colors text-left cursor-pointer"
-                    >
-                      Acto I: El Origen (Cancha de Tierra)
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => handleNavigateAct(2)}
+                      onClick={() => onNavigateTab('league')}
                       className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
                     >
-                      Acto II: El Despertar Digital
+                      Portal de Liga & Tablas en Vivo
                     </button>
                   </li>
                   <li>
                     <button
-                      onClick={() => handleNavigateAct(3)}
+                      onClick={() => onNavigateTab('vocalia')}
+                      className="hover:text-amber-300 transition-colors text-left cursor-pointer"
+                    >
+                      Vocalía Digital (Sin Papel)
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => onNavigateTab('var')}
                       className="hover:text-emerald-300 transition-colors text-left cursor-pointer"
                     >
-                      Acto III: El Ecosistema Pro & VAR
+                      Sistema VAR Oficial
                     </button>
                   </li>
                   <li>
                     <button
-                      onClick={() => handleNavigateAct(4)}
+                      onClick={() => onNavigateTab('calendar')}
                       className="hover:text-indigo-300 transition-colors text-left cursor-pointer"
                     >
-                      Acto IV: El Multiverso Deportivo
+                      Calendario & Fixture Dinámico
                     </button>
                   </li>
                 </ul>
@@ -782,14 +749,6 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                       className="text-amber-400 hover:text-amber-300 font-bold transition-colors text-left cursor-pointer"
                     >
                       🔥 50% OFF (10 Primeras Ligas - $35/Eq)
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => onNavigateTab('campaign-banners')}
-                      className="hover:text-white transition-colors text-left cursor-pointer"
-                    >
-                      Generador de Banners Publicitarios
                     </button>
                   </li>
                   <li>
@@ -875,7 +834,7 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
                 <div className="flex items-center gap-2 font-bold text-white mb-1.5">
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Pipeline VAR en Tiempo Real & Edge AI</span>
+                  <span>Pipeline VAR en Tiempo Real & Procesamiento de Video</span>
                 </div>
                 <p className="text-slate-400 leading-relaxed">
                   Motor de transcodificación FFmpeg de baja latencia acoplado a modelos de visión por computador (YOLOv8 + EasyOCR) para detección automatizada de jugadas polémicas y cronometraje oficial.

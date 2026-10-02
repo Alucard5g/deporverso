@@ -200,13 +200,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       title: 'Marketing & Promoción',
       items: [
         { id: 'exclusive-offer', label: 'Oferta 50% OFF ($35/Eq)', icon: Tag, color: 'text-amber-400' },
-        { id: 'campaign-banners', label: 'Banners de Campaña', icon: ImageIcon, color: 'text-purple-400' },
-      ]
-    },
-    {
-      title: 'Innovación & Deporte Inmersivo',
-      items: [
-        { id: 'heroes-vr', label: 'Héroes VR (Próximamente)', icon: Glasses, color: 'text-cyan-400' },
       ]
     },
     ...(isSuperAdminAuth ? [

@@ -163,10 +163,6 @@ export const ScrollytellingLightbox: React.FC<ScrollytellingLightboxProps> = ({
         className="max-w-3xl mx-auto w-full text-center space-y-1 z-10"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-white/50 uppercase tracking-widest">
-          <MapPin className="w-3 h-3" style={{ color: current.accent }} />
-          <span>{current.location}</span>
-        </div>
         <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
           {current.title}
         </h3>

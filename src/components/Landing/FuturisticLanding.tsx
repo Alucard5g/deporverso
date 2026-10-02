@@ -12,7 +12,6 @@ interface FuturisticLandingProps {
   onRequestDemo?: () => void;
   onStartNow?: () => void;
   onSelectSport?: (sport: SportCode) => void;
-  onViewScrollytelling?: () => void;
   onAddTenant?: (tenant: Omit<Tenant, 'id' | 'created_at'>) => void;
 }
 
@@ -21,7 +20,6 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
   onRequestDemo,
   onStartNow,
   onSelectSport,
-  onViewScrollytelling,
   onAddTenant
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -306,17 +304,6 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
             >
               Integraciones
             </button>
-
-            {onViewScrollytelling && (
-              <button 
-                onClick={onViewScrollytelling} 
-                className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all cursor-pointer flex items-center gap-1.5 ml-1"
-                title="Ver Presentación de 4 Actos"
-              >
-                <Play className="w-3 h-3 fill-emerald-400" />
-                <span>Modo Historia</span>
-              </button>
-            )}
           </nav>
 
           {/* ACCIONES A LA DERECHA */}
@@ -378,14 +365,6 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
                 <span>Oferta 50% OFF ($35/Eq)</span>
               </button>
 
-              <button
-                onClick={() => onNavigateTab('campaign-banners')}
-                className="px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-semibold text-slate-200 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/15 hover:border-purple-400/50 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
-              >
-                <ImageIcon className="w-4 h-4 text-purple-400" />
-                <span>Banners de Campaña</span>
-              </button>
-              
               <button
                 onClick={() => setShowTechModal(true)}
                 className="px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
@@ -612,12 +591,12 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
                 </h3>
                 
                 <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Métricas biomecánicas, mapas de calor interactivos, scouting predictivo de talentos y generación automática de crónicas periodísticas impulsadas por Gemini AI.
+                  Métricas biomecánicas, mapas de calor interactivos, scouting de talentos y generación automática de crónicas y actas oficiales del torneo.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400 group-hover:text-[#00F0FF]">
-                <span>GEMINI AI INSIGHTS</span>
+                <span>MOTOR DE ANALÍTICA AVANZADA</span>
                 <span className="flex items-center gap-1 font-semibold">SCOUTING <ChevronRight className="w-3.5 h-3.5" /></span>
               </div>
             </div>
@@ -712,7 +691,7 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
                 <div className="flex items-center gap-2 font-bold text-white mb-1.5">
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Pipeline VAR en Tiempo Real & Edge AI</span>
+                  <span>Pipeline VAR en Tiempo Real & Procesamiento de Video</span>
                 </div>
                 <p className="text-slate-400 leading-relaxed">
                   Motor de transcodificación FFmpeg de baja latencia acoplado a modelos de visión por computador (YOLOv8 + EasyOCR) para detección automatizada de jugadas polémicas y cronometraje oficial.

@@ -81,42 +81,50 @@ export default function App() {
     setTimeout(() => setAdminToast(null), 3000);
   };
 
-  // Escucha global de teclado: Al teclear "1326" en cualquier parte de la página,
-  // se activa el modo administrador y se despliega el panel maestro con CRM confidencial
+  // Escucha global de teclado: El administrador accede desde cualquier parte de la app con su clave 1326 al ser digitada
   useEffect(() => {
     let keyBuffer = '';
     let timeoutId: any = null;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
-        return;
-      }
+    const handleGlobalKeyStroke = (e: KeyboardEvent) => {
+      // Capturar cualquier caracter simple introducido
+      if (e.key && e.key.length === 1) {
+        keyBuffer += e.key;
 
-      // Aceptar dígitos y caracteres
-      keyBuffer += e.key;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          keyBuffer = '';
+        }, 3500);
 
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        keyBuffer = '';
-      }, 2500);
+        if (keyBuffer.endsWith('1326')) {
+          keyBuffer = '';
+          setIsAuthenticated(true);
+          setIsSuperAdminAuth(true);
+          setUserRole('SUPER_ADMIN');
+          setIsPlatformUnlocked(true);
+          setCurrentUserEmail('roly3d.rg@gmail.com');
+          setActiveTab('master-admin');
+          setAdminToast('👑 Acceso Maestro: Modo Administrador CIG Desbloqueado (1326)');
+          setTimeout(() => setAdminToast(null), 4500);
 
-      const bufferLower = keyBuffer.toLowerCase();
-      if (bufferLower.endsWith('1326') || bufferLower.endsWith('0000') || bufferLower.endsWith('admin')) {
-        setIsAuthenticated(true);
-        setIsSuperAdminAuth(true);
-        setUserRole('SUPER_ADMIN');
-        setIsPlatformUnlocked(true);
-        setActiveTab('master-admin');
-        setAdminToast('👑 Acceso Maestro: Modo Super Administrador CIG (Acceso Total Desbloqueado)');
-        setTimeout(() => setAdminToast(null), 4500);
-        keyBuffer = '';
+          try {
+            localStorage.setItem('deporverso_auth_session', JSON.stringify({
+              authenticated: true,
+              role: 'SUPER_ADMIN',
+              email: 'roly3d.rg@gmail.com',
+              isSuperAdmin: true,
+              loginTimestamp: Date.now()
+            }));
+          } catch (err) {
+            console.warn('Error guardando sesión admin:', err);
+          }
+        }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleGlobalKeyStroke, true);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleGlobalKeyStroke, true);
       clearTimeout(timeoutId);
     };
   }, []);
@@ -303,17 +311,17 @@ export default function App() {
     setActiveTab(targetTab === 'welcome' ? 'league' : targetTab);
   };
 
-  const handleReturnToScrollytelling = () => {
+  const handleReturnToHome = () => {
     setIsPlatformUnlocked(false);
     setActiveTab('welcome');
   };
 
   const handleTabChange = (tab: string) => {
     if (tab === 'welcome') {
-      handleReturnToScrollytelling();
+      handleReturnToHome();
       return;
     }
-    if ((tab === 'master-admin' || tab === 'master-admin-crm' || tab === 'sql-viewer') && !isSuperAdminAuth) {
+    if ((tab === 'master-admin' || tab === 'master-admin-crm' || tab === 'sql-viewer' || tab === 'campaign-banners') && !isSuperAdminAuth) {
       return;
     }
     setIsPlatformUnlocked(true);
@@ -332,6 +340,14 @@ export default function App() {
     } catch (e) {}
     setAdminToast('🔒 Panel de Administrador cerrado: Vuelto al panel de registro');
     setTimeout(() => setAdminToast(null), 3000);
+  };
+
+  const handleElevateToSuperAdmin = () => {
+    setIsSuperAdminAuth(true);
+    setUserRole('SUPER_ADMIN');
+    setCurrentUserEmail('roly3d.rg@gmail.com');
+    setAdminToast('👑 Sesión elevada: Acceso concedido como Administrador Maestro');
+    setTimeout(() => setAdminToast(null), 3500);
   };
 
   if (!isAuthenticated) {
@@ -466,7 +482,7 @@ export default function App() {
               onOpenOnboarding={() => setShowAffiliationModal(true)}
               isSuperAdminAuth={isSuperAdminAuth}
               onLogoutSuperAdmin={handleLogoutSuperAdmin}
-              onReturnToScrollytelling={handleReturnToScrollytelling}
+              onElevateToSuperAdmin={handleElevateToSuperAdmin}
               userEmail={currentUserEmail}
               onLogout={handleGlobalLogout}
             />
@@ -480,7 +496,6 @@ export default function App() {
           }`}>
             {activeTab === 'welcome' && (
               <WelcomePage
-                initialMode="futuristic"
                 onNavigateTab={handleEnterFullPlatform}
                 onEnterFullPlatform={handleEnterFullPlatform}
                 onOpenAffiliation={() => setShowAffiliationModal(true)}
@@ -489,18 +504,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'scrollytelling' && (
-              <WelcomePage
-                initialMode="scrollytelling"
-                onNavigateTab={handleEnterFullPlatform}
-                onEnterFullPlatform={handleEnterFullPlatform}
-                onOpenAffiliation={() => setShowAffiliationModal(true)}
-                onAddTenant={handleAddTenant}
-                setUserRole={setUserRole}
-              />
-            )}
-
-        {activeTab === 'campaign-banners' && (
+        {activeTab === 'campaign-banners' && isSuperAdminAuth && (
           <CampaignBannersGenerator
             onOpenCheckout={() => handleTabChange('exclusive-offer')}
           />

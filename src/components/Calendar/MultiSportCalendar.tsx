@@ -54,13 +54,25 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
     return Array.from(rounds);
   }, [matches]);
 
-  // Filtered matches
+  // Filtered matches (Enfoque exclusivo en fútbol para lanzamiento: 11, Indor 9 y 7, Fútsal 5)
   const filteredMatches = useMemo(() => {
     return matches.filter(match => {
-      // Sport filter
-      if (selectedSportFilter !== 'ALL' && match.sport_code !== selectedSportFilter) {
+      // Ocultar deportes que no sean fútbol / fútsal en la app
+      if (match.sport_code !== 'FUTBOL' && match.sport_code !== 'FUTSAL') {
         return false;
       }
+
+      // Filtro por modalidad de fútbol
+      if (selectedSportFilter === 'FUTBOL_11') {
+        if (match.sport_code !== 'FUTBOL' || (match.tenant_id === 't-indoor-express')) return false;
+      } else if (selectedSportFilter === 'INDOR_9') {
+        if (match.tenant_id !== 't-indoor-express' && !match.match_data?.modality?.includes('9')) return false;
+      } else if (selectedSportFilter === 'INDOR_7') {
+        if (match.tenant_id !== 't-indoor-express' && !match.match_data?.modality?.includes('7')) return false;
+      } else if (selectedSportFilter === 'FUTSAL_5') {
+        if (match.sport_code !== 'FUTSAL') return false;
+      }
+
       // Status filter
       if (selectedStatusFilter !== 'ALL' && match.status !== selectedStatusFilter) {
         return false;
@@ -247,7 +259,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
 
       {/* FILTER & VIEW CONTROLS */}
       <div className="bg-[#080d1a]/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-4 sm:p-5 space-y-4 shadow-xl">
-        {/* SPORT SELECTOR CHIPS */}
+        {/* FOOTBALL LAUNCH MODALITY CHIPS (Fútbol 11, Indor 9, Indor 7, Fútsal 5) */}
         <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setSelectedSportFilter('ALL')}
@@ -257,36 +269,35 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
                 : 'deporverso-tab-pill-inactive'
             }`}
           >
-            <Compass className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Todos los Deportes</span>
+            <span>⚽</span>
+            <span>Todo el Fútbol</span>
             <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-              selectedSportFilter === 'ALL' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-slate-400'
+              selectedSportFilter === 'ALL' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-slate-400'
             }`}>
-              {matches.length}
+              {matches.filter(m => m.sport_code === 'FUTBOL' || m.sport_code === 'FUTSAL').length}
             </span>
           </button>
 
-          {(['FUTBOL', 'BALONCESTO', 'ECUAVOLEY', 'PADEL', 'FUTSAL'] as SportCode[]).map(code => {
-            const theme = SPORT_THEMES[code];
-            const count = matches.filter(m => m.sport_code === code).length;
-            const isSelected = selectedSportFilter === code;
+          {[
+            { id: 'FUTBOL_11', label: 'Fútbol 11', icon: '⚽', desc: '11 Jugadores' },
+            { id: 'INDOR_9', label: 'Indor Fútbol 9', icon: '⚽', desc: '9 Jugadores' },
+            { id: 'INDOR_7', label: 'Indor Fútbol 7', icon: '⚽', desc: '7 Jugadores' },
+            { id: 'FUTSAL_5', label: 'Fútsal 5', icon: '⚽', desc: '5 Jugadores' },
+          ].map(mod => {
+            const isSelected = selectedSportFilter === mod.id;
             return (
               <button
-                key={code}
-                onClick={() => setSelectedSportFilter(code)}
+                key={mod.id}
+                onClick={() => setSelectedSportFilter(mod.id)}
                 className={`whitespace-nowrap flex items-center gap-2 ${
                   isSelected
-                    ? 'deporverso-tab-pill-active font-semibold'
+                    ? 'deporverso-tab-pill-active font-semibold text-emerald-300'
                     : 'deporverso-tab-pill-inactive'
                 }`}
               >
-                <span>{theme.icon}</span>
-                <span>{theme.name}</span>
-                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                  isSelected ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-slate-400'
-                }`}>
-                  {count}
-                </span>
+                <span>{mod.icon}</span>
+                <span>{mod.label}</span>
+                <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">({mod.desc})</span>
               </button>
             );
           })}
