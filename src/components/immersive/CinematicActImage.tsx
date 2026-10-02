@@ -28,39 +28,39 @@ export const CinematicActImage: React.FC<CinematicActImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Subtle tone-on-tone accents without loud neon clashes
+  // Subtle tone-on-tone accents harmonized with the video's cyan/cobalt palette
   const accentConfig = {
     amber: {
-      tagBorder: 'border-amber-500/20',
-      tagText: 'text-amber-300/90',
-      tagBg: 'bg-amber-950/30',
-      glow: 'from-amber-500/10 to-transparent',
-      hoverBorder: 'group-hover:border-amber-500/30',
-      pill: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
+      tagBorder: 'border-[#00F0FF]/30',
+      tagText: 'text-[#00F0FF]',
+      tagBg: 'bg-[#080F24]/80',
+      glow: 'from-[#0066FF]/20 to-transparent',
+      hoverBorder: 'group-hover:border-[#00F0FF]/60',
+      pill: 'bg-[#080F24]/80 text-[#00F0FF] border-[#00F0FF]/30',
     },
     cyan: {
-      tagBorder: 'border-cyan-500/20',
-      tagText: 'text-cyan-300/90',
-      tagBg: 'bg-cyan-950/30',
-      glow: 'from-cyan-500/10 to-transparent',
-      hoverBorder: 'group-hover:border-cyan-500/30',
-      pill: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
+      tagBorder: 'border-[#00F0FF]/30',
+      tagText: 'text-[#00F0FF]',
+      tagBg: 'bg-[#080F24]/80',
+      glow: 'from-[#0066FF]/20 to-transparent',
+      hoverBorder: 'group-hover:border-[#00F0FF]/60',
+      pill: 'bg-[#080F24]/80 text-[#00F0FF] border-[#00F0FF]/30',
     },
     emerald: {
-      tagBorder: 'border-emerald-500/20',
-      tagText: 'text-emerald-300/90',
-      tagBg: 'bg-emerald-950/30',
-      glow: 'from-emerald-500/10 to-transparent',
-      hoverBorder: 'group-hover:border-emerald-500/30',
-      pill: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
+      tagBorder: 'border-[#00F0FF]/30',
+      tagText: 'text-[#00F0FF]',
+      tagBg: 'bg-[#080F24]/80',
+      glow: 'from-[#0066FF]/20 to-transparent',
+      hoverBorder: 'group-hover:border-[#00F0FF]/60',
+      pill: 'bg-[#080F24]/80 text-[#00F0FF] border-[#00F0FF]/30',
     },
     indigo: {
-      tagBorder: 'border-indigo-500/20',
-      tagText: 'text-indigo-300/90',
-      tagBg: 'bg-indigo-950/30',
-      glow: 'from-indigo-500/10 to-transparent',
-      hoverBorder: 'group-hover:border-indigo-500/30',
-      pill: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',
+      tagBorder: 'border-[#00F0FF]/30',
+      tagText: 'text-[#00F0FF]',
+      tagBg: 'bg-[#080F24]/80',
+      glow: 'from-[#0066FF]/20 to-transparent',
+      hoverBorder: 'group-hover:border-[#00F0FF]/60',
+      pill: 'bg-[#080F24]/80 text-[#00F0FF] border-[#00F0FF]/30',
     },
   }[accent];
 

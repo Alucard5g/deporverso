@@ -23,6 +23,8 @@ import { testConnection } from './lib/firebase';
 import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
 import { AffiliationModal } from './components/Affiliation/AffiliationModal';
 import { LoginGate } from './components/Auth/LoginGate';
+import { CampaignBannersGenerator } from './components/Marketing/CampaignBannersGenerator';
+import { ExclusiveOfferCheckoutModal } from './components/Marketing/ExclusiveOfferCheckoutModal';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -478,6 +480,7 @@ export default function App() {
           }`}>
             {activeTab === 'welcome' && (
               <WelcomePage
+                initialMode="futuristic"
                 onNavigateTab={handleEnterFullPlatform}
                 onEnterFullPlatform={handleEnterFullPlatform}
                 onOpenAffiliation={() => setShowAffiliationModal(true)}
@@ -485,6 +488,33 @@ export default function App() {
                 setUserRole={setUserRole}
               />
             )}
+
+            {activeTab === 'scrollytelling' && (
+              <WelcomePage
+                initialMode="scrollytelling"
+                onNavigateTab={handleEnterFullPlatform}
+                onEnterFullPlatform={handleEnterFullPlatform}
+                onOpenAffiliation={() => setShowAffiliationModal(true)}
+                onAddTenant={handleAddTenant}
+                setUserRole={setUserRole}
+              />
+            )}
+
+        {activeTab === 'campaign-banners' && (
+          <CampaignBannersGenerator
+            onOpenCheckout={() => handleTabChange('exclusive-offer')}
+          />
+        )}
+
+        {activeTab === 'exclusive-offer' && (
+          <div className="py-4">
+            <ExclusiveOfferCheckoutModal
+              isOpen={true}
+              onClose={() => handleTabChange('welcome')}
+              onAddTenant={handleAddTenant}
+            />
+          </div>
+        )}
 
         {activeTab === 'calendar' && (
           <MultiSportCalendar

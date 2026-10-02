@@ -76,7 +76,7 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       return;
     }
 
-    // Helper: Circular ember sprite texture for soft golden dust particles
+    // Helper: Circular ember sprite texture for soft glowing cyan/cobalt dust particles
     const createCircularTexture = () => {
       const c = document.createElement('canvas');
       c.width = 32;
@@ -85,8 +85,8 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       if (ctx) {
         const radGrad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
         radGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        radGrad.addColorStop(0.3, 'rgba(245, 158, 11, 0.8)');
-        radGrad.addColorStop(0.7, 'rgba(217, 119, 6, 0.3)');
+        radGrad.addColorStop(0.3, 'rgba(0, 240, 255, 0.9)');
+        radGrad.addColorStop(0.7, 'rgba(0, 102, 255, 0.4)');
         radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = radGrad;
         ctx.fillRect(0, 0, 32, 32);
@@ -194,8 +194,8 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
     const particlePositions = new Float32Array(ambientParticleCount * 3);
     const particleColors = new Float32Array(ambientParticleCount * 3);
 
-    const earthColor = new THREE.Color(0xf59e0b);
-    const cyberColor = new THREE.Color(0x38bdf8);
+    const cobaltColor = new THREE.Color(0x0066FF);
+    const cyanColor = new THREE.Color(0x00F0FF);
 
     for (let p = 0; p < ambientParticleCount; p++) {
       const p3 = p * 3;
@@ -203,9 +203,10 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       particlePositions[p3 + 1] = Math.random() * 16 - 3;
       particlePositions[p3 + 2] = (Math.random() - 0.5) * 40;
 
-      particleColors[p3] = earthColor.r;
-      particleColors[p3 + 1] = earthColor.g;
-      particleColors[p3 + 2] = earthColor.b;
+      const chosenColor = p % 2 === 0 ? cyanColor : cobaltColor;
+      particleColors[p3] = chosenColor.r;
+      particleColors[p3 + 1] = chosenColor.g;
+      particleColors[p3 + 2] = chosenColor.b;
     }
 
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
@@ -216,7 +217,7 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       map: emberTexture,
       vertexColors: true,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.75,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -225,23 +226,23 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
     scene.add(ambientPoints);
 
     // 3. DIGITAL GRID FOR ACT 2 & 3
-    const gridHelper = new THREE.GridHelper(60, 40, 0x2563eb, 0x172554);
+    const gridHelper = new THREE.GridHelper(60, 40, 0x00F0FF, 0x0066FF);
     gridHelper.position.y = -2;
     // @ts-ignore
     gridHelper.material.transparent = true;
     // @ts-ignore
-    gridHelper.material.opacity = 0.15;
+    gridHelper.material.opacity = 0.2;
     scene.add(gridHelper);
 
-    // 4. STADIUM / MULTIVERSE RINGS
+    // 4. CONCENTRIC RIPPLE RINGS (Estilo Ondas de Agua del Video)
     const ringsGroup = new THREE.Group();
     for (let r = 0; r < 4; r++) {
-      const ringGeo = new THREE.RingGeometry(12 + r * 6, 12.1 + r * 6, 64);
+      const ringGeo = new THREE.RingGeometry(12 + r * 6, 12.15 + r * 6, 64);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: r % 2 === 0 ? 0x38bdf8 : 0x10b981,
+        color: r % 2 === 0 ? 0x00F0FF : 0x0066FF,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.2,
+        opacity: 0.35,
         blending: THREE.AdditiveBlending
       });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -251,17 +252,17 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
     }
     scene.add(ringsGroup);
 
-    // 5. AMBIENT & POINT LIGHTING
-    const ambientLight = new THREE.AmbientLight(0xffeedd, 0.7);
+    // 5. AMBIENT & POINT LIGHTING (Estética Dark Mode Futurista)
+    const ambientLight = new THREE.AmbientLight(0x050D24, 1.2);
     scene.add(ambientLight);
 
-    const warmFloodLight = new THREE.PointLight(0xf59e0b, 2.5, 45);
-    warmFloodLight.position.set(-15, 12, 10);
-    scene.add(warmFloodLight);
+    const cyanPointLight = new THREE.PointLight(0x00F0FF, 3.5, 55);
+    cyanPointLight.position.set(-15, 12, 10);
+    scene.add(cyanPointLight);
 
-    const cyberLight = new THREE.PointLight(0x00ffff, 3, 50);
-    cyberLight.position.set(15, 10, -10);
-    scene.add(cyberLight);
+    const cobaltPointLight = new THREE.PointLight(0x0066FF, 3.5, 50);
+    cobaltPointLight.position.set(15, 10, -10);
+    scene.add(cobaltPointLight);
 
     // MOUSE PARALLAX
     let mouseX = 0;
@@ -365,8 +366,8 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       camera.lookAt(0, 0, 0);
 
       // Lighting updates
-      warmFloodLight.intensity = Math.max(0, 2.5 - p * 3);
-      cyberLight.intensity = Math.min(3.5, p * 4);
+      cyanPointLight.intensity = Math.max(1.5, 3.5 - p * 1.5);
+      cobaltPointLight.intensity = Math.min(3.5, 1.5 + p * 2.5);
 
       renderer.render(scene, camera);
       animFrameIdRef.current = requestAnimationFrame(animate);

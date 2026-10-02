@@ -106,7 +106,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match })
               passAccuracy: 89.2,
               recoveries: 7
             },
-            aiEvaluation: `Lectura táctica pericial asistida por Visión Artificial Edge. El jugador #${detectedJersey} mantiene un índice de acierto del 89.2% con presencia dominante en el carril ofensivo.`
+            aiEvaluation: `Lectura táctica pericial del sistema de visión en cancha. El jugador #${detectedJersey} mantiene un índice de acierto del 89.2% con presencia dominante en el carril ofensivo.`
           }
         })
       });
@@ -187,11 +187,11 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match })
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-              <Cpu className="w-3 h-3" /> Visión Artificial Edge AI & AutoHighlight 9:16
+              <Cpu className="w-3 h-3" /> Módulo de Cámaras & Visión de Cancha
             </span>
-            <span className="text-white/40 text-xs font-mono">Inferencia en Cliente + FFmpeg Pipeline</span>
+            <span className="text-white/40 text-xs font-mono">Detección de Dorsales + FFmpeg Pipeline</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Segmento 2: Inferencia Edge para Mesa de Control & Generación 9:16</h1>
+          <h1 className="text-2xl font-bold text-white">Cámaras en Cancha para Mesa de Control & Generación 9:16</h1>
           <p className="text-xs text-white/50 mt-1">
             Detección automática de dorsales de jugadores, seguimiento de balón y extracción cinemática de clips verticales (1080x1920) para redes sociales en menos de 1 segundo.
           </p>
@@ -203,7 +203,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match })
             className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap text-xs"
           >
             <RefreshCw className={`w-4 h-4 ${isProcessing ? 'animate-spin' : ''}`} />
-            Simular Inferencia Edge
+            Escanear Cancha en Vivo
           </button>
         </div>
       </div>
@@ -236,7 +236,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match })
             {/* Live Indicator */}
             <div className="absolute top-4 left-4 bg-[#0a0a0a]/90 text-white text-xs px-3 py-1 rounded-full border border-white/10 flex items-center gap-2 font-mono">
               <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" />
-              <span>CÁMARA TÁCTICA EDGE AI - 60 FPS</span>
+              <span>CÁMARA TÁCTICA DEPORTIVA - 60 FPS</span>
             </div>
           </div>
 
@@ -397,7 +397,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match })
             </div>
 
             <p className="text-[11px] text-slate-400">
-              Genera la ficha pericial para el Jugador #{detectedJersey} con mapa de calor táctico, métricas de velocidad y dictamen IA de Gemini.
+              Genera la ficha pericial para el Jugador #{detectedJersey} con mapa de calor táctico, métricas de velocidad y dictamen oficial del sistema.
             </p>
 
             <button

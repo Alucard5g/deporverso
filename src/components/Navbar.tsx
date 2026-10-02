@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Trophy, Shield, Users, Video, FileText, Zap, Cpu, Database, MessageSquare, 
   Home, ChevronLeft, ChevronRight, Menu, X, Sparkles, Award, Lock, LogOut, Glasses,
-  Calendar, Presentation
+  Calendar, Presentation, Tag, Image as ImageIcon
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 
@@ -175,30 +175,32 @@ export const Navbar: React.FC<NavbarProps> = ({
     {
       title: 'Principal',
       items: [
-        { id: 'welcome', label: 'Presentación Scrollytelling', icon: Presentation, color: 'text-cyan-400' },
-      ]
-    },
-    {
-      title: 'Competición & En Vivo',
-      items: [
-        { id: 'calendar', label: 'Calendario & Fixture Global', icon: Calendar, color: 'text-emerald-400' },
+        { id: 'welcome', label: 'Inicio', icon: Home, color: 'text-cyan-400' },
         { id: 'league', label: 'Portal de Liga / Tablas', icon: Trophy, color: 'text-cyan-400' },
-        { id: 'vocalia', label: 'Vocalía Digital en Vivo', icon: Zap, color: 'text-amber-400' },
-        { id: 'vision-ai', label: 'Visión Artificial Edge AI', icon: Cpu, color: 'text-cyan-400' },
+        { id: 'calendar', label: 'Calendario & Fixture', icon: Calendar, color: 'text-emerald-400' },
       ]
     },
     {
-      title: 'Herramientas & Gobernanza',
+      title: 'Operación & Arbitraje',
       items: [
-        { id: 'var', label: 'VAR A la Carta', icon: Video, color: 'text-red-400' },
-        { id: 'governance', label: 'Asambleas & WhatsApp', icon: MessageSquare, color: 'text-teal-400' },
+        { id: 'vocalia', label: 'Vocalía Digital en Vivo', icon: Zap, color: 'text-amber-400' },
+        { id: 'var', label: 'Sistema VAR Oficial', icon: Video, color: 'text-red-400' },
+        { id: 'vision-ai', label: 'Cámaras & Visión de Cancha', icon: Cpu, color: 'text-cyan-400' },
       ]
     },
     {
-      title: 'Scouting & Analytics',
+      title: 'Dirección & Gobernanza',
       items: [
         { id: 'scouting', label: 'Hub de Scouting & Talentos', icon: Award, color: 'text-amber-400' },
         { id: 'tactics', label: 'Pizarra Táctica para DTs', icon: Users, color: 'text-cyan-400' },
+        { id: 'governance', label: 'Asambleas & Resoluciones', icon: MessageSquare, color: 'text-teal-400' },
+      ]
+    },
+    {
+      title: 'Marketing & Promoción',
+      items: [
+        { id: 'exclusive-offer', label: 'Oferta 50% OFF ($35/Eq)', icon: Tag, color: 'text-amber-400' },
+        { id: 'campaign-banners', label: 'Banners de Campaña', icon: ImageIcon, color: 'text-purple-400' },
       ]
     },
     {

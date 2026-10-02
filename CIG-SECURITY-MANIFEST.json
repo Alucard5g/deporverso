@@ -2,18 +2,18 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-10-01T20:32:18.435Z",
-  "epoch_timestamp_ms": 1790886738435,
+  "timestamp_utc": "2026-10-02T04:32:54.371Z",
+  "epoch_timestamp_ms": 1790915574371,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "08c6d4fd0bac1c5d971dd2276b8595b204ffd15b9f8d5ae3e4d6cf4fe2fb2291",
-  "signature_base64": "XcA1TqnKVukS/yLoScZx3wrQ7xxBEIbaQpSZljaRw4+SHvKl8qKKppNX3NDpjaGuvePnbLnZIRr+7DXNfZ0cBA==",
+  "merkle_master_root_hash": "5f6271b0ef6713a50508ef0a82bb3c276707e9cee7917538415ae96f7b175501",
+  "signature_base64": "oyksecJ+UOa2zNaw1i4nXYRhaHBfAmDQak9fU4afdNQlU3QlrjJhhwBYGgaQKlRTmy1D+d73WGt+tAmW+IQqCg==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 154,
+  "total_audited_files": 159,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
     {
@@ -115,6 +115,11 @@
       "path": "public/generated-reports/scouting_10_1790693958099.pdf",
       "sizeBytes": 78052,
       "sha256": "55c8e688cf2a2885d747c367eae2d168dc26068f7ba92dc8ddca3de1096fcd0c"
+    },
+    {
+      "path": "public/landing.html",
+      "sizeBytes": 31494,
+      "sha256": "9faa70ae4299915b6a44b9fb15fe99344c44e6d22d496c5681fb6317e03e6f5c"
     },
     {
       "path": "public/sports/atletismo.webp",
@@ -363,8 +368,8 @@
     },
     {
       "path": "src/App.tsx",
-      "sizeBytes": 29997,
-      "sha256": "590019eda7429185a0a26857f0d4929c224601d0de4f302d3263a235e0b1cbac"
+      "sizeBytes": 31131,
+      "sha256": "56ace93901f9179de6ebb3b4c951a7b03e760825677bc7c50dd5875ef2578ad7"
     },
     {
       "path": "src/assets/images/acto1_cancha_tierra_1789418204541.jpg",
@@ -418,23 +423,23 @@
     },
     {
       "path": "src/components/acts/Act01Origin.tsx",
-      "sizeBytes": 5897,
-      "sha256": "2c889196cb4d8d1b1425b2923872a54e88947ab1434871800ef2c0a8652b1689"
+      "sizeBytes": 7635,
+      "sha256": "4a45eac93e171175456553610724b1099bf04f37c78f5694979ea52be5c6ea1c"
     },
     {
       "path": "src/components/acts/Act02DigitalAwakening.tsx",
-      "sizeBytes": 16476,
-      "sha256": "2bfea445b2cee7ca5e489d00961fd7431a260a8c26767704d75f5f611b9f66cf"
+      "sizeBytes": 8740,
+      "sha256": "14cf293939f9b63cfec70474478c7ac168f711dd39ac406bf4c84b3f3188e708"
     },
     {
       "path": "src/components/acts/Act03Ecosystem.tsx",
-      "sizeBytes": 29247,
-      "sha256": "8fa59239b4c5342f66e5ba3a95cd5dedff15a070d6613d0f0b6920663a17d474"
+      "sizeBytes": 30058,
+      "sha256": "88aab057bbbc7da46e3df5159468b58afce23f73d144e01080730a445047bc77"
     },
     {
       "path": "src/components/acts/Act04Multiverse.tsx",
-      "sizeBytes": 19718,
-      "sha256": "c4eb8168befebfb8d4203c0c2608f5955bf8c18ac485f235334cef09d869efe3"
+      "sizeBytes": 19826,
+      "sha256": "7071410222cb45a5050afaa915b3d222d93c59fc904ed0e5b3608d9fa08032c1"
     },
     {
       "path": "src/components/Affiliation/AffiliationModal.tsx",
@@ -483,8 +488,8 @@
     },
     {
       "path": "src/components/immersive/CinematicActImage.tsx",
-      "sizeBytes": 5632,
-      "sha256": "d5a239756f3415dd338eda317830341a9c1ac469fe635adcbe5730e826fcd9cc"
+      "sizeBytes": 5626,
+      "sha256": "8c87402842678412ce462bf42b90f7b37382b66ac6ba1abf959bdbe7e145f6f1"
     },
     {
       "path": "src/components/immersive/DeporversoSegmentsDirectory.tsx",
@@ -498,8 +503,8 @@
     },
     {
       "path": "src/components/immersive/Header.tsx",
-      "sizeBytes": 11389,
-      "sha256": "4ac89846ea57083459a78efdaa11aa3f82081e20458850be84aaf65f573fd3a1"
+      "sizeBytes": 10251,
+      "sha256": "89f97fce33c6d70c9fc5e098007fe543c47a9f2efbac2fe31a09186f64eb1efa"
     },
     {
       "path": "src/components/immersive/MainExperience.tsx",
@@ -513,8 +518,8 @@
     },
     {
       "path": "src/components/immersive/ScrollProgress.tsx",
-      "sizeBytes": 3053,
-      "sha256": "129085788cabd3f53abd7c1ac6f12da7293b7a2fc4823bbe9ea49f75e5f1db91"
+      "sizeBytes": 3229,
+      "sha256": "5af470535017e709540203ea98fcf44c3619e7004052f03823b6cda43027f332"
     },
     {
       "path": "src/components/immersive/ScrollytellingLightbox.tsx",
@@ -522,14 +527,24 @@
       "sha256": "5d02cf3ec181938c4e328b8e6368166622c2a0c21ccfdcd76d5fc56fef763cc3"
     },
     {
+      "path": "src/components/Landing/FuturisticLanding.tsx",
+      "sizeBytes": 37649,
+      "sha256": "952e603d3d36d49579ba3659a26fee17afa5cf13b814071dce18dfc6942a64f0"
+    },
+    {
       "path": "src/components/Landing/ThematicSportsGallery.tsx",
       "sizeBytes": 11695,
       "sha256": "d6bf8b02a64851cf818bc6c2c57eee61db35cd105e2c784ab1d7d5c7fc837bbc"
     },
     {
+      "path": "src/components/Landing/UnifiedDeporversoExperience.tsx",
+      "sizeBytes": 51668,
+      "sha256": "d836d1158e6b0f32d4841e37432aa6a538fba17f2a54949c7d448fdcc4a1f32f"
+    },
+    {
       "path": "src/components/Landing/WelcomePage.tsx",
-      "sizeBytes": 1120,
-      "sha256": "08e0755fed244baed8694ec26cbf4db846c179424f4dd1b6ef291fa6bc19f5e9"
+      "sizeBytes": 1785,
+      "sha256": "41361341749357debb6dce8e23b1d4596ad940991fea2fe506800a52f9c639f7"
     },
     {
       "path": "src/components/LeaguePortal/ClubAndRosterDetail.tsx",
@@ -592,6 +607,16 @@
       "sha256": "33e42cda83178e57dad0ad23abbf29cd0f6d29e29f07ea2f7b0e2d18a61d2b2e"
     },
     {
+      "path": "src/components/Marketing/CampaignBannersGenerator.tsx",
+      "sizeBytes": 20741,
+      "sha256": "19f44d992dbf0a6c06a8e690211c239fd19f64f76adac01e8f344bc3a002c3ee"
+    },
+    {
+      "path": "src/components/Marketing/ExclusiveOfferCheckoutModal.tsx",
+      "sizeBytes": 29038,
+      "sha256": "67b6eee8e6dd5ae47ae48dbba07686b8cf8075b16fae8e3fbf3ba4a7b6db673f"
+    },
+    {
       "path": "src/components/MasterAdmin/AdminCRM.tsx",
       "sizeBytes": 37173,
       "sha256": "108b6a7a72f22e11905d6ecdf65e1354509996e5de6408bc65bcf386a20d9299"
@@ -613,8 +638,8 @@
     },
     {
       "path": "src/components/Navbar.tsx",
-      "sizeBytes": 16076,
-      "sha256": "247481e87dc681ef2a3f53687074095c0e5f3f4e6e4ce1e26f1a709bbdb787cd"
+      "sizeBytes": 16490,
+      "sha256": "b6f311f3f5f8e75768b9b8e9fe1d4c824ed75ec69b30f5a304ff432b990f0dc5"
     },
     {
       "path": "src/components/Scouting/ScoutingHub.tsx",
@@ -633,8 +658,8 @@
     },
     {
       "path": "src/components/three/DeporversoCanvas.tsx",
-      "sizeBytes": 16706,
-      "sha256": "19c1da7c599a14b35f9c66e798dd61564f106fcf26a45cfe71dfaf9d4f7bacd4"
+      "sizeBytes": 16888,
+      "sha256": "1f7c405ae05ce49b8e81be88d43e602de5570acb390676086528c79a726ae978"
     },
     {
       "path": "src/components/ThreeD/Sport3DExperience.tsx",

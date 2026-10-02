@@ -1,5 +1,5 @@
-import React from 'react';
-import { MainExperience } from '../immersive/MainExperience';
+import React, { useEffect } from 'react';
+import { UnifiedDeporversoExperience } from './UnifiedDeporversoExperience';
 import { Tenant, UserRole } from '../../types';
 
 interface WelcomePageProps {
@@ -8,12 +8,15 @@ interface WelcomePageProps {
   onOpenAffiliation?: () => void;
   onAddTenant?: (tenant: Omit<Tenant, 'id' | 'created_at'>) => void;
   setUserRole?: (role: UserRole) => void;
+  initialMode?: 'futuristic' | 'scrollytelling';
 }
 
 export const WelcomePage: React.FC<WelcomePageProps> = ({
   onNavigateTab,
   onEnterFullPlatform,
-  onOpenAffiliation
+  onOpenAffiliation,
+  onAddTenant,
+  initialMode = 'futuristic'
 }) => {
   const handleEnter = (tabKey: string = 'league') => {
     if (onEnterFullPlatform) {
@@ -23,21 +26,40 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (initialMode === 'scrollytelling') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('scrollytelling-narrative');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [initialMode]);
+
   return (
-    <div className="w-full min-h-screen">
-      <MainExperience
+    <div className="w-full min-h-screen relative">
+      <UnifiedDeporversoExperience
+        onNavigateTab={handleEnter}
         onEnterPlatform={() => handleEnter('league')}
-        onOpenOnboarding={() => {
+        onAddTenant={onAddTenant}
+        onRequestDemo={() => {
           if (onOpenAffiliation) {
             onOpenAffiliation();
           } else {
             handleEnter('league');
           }
         }}
-        onSelectTab={(tabKey) => {
-          handleEnter(tabKey);
+        onStartNow={() => {
+          if (onOpenAffiliation) {
+            onOpenAffiliation();
+          } else {
+            handleEnter('league');
+          }
         }}
       />
     </div>
   );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Shield, Globe, ExternalLink, Sparkles, Presentation } from 'lucide-react';
+import { Menu, X, ArrowRight, Shield, Globe, ExternalLink, Sparkles, Presentation, QrCode } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateAct: (actNumber: 1 | 2 | 3 | 4) => void;
@@ -8,30 +8,22 @@ interface HeaderProps {
   onStartTour?: () => void;
 }
 
-const ACT_SCENE_INFO: Record<number, { title: string; subtitle: string; color: string; badge: string }> = {
+const ACT_SCENE_INFO: Record<number, { title: string; subtitle: string }> = {
   1: {
-    title: 'Acto 01 • El Origen',
-    subtitle: 'La Cancha de Tierra Barrial',
-    color: '#f59e0b',
-    badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+    title: 'ACTO 01 • EL ORIGEN',
+    subtitle: 'La Cancha de Tierra Barrial'
   },
   2: {
-    title: 'Acto 02 • Despertar Digital',
-    subtitle: 'Matriz Cloud & Subdominios',
-    color: '#06b6d4',
-    badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+    title: 'ACTO 02 • DESPERTAR DIGITAL',
+    subtitle: 'Matriz Cloud & Subdominios'
   },
   3: {
-    title: 'Acto 03 • El Ecosistema Pro',
-    subtitle: 'Estadio Tecnológico & VAR 4K',
-    color: '#10b981',
-    badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+    title: 'ACTO 03 • ECOSISTEMA PRO',
+    subtitle: 'Estadio Tecnológico & VAR 4K'
   },
   4: {
-    title: 'Acto 04 • El Multiverso',
-    subtitle: 'VR & Scouting Tridimensional',
-    color: '#818cf8',
-    badge: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+    title: 'ACTO 04 • EL MULTIVERSO',
+    subtitle: 'VR & Scouting Tridimensional'
   }
 };
 
@@ -47,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 40);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -57,84 +49,85 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-500 ${
         scrolled
-          ? 'py-2.5 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/60'
+          ? 'py-3 bg-[#030712]/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.7)]'
           : 'py-5 bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
-        {/* Brand Logo & Active Scene Identifier */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+        
+        {/* LOGO: Deporverso con estética neón del video */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigateAct(1)}
             className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none shrink-0"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-amber-300 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <span className="font-black text-transparent bg-clip-text bg-gradient-to-tr from-cyan-400 to-emerald-300 text-sm tracking-tighter font-mono">
-                  DV
-                </span>
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#00F0FF] p-[1.5px] shadow-[0_0_20px_rgba(0,102,255,0.6)]">
+              <div className="w-full h-full bg-[#050B1B] rounded-[10px] flex items-center justify-center">
+                <svg className="w-5 h-5 text-[#00F0FF] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="m4.93 4.93 4.24 4.24"/>
+                  <path d="m14.83 9.17 4.24-4.24"/>
+                  <path d="m14.83 14.83 4.24 4.24"/>
+                  <path d="m9.17 14.83-4.24 4.24"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
               </div>
             </div>
             <div>
-              <span className="text-base font-black tracking-wider text-white flex items-center gap-1.5 font-sans">
+              <span className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5 font-sans">
                 DEPORVERSO
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono font-bold uppercase tracking-normal">
-                  3D
-                </span>
+                <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-ping" />
               </span>
-              <span className="text-[10px] text-slate-400 block tracking-widest uppercase font-mono">
-                deporverso.com
-              </span>
+              <p className="text-[10px] text-[#00F0FF]/80 font-mono tracking-widest uppercase">Scrollytelling Experience</p>
             </div>
           </button>
 
-          {/* ACTIVE SCENE PILL (Matches the background animation & image) */}
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border backdrop-blur-md text-[11px] font-mono transition-all duration-500 shadow-sm"
-               style={{ backgroundColor: `${currentScene.color}10`, borderColor: `${currentScene.color}40` }}>
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentScene.color }} />
-            <span className="text-slate-400 font-semibold uppercase">{currentScene.title}:</span>
-            <span className="text-white font-bold tracking-tight">{currentScene.subtitle}</span>
+          {/* ACTIVE SCENE BADGE (Idéntico a la píldora informativa del video) */}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#080F24]/80 border border-[#00F0FF]/30 backdrop-blur-xl text-xs font-mono text-slate-300 shadow-lg shadow-[#0066FF]/10">
+            <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+            <span className="text-[#00F0FF] font-bold">{currentScene.title}:</span>
+            <span className="text-white font-medium">{currentScene.subtitle}</span>
           </div>
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
+        {/* MENÚ CENTRAL EN CÁPSULA GLASSMORPHIC (Estilo exacto del video) */}
+        <nav className="hidden md:flex items-center gap-1 bg-[#080F24]/75 backdrop-blur-2xl px-3 py-1.5 rounded-full border border-white/10 shadow-2xl">
           <button
             onClick={() => onNavigateAct(1)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 1
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.7)] border border-[#00F0FF]/40'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
             }`}
           >
-            01 El Origen
+            01 Origen
           </button>
           <button
             onClick={() => onNavigateAct(2)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 2
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.7)] border border-[#00F0FF]/40'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
             }`}
           >
             02 Digital
           </button>
           <button
             onClick={() => onNavigateAct(3)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 3
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.7)] border border-[#00F0FF]/40'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
             }`}
           >
             03 Ecosistema & VAR
           </button>
           <button
             onClick={() => onNavigateAct(4)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeAct === 4
-                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.7)] border border-[#00F0FF]/40'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
             }`}
           >
             04 Multiverso
@@ -143,116 +136,84 @@ export const Header: React.FC<HeaderProps> = ({
             href="https://heroesdeldeporte.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-amber-300 flex items-center gap-1 transition-colors whitespace-nowrap"
+            className="px-3 py-1.5 text-xs text-slate-400 hover:text-[#00F0FF] flex items-center gap-1 transition-colors whitespace-nowrap"
           >
             Héroes
             <ExternalLink className="w-3 h-3 text-slate-500" />
           </a>
         </nav>
 
-        {/* Action Buttons: [ Auto-Tour ] and [ ENTRAR ] */}
-        <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+        {/* ACCIONES DERECHA: QR BADGE Y BOTÓN GLOW DE ACCIÓN */}
+        <div className="flex items-center gap-3">
+          {/* Badge estilo QR "Easy to Start with Our App" del video */}
+          <div className="hidden xl:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#080F24]/75 backdrop-blur-xl border border-white/10 text-xs">
+            <div className="w-6 h-6 bg-white rounded p-0.5 flex items-center justify-center">
+              <QrCode className="w-full h-full text-black" />
+            </div>
+            <div className="leading-tight text-left">
+              <p className="font-semibold text-white text-[11px]">App Oficial</p>
+              <p className="text-[9px] text-slate-400">Escanea y Juega</p>
+            </div>
+          </div>
+
           {onStartTour && (
             <button
               onClick={onStartTour}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer shadow-md whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-mono font-bold text-cyan-300 bg-[#00F0FF]/10 hover:bg-[#00F0FF]/20 border border-[#00F0FF]/30 transition-all cursor-pointer shadow-md whitespace-nowrap"
               title="Iniciar Modo Conferencia / Auto-Tour a Dirigentes"
             >
-              <Presentation className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <Presentation className="w-3.5 h-3.5 text-[#00F0FF]" />
               <span>Auto-Tour</span>
             </button>
           )}
 
+          {/* Botón Primario con Resplandor Neón */}
           <button
             onClick={onEnterPlatform}
-            className="px-4 lg:px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] via-[#00d2b4] to-[#00e5ff] hover:brightness-110 active:scale-95 text-slate-950 flex items-center gap-2 shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-all cursor-pointer border border-emerald-300/40 whitespace-nowrap"
+            className="px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white tracking-wide bg-[#0066FF] hover:bg-[#0052cc] shadow-[0_0_25px_rgba(0,102,255,0.6)] hover:shadow-[0_0_35px_rgba(0,240,255,0.8)] transition-all flex items-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
           >
-            <span className="hidden lg:inline">ENTRA AL DEPORVERSO COMPLETO</span>
-            <span className="lg:hidden">ENTRAR</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-950 stroke-[2.5] shrink-0" />
+            <span>Entrar a Plataforma</span>
+            <ArrowRight className="w-4 h-4 text-[#00F0FF]" />
           </button>
-        </div>
 
-        {/* Mobile Hamburger Toggle */}
-        <div className="flex md:hidden items-center gap-2">
-          <button
-            onClick={onEnterPlatform}
-            className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-[#00e676] to-[#00e5ff] text-slate-950 cursor-pointer"
-          >
-            Entrar
-          </button>
+          {/* Menú Móvil Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-300 hover:text-white bg-slate-900/80 rounded-xl border border-white/10"
-            aria-label="Menu"
+            className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
+
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Menú Móvil Desplegable */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-950/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="space-y-2">
-            <button
-              onClick={() => {
-                onNavigateAct(1);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900"
-            >
-              01 El Origen (La Cancha de Tierra)
-            </button>
-            <button
-              onClick={() => {
-                onNavigateAct(2);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900"
-            >
-              02 El Despertar Digital
-            </button>
-            <button
-              onClick={() => {
-                onNavigateAct(3);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900"
-            >
-              03 El Ecosistema, Clubes & VAR
-            </button>
-            <button
-              onClick={() => {
-                onNavigateAct(4);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900"
-            >
-              04 El Multiverso Deportivo
-            </button>
-            <a
-              href="https://heroesdeldeporte.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-semibold text-amber-300 hover:bg-slate-900"
-            >
-              <span>Héroes del Deporte</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-
-          <div className="pt-4 border-t border-slate-800">
-            <button
-              onClick={() => {
-                onEnterPlatform();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full py-3 rounded-xl text-center text-xs font-black uppercase tracking-wider bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
-            >
-              [ ENTRAR AL DEPORVERSO ]
-            </button>
-          </div>
+        <div className="md:hidden mt-3 px-4 py-4 bg-[#080F24]/95 backdrop-blur-2xl border-b border-white/10 space-y-2">
+          <button
+            onClick={() => { onNavigateAct(1); setMobileMenuOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${activeAct === 1 ? 'bg-[#0066FF] text-white' : 'text-slate-300'}`}
+          >
+            01 • El Origen Barrial
+          </button>
+          <button
+            onClick={() => { onNavigateAct(2); setMobileMenuOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${activeAct === 2 ? 'bg-[#0066FF] text-white' : 'text-slate-300'}`}
+          >
+            02 • Despertar Digital
+          </button>
+          <button
+            onClick={() => { onNavigateAct(3); setMobileMenuOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${activeAct === 3 ? 'bg-[#0066FF] text-white' : 'text-slate-300'}`}
+          >
+            03 • Ecosistema Pro & VAR
+          </button>
+          <button
+            onClick={() => { onNavigateAct(4); setMobileMenuOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${activeAct === 4 ? 'bg-[#0066FF] text-white' : 'text-slate-300'}`}
+          >
+            04 • Multiverso Deportivo
+          </button>
         </div>
       )}
     </header>

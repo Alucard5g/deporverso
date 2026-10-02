@@ -494,8 +494,8 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-          IA Periodística (Gemini)
+          <FileText className="w-3.5 h-3.5 text-purple-400" />
+          Crónicas & Prensa Oficial
         </button>
         <button
           onClick={() => setActiveAdminTab('calendar')}
@@ -1098,19 +1098,19 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                 <li>✓ Licencia anual de $25 USD</li>
                 <li>✓ Vocalía digital multideporte en vivo</li>
                 <li>✓ Equipos ilimitados & Carnetización QR</li>
-                <li>✓ Ingesta de datos Word / PDF / Excel con IA</li>
-                <li>✓ Crónicas deportivas automáticas Gemini</li>
+                <li>✓ Ingesta y digitalización de planillas Word / PDF / Excel</li>
+                <li>✓ Crónicas deportivas oficiales automáticas</li>
               </ul>
             </div>
 
             <div className="bg-slate-950 p-6 rounded-xl border border-purple-500/50 space-y-3">
               <span className="bg-purple-500/20 text-purple-400 text-xs font-bold px-2.5 py-1 rounded-full">Enterprise - $8/mes</span>
               <h3 className="text-xl font-black text-white">Plan Federación Global</h3>
-              <p className="text-xs text-slate-400">Acceso completo multideporte con VAR a la Carta e IA de Visión Artificial.</p>
+              <p className="text-xs text-slate-400">Acceso completo multideporte con Sistema VAR Oficial y Cámaras de Visión Computacional.</p>
               <ul className="text-xs text-slate-300 space-y-2 pt-2">
                 <li>✓ Todo lo del Plan Pro</li>
-                <li>✓ Integración VAR A la Carta ($12/partido)</li>
-                <li>✓ Visión Artificial Edge AI (detección dorsales)</li>
+                <li>✓ Integración Sistema VAR Oficial ($12/partido)</li>
+                <li>✓ Módulo de Cámaras en Cancha (detección dorsales)</li>
                 <li>✓ Asambleas virtuales & Votaciones WhatsApp</li>
                 <li>✓ Dominio propio personalizado</li>
               </ul>

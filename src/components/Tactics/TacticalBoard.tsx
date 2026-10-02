@@ -525,7 +525,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
       }
 
       setAiReport(
-        `🧠 ANÁLISIS TÁCTICO IA (DEPORVERSO ANALYTICS - GEMINI):\n` +
+        `📋 INFORME TÁCTICO OFICIAL DEL SISTEMA:\n` +
         `• Esquema Activo: ${p.name} (${p.playerCount} Jugadores por Equipo).\n` +
         `• Modalidad: ${activeModality.replace('_', ' ')} • Subdominio: ${tenant?.domain || 'deporverso.app'}.\n\n` +
         `${advice}\n\n` +
@@ -634,7 +634,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
             className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-teal-400 to-[#00ff66] hover:from-cyan-300 hover:to-emerald-300 text-black font-black px-5 py-3 rounded-2xl shadow-xl shadow-cyan-500/25 transition-all cursor-pointer whitespace-nowrap text-xs hover:scale-105 active:scale-95"
           >
             <Sparkles className="w-4 h-4" />
-            <span>{generatingAi ? 'Analizando Formación...' : 'Análisis Táctico Gemini IA'}</span>
+            <span>{generatingAi ? 'Analizando Formación...' : 'Análisis Táctico Automatizado'}</span>
           </button>
         </div>
       </div>
@@ -932,7 +932,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
                   {activePresetObj.description}
                 </p>
                 <p className="text-[11px] text-emerald-400 pt-1">
-                  Presiona <strong>"Análisis Táctico Gemini IA"</strong> para generar un desglose profesional de fortalezas y debilidades.
+                  Presiona <strong>"Análisis Táctico Automatizado"</strong> para generar un desglose profesional de fortalezas y debilidades.
                 </p>
               </div>
             )}

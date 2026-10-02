@@ -600,7 +600,7 @@ export const VarReplayStudio: React.FC<VarReplayStudioProps> = ({
                 <div className="flex items-center justify-center p-4">
                   <div className="bg-black/90 px-4 py-2 rounded-lg border border-cyan-500 text-cyan-300 font-mono text-xs flex items-center gap-2.5 shadow-2xl">
                     <Bot className="w-4 h-4 animate-spin text-cyan-400" />
-                    <span>Calibrando líneas con visión artificial... (&lt;20s)</span>
+                    <span>Calibrando líneas tácticas de fuera de juego... (&lt;20s)</span>
                   </div>
                 </div>
                 <div className="w-full h-0.5 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse"></div>

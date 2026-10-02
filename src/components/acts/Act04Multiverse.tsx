@@ -46,28 +46,28 @@ export const Act04Multiverse: React.FC<Act04MultiverseProps> = ({
       id="act-4"
       className="relative min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 py-24 text-center overflow-hidden"
     >
-      {/* Deep cosmic nebula background */}
+      {/* Luz Ambiental Azul Neón y Cobalto */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-[800px] bg-gradient-to-r from-indigo-950/30 via-purple-950/20 to-cyan-950/30 blur-3xl opacity-60" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-[800px] bg-gradient-to-r from-[#0066FF]/20 via-[#00F0FF]/15 to-transparent rounded-full blur-[120px]" />
       </div>
 
-      {/* Act Badge */}
-      <div className="relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 backdrop-blur-md mb-8 shadow-xl shadow-indigo-950/30">
-        <Compass className="w-3.5 h-3.5 text-indigo-400 animate-spin" style={{ animationDuration: '12s' }} />
-        <span className="text-[11px] font-mono font-black uppercase tracking-widest text-indigo-300">
-          ACTO IV • EL MULTIVERSO
+      {/* Píldora Superior: Badge Inteligencia Deportiva */}
+      <div className="relative z-10 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#080F24]/80 border border-[#00F0FF]/30 backdrop-blur-xl mb-6 shadow-[0_0_20px_rgba(0,102,255,0.3)]">
+        <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-ping" />
+        <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00F0FF]">
+          ACTO 04 • EL MULTIVERSO GLOBAL & VR
         </span>
       </div>
 
-      {/* Main Title */}
+      {/* Título Principal Tipográfico */}
       <div className="relative z-10 max-w-5xl mx-auto space-y-4">
-        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight">
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08] font-sans">
           El universo deportivo <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-[#00F0FF] drop-shadow-[0_0_35px_rgba(0,240,255,0.4)]">
             no tiene límites.
           </span>
         </h2>
-        <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto font-light">
+        <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
           La convergencia total: Deporte de barrio, ligas profesionales, Héroes del Deporte, telemetría VR y entrenamiento en casa en un único multiverso conectado.
         </p>
       </div>

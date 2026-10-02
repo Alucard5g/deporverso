@@ -152,7 +152,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
     setTimeout(() => {
       setIsGeneratingStory(false);
       setAiStoryText(
-        `🤖 CRÓNICA IA GEMINI 1.5 FLASH: ¡Épica jornada futbolística en la categoría ${selectedCategory}! El torneo vibró con encuentros de altísima intensidad táctica. Destacamos el rendimiento impecable de los líderes en la tabla, quienes mantienen un promedio ofensivo devastador con despliegues rápidos en las bandas. La mesa de vocalía digital registró un récord de efectividad del 99.8% con escaneo QR de carnets. ¡Sigue la próxima fecha en vivo por Deporverso!`
+        `📰 RESUMEN OFICIAL DE LA JORNADA: ¡Épica jornada deportiva en la categoría ${selectedCategory}! El torneo vibró con encuentros de altísima intensidad táctica. Destacamos el rendimiento impecable de los líderes en la tabla, quienes mantienen un promedio ofensivo devastador con despliegues rápidos en las bandas. La mesa de vocalía digital registró un récord de efectividad del 99.8% con escaneo QR de carnets. ¡Sigue la próxima fecha en vivo por Deporverso!`
       );
     }, 1200);
   };
@@ -962,9 +962,9 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <Sparkles className="w-6 h-6 text-cyan-400" />
-                  Blog Deportivo & Crónicas IA (Gemini 1.5 Flash)
+                  Blog Deportivo & Crónicas Oficiales de Liga
                 </h2>
-                <p className="text-xs text-[#A0A0A0] font-normal mt-1">Resúmenes periodísticos oficiales y artículos de la jornada redactados por la IA Periodística.</p>
+                <p className="text-xs text-[#A0A0A0] font-normal mt-1">Resúmenes periodísticos oficiales y artículos de la jornada generados automáticamente por el sistema.</p>
               </div>
 
               <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5">
@@ -983,7 +983,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                   <article key={i} className="bg-[#050505] p-7 rounded-2xl border border-cyan-500/30 space-y-4 shadow-xl hover:border-cyan-400 transition-all">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
                       <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> Crónica Oficial Gemini 1.5 Flash
+                        <FileText className="w-3 h-3" /> Crónica Oficial del Torneo
                       </span>
                       <span className="text-xs text-[#A0A0A0] font-normal">
                         {new Date(c.generated_at).toLocaleDateString('es-EC', { day: 'numeric', month: 'short', year: 'numeric' })}

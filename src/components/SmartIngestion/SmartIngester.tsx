@@ -69,9 +69,9 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
             </span>
             <span className="text-slate-400 text-xs font-mono font-medium">3 Caminos de Carga</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Módulo de Ingesta Inteligente de Datos</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Módulo de Ingesta y Digitalización de Datos</h1>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Convierte documentos Word, Excel o PDF mediante Gemini AI o solicita migración asistida desde tu sistema anterior.
+            Convierte documentos Word, Excel o PDF mediante el motor automatizado de procesamiento o solicita migración asistida desde tu sistema anterior.
           </p>
         </div>
       </div>
@@ -87,8 +87,8 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-white text-sm">Camino 1: Gemini AI Parser</span>
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+            <span className="font-semibold text-white text-sm">Camino 1: Procesador Digital de Planillas</span>
+            <FileText className="w-4 h-4 text-cyan-400" />
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">Pega el contenido de archivos Word/Excel/PDF para extraer equipos y calendarios automáticamente.</p>
         </button>
@@ -129,7 +129,7 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
         <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 space-y-4">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <Cpu className="w-5 h-5 text-cyan-400" />
-            Parsing Inteligente de Documentos con Gemini Flash
+            Procesamiento Automatizado de Documentos y Fixtures
           </h2>
 
           <form onSubmit={handleAiParse} className="space-y-4">
@@ -153,7 +153,7 @@ export const SmartIngester: React.FC<SmartIngesterProps> = ({ tenantId, sportCod
               className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isParsing ? 'animate-spin' : ''}`} />
-              {isParsing ? 'Procesando Documento con IA...' : 'Procesar con Gemini AI'}
+              {isParsing ? 'Procesando Documento...' : 'Procesar Documento Digital'}
             </button>
           </form>
 

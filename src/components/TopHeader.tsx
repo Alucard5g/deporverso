@@ -25,19 +25,21 @@ interface TopHeaderProps {
 }
 
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
-  welcome: { title: 'Plataforma Global Deporverso', subtitle: 'Gestión Multideporte con IA, VAR, Vocalía Digital & Héroes VR' },
-  calendar: { title: 'Calendario & Fixture Multideporte Cuántico', subtitle: 'Cronograma oficial de fechas, designaciones arbitrales, sedes y sincronización .ICS' },
+  welcome: { title: 'Plataforma Global Deporverso', subtitle: 'Gestión Multideporte con Sistema VAR, Vocalía Digital y Analítica Oficial' },
+  calendar: { title: 'Calendario & Fixture Multideporte', subtitle: 'Cronograma oficial de fechas, sedes y sincronización .ICS' },
   league: { title: 'Portal de Competición & Tablas', subtitle: 'Estadísticas, posiciones, fixture y sanciones en tiempo real' },
   vocalia: { title: 'Vocalía Digital en Vivo (Mesa de Control)', subtitle: 'PWA adaptable a las reglas de cada disciplina deportiva' },
-  'vision-ai': { title: 'Visión Artificial Edge AI', subtitle: 'Inferencia local con WebAssembly para detección de eventos' },
-  ingestion: { title: 'Ingesta Inteligente de Datos', subtitle: 'Parsing automático con Gemini Flash & Migración Asistida' },
-  var: { title: 'VAR A la Carta', subtitle: 'Transmisión local de ultra baja latencia con replays' },
-  chronicle: { title: 'IA Periodística Autogenerada', subtitle: 'Crónicas deportivas automáticas impulsadas por Gemini' },
-  governance: { title: 'Asambleas Virtuales & Notificaciones', subtitle: 'Votaciones virtuales con Jitsi & Alertas por WhatsApp' },
-  scouting: { title: 'Hub de Scouting & Talent Discovery', subtitle: 'Evaluación Deporverso Index (1-10) y Fichas Técnicas PDF' },
-  tactics: { title: 'Pizarra Táctica & Analítica para DTs', subtitle: 'Simulador de formaciones con análisis táctico asistido por IA' },
+  'vision-ai': { title: 'Cámaras & Visión Computacional', subtitle: 'Procesamiento de video de baja latencia para eventos en cancha' },
+  ingestion: { title: 'Digitalización de Planillas y Datos', subtitle: 'Procesamiento automatizado de formatos y migración asistida' },
+  var: { title: 'Sistema VAR Oficial', subtitle: 'Transmisión local de ultra baja latencia con repeticiones multicámara' },
+  chronicle: { title: 'Sala de Prensa & Crónicas Oficiales', subtitle: 'Generación automatizada de resúmenes periodísticos de partidos' },
+  governance: { title: 'Asambleas & Notificaciones Oficiales', subtitle: 'Votaciones virtuales con Jitsi y avisos oficiales por WhatsApp' },
+  scouting: { title: 'Hub de Scouting & Talent Discovery', subtitle: 'Evaluación Deporverso Index (1-10) y Fichas Técnicas Oficiales' },
+  tactics: { title: 'Pizarra Táctica & Simulador para DTs', subtitle: 'Simulador de formaciones con análisis táctico automatizado del sistema' },
+  'exclusive-offer': { title: 'Oferta Especial de Afiliación', subtitle: '50% de descuento ($35 por equipo) para las 10 primeras ligas' },
+  'campaign-banners': { title: 'Generador de Banners Publicitarios', subtitle: 'Material gráfico de alta conversión para redes sociales' },
   'heroes-vr': { title: 'Héroes VR (Próximamente)', subtitle: 'Simulador de carrera y deporte en casa en asociación con heroesdeldeporte.com' },
-  'master-admin': { title: 'Panel Maestro SuperAdmin', subtitle: 'Gestión global de ligas, sincronización y auditoría' },
+  'master-admin': { title: 'Panel Maestro SuperAdmin', subtitle: 'Gestión global de ligas, sincronización y auditoría CIG' },
   'sql-viewer': { title: 'Consola SQL Supabase RLS', subtitle: 'Esquema empresarial de base de datos relacional' }
 };
 
@@ -312,18 +314,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <span className="text-slate-400">Cloud Sync:</span>
           <span className="text-amber-400/90 font-mono text-[9px]">En Línea</span>
         </div>
-
-        {/* BOTÓN VOLVER A PRESENTACIÓN SCROLLYTELLING */}
-        {onReturnToScrollytelling && (
-          <button
-            onClick={onReturnToScrollytelling}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-cyan-500/25 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold transition-all shadow-sm cursor-pointer whitespace-nowrap"
-            title="Volver a la Presentación Cinematográfica Scrollytelling"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden md:inline">Ver Presentación 3D</span>
-          </button>
-        )}
 
         {/* BOTÓN CREAR LIGA DIRECTO */}
         <button

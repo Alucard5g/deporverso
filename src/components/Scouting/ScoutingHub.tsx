@@ -349,7 +349,7 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5 font-mono">
                   <FileText className="w-4 h-4" />
-                  <span>Informe Táctico de Ojeador (Gemini Flash)</span>
+                  <span>Informe Táctico Oficial de Ojeador</span>
                 </span>
                 <span className="text-[10px] text-white/40 font-mono">Actualizado en vivo</span>
               </div>

@@ -49,13 +49,13 @@ export const AiChronicleGenerator: React.FC<AiChronicleGeneratorProps> = ({ matc
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> IA Periodística Deporverso (Gemini)
+              <FileText className="w-3 h-3" /> Sala de Prensa Oficial Deporverso
             </span>
             <span className="text-white/40 text-xs font-mono">Generador Automático de Crónicas</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Redacción de Crónicas Deportivas en Vivo</h1>
+          <h1 className="text-2xl font-bold text-white">Redacción de Crónicas Deportivas Oficiales</h1>
           <p className="text-xs text-white/50 mt-1">
-            Convierte los eventos de la vocalía digital en artículos periodísticos emocionantes y titulares de prensa para redes sociales.
+            Convierte los eventos de la vocalía digital en artículos periodísticos estructurados y titulares de prensa para redes sociales.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export const AiChronicleGenerator: React.FC<AiChronicleGeneratorProps> = ({ matc
             className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs px-5 py-3 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap self-start md:self-auto"
           >
             <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? 'Redactando Crónica con IA...' : 'Generar Crónica Gemini'}
+            {isGenerating ? 'Generando Crónica Oficial...' : 'Generar Crónica Oficial'}
           </button>
         )}
       </div>
