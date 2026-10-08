@@ -13,35 +13,20 @@ export default defineConfig(() => {
     },
     server: {
       // HMR is disabled in AI Studio
-      hmr: false,
-      ws: false,
+      hmr: false as const,
+      ws: false as const,
       watch: null,
     },
     build: {
       target: 'es2022',
       sourcemap: false,
-      minify: 'esbuild',
+      minify: 'esbuild' as const,
       cssMinify: true,
       reportCompressedSize: false,
-      chunkSizeWarningLimit: 2000,
-      rollupOptions: {
-        output: {
-          compact: true,
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom')) return 'v-r';
-              if (id.includes('lucide-react')) return 'v-ic';
-              if (id.includes('firebase')) return 'v-fb';
-              if (id.includes('@google/genai')) return 'v-ai';
-              return 'v-vnd';
-            }
-          }
-        }
-      }
+      chunkSizeWarningLimit: 3000,
     },
     esbuild: {
-      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
-      legalComments: 'none',
+      legalComments: 'none' as const,
       minifyIdentifiers: true,
       minifySyntax: true,
       minifyWhitespace: true,

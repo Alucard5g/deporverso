@@ -21,18 +21,21 @@ async function startServer() {
   app.use(securityHeadersMiddleware);
   app.use(antiScrapingMiddleware);
   app.use(rateLimiterMiddleware);
-  // Detección de puerto conforme a los requerimientos de AI Studio:
-  // Port 3000 & iFrame: Dev server MUST run on port 3000.
-  // En desarrollo nunca debe usar el puerto 8080 del contenedor (reservado para nginx).
+  // Detección de puerto universal (Google Cloud Run vs Entorno Local):
+  // 1. Argumento CLI explícito (--port 3000)
+  // 2. process.env.PORT asignado por Google Cloud Run (ej. 8080)
+  // 3. process.env.DEFAULT_APP_PORT definido en entorno AI Studio (3000)
+  // 4. Fallback estándar: 3000
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const isDev = process.env.NODE_ENV !== 'production';
 
   let PORT = 3000;
   if (cliPort) {
     PORT = cliPort;
-  } else if (!isDev && process.env.PORT) {
+  } else if (process.env.PORT) {
     PORT = parseInt(process.env.PORT, 10);
+  } else if (process.env.DEFAULT_APP_PORT) {
+    PORT = parseInt(process.env.DEFAULT_APP_PORT, 10);
   } else {
     PORT = 3000;
   }
@@ -356,6 +359,9 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'Endpoint no encontrado', path: req.path });
+      }
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
