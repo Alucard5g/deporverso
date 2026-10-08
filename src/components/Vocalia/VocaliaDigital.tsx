@@ -1373,7 +1373,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                 type="text"
                 value={vocalReport.ball_conditions || ''}
                 onChange={(e) => setVocalReport({ ...vocalReport, ball_conditions: e.target.value })}
-                placeholder="Ej. 2 balones oficiales FIFA en óptimo estado"
+                placeholder="Ej. 2 balones oficiales reglamentarios en óptimo estado"
                 className="w-full bg-[#121212] border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
               />
             </div>

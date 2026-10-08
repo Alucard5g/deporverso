@@ -65,7 +65,7 @@ const TEMPLATES: CampaignTemplate[] = [
     accentColor: '#10b981',
     priceTag: 'MULTIDEPORTE • 50% OFF',
     sportIcon: '🏀',
-    adCopy: `Un solo sistema para TODOS tus torneos:\n⚽ Fútbol 11, Indor y Fútsal\n🏀 Baloncesto FIBA con reloj de tiro\n🎾 Pádel y Tenis\n🏐 Voleibol y Ecuavoley\n\nPrueba DEPORVERSO hoy mismo con 50% de descuento ($35/equipo) en https://deporverso.com`
+    adCopy: `Un solo sistema para TODOS tus torneos:\n⚽ Fútbol 11, Indor y Fútsal\n🏀 Baloncesto con reloj de tiro reglamentario\n🎾 Pádel y Tenis\n🏐 Voleibol y Ecuavoley\n\nPrueba DEPORVERSO hoy mismo con 50% de descuento ($35/equipo) en https://deporverso.com`
   }
 ];
 

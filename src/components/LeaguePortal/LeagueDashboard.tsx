@@ -6,16 +6,18 @@ import {
   ChevronRight, ExternalLink, Download, FileText, Activity, ChevronDown,
   Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft, Tv
 } from 'lucide-react';
-import { Tenant, Match, Team, Player, Sport, AiChronicle } from '../../types';
+import { Tenant, Match, Team, Player, Sport, AiChronicle, MatchEvent } from '../../types';
 import { FanAuthModal } from '../Fan/FanAuthModal';
 import { TradingCardCarnet } from './TradingCardCarnet';
 import { LeagueFixtureTable } from './LeagueFixtureTable';
 import { ClubAndRosterDetail } from './ClubAndRosterDetail';
 import { PlayerTransfersManager } from './PlayerTransfersManager';
+import { LeagueAnalytics } from './LeagueAnalytics';
 import { SPORT_VISUAL_THEMES } from '../../data/sportThemesData';
 import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
 import { InscriptionsAndStreaming } from './InscriptionsAndStreaming';
 import { LiveStreamingPanel } from './LiveStreamingPanel';
+import pichinchaPortadaImg from '../../assets/images/pichincha_portada.jpg';
 import heroBannerImg from '../../assets/images/soccer_hero_banner_1785853921446.jpg';
 import basketballHeroImg from '../../assets/images/basketball_hero_bg_1785854264293.jpg';
 import volleyballHeroImg from '../../assets/images/volleyball_hero_bg_1785854282070.jpg';
@@ -26,8 +28,15 @@ interface LeagueDashboardProps {
   matches: Match[];
   teams: Team[];
   players: Player[];
+  events?: MatchEvent[];
   publishedChronicles?: AiChronicle[];
   onPlayerTransferred?: (playerId: string, newTeamId: string, newJerseyNumber?: number) => void;
+  isSuperAdminAuth?: boolean;
+  onOpenStepTour?: (stepIndex?: number) => void;
+  onNavigateTab?: (tabId: string) => void;
+  hasPaidFullAccess?: boolean;
+  onOpenCheckout?: () => void;
+  userEmail?: string;
 }
 
 const getSportHeroBg = (sportCode?: string, sportName?: string) => {
@@ -62,11 +71,34 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
   matches = [],
   teams = [],
   players = [],
+  events = [],
   publishedChronicles = [],
-  onPlayerTransferred
+  onPlayerTransferred,
+  isSuperAdminAuth = false,
+  onOpenStepTour,
+  onNavigateTab,
+  hasPaidFullAccess = false,
+  onOpenCheckout,
+  userEmail = ''
 }) => {
   const currentSportBg = getSportHeroBg(tenant.sport_code, sport?.name);
-  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
+  
+  // Google Drive Synced Icon
+  const sportDriveIcon = React.useMemo(() => {
+    const code = (tenant.sport_code || sport?.name || 'FUTBOL').toUpperCase();
+    if (code.includes('BASKET') || code.includes('BALONCESTO')) {
+      return '/sports/drive/baloncesto_sq.webp';
+    }
+    if (code.includes('TENIS') || code.includes('TENNIS') || code.includes('PADEL')) {
+      return '/sports/drive/tennis_sq.webp';
+    }
+    if (code.includes('MARCIAL') || code.includes('MMA') || code.includes('TAEKWONDO') || code.includes('BOXEO') || code.includes('COMBATE') || code.includes('JUDO') || code.includes('KARATE')) {
+      return '/sports/drive/artes_marciales_sq.webp';
+    }
+    return '/sports/drive/futbol_sq.webp';
+  }, [tenant.sport_code, sport?.name]);
+
+  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'analytics' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
   const [streamingMode, setStreamingMode] = useState<'vocalia' | 'var' | 'tv'>('vocalia');
   const [playerForTransfer, setPlayerForTransfer] = useState<Player | null>(null);
   const [standingsSubTab, setStandingsSubTab] = useState<'table' | 'scorers' | 'fairplay'>('table');
@@ -255,11 +287,13 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
       <header className="bg-slate-950/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between transition-all">
         {/* Brand Logo & League Identification */}
         <div className="flex items-center gap-3.5 cursor-pointer group" onClick={() => setActiveTab('inicio')}>
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-amber-300 p-0.5 shadow-lg shadow-emerald-500/10 group-hover:scale-105 transition-all">
-            <div className="w-full h-full bg-[#050b14] rounded-[14px] flex items-center justify-center">
-              <span className="font-black text-white text-base font-mono">
-                {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'L'}
-              </span>
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-amber-300 p-0.5 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-all">
+            <div className="w-full h-full bg-[#050b14] rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden">
+              <img 
+                src={sportDriveIcon} 
+                alt={tenant.sport_code} 
+                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]" 
+              />
             </div>
           </div>
           <div className="flex flex-col">
@@ -288,6 +322,18 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             }`}
           >
             Inicio
+          </button>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'analytics' 
+                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow-sm' 
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Analítica</span>
           </button>
 
           {/* Categorías Dropdown */}
@@ -432,83 +478,53 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
         </div>
       </header>
 
-      {/* ==================== MINIMALIST ELEGANT HERO BANNER SECTION ==================== */}
-      <div className="relative bg-[#03060f] py-14 sm:py-20 px-4 overflow-hidden border-b border-white/10">
-        {/* Dynamic Atmospheric Background with Dark Vignette */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 scale-105 transition-all duration-1000 mix-blend-screen filter brightness-90 contrast-125"
-          style={{ 
-            backgroundImage: `url(${currentSportBg})` 
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#03060f]/90 via-[#03060f]/80 to-[#03060f]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/20 via-transparent to-transparent pointer-events-none"></div>
-
-        {/* Center Content: Minimalist, Authoritative & Balanced */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
-          {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 border border-cyan-500/25 text-cyan-300 text-xs font-medium backdrop-blur-md shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Plataforma Federativa Digital • Temporada 2026</span>
-          </div>
-
-          {/* Main League Headline */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white font-sans leading-tight">
-            {tenant.name || 'Liga Barrial Pichincha'}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-sm sm:text-base text-slate-300 font-normal max-w-2xl mx-auto leading-relaxed">
-            Resultados oficiales en tiempo real, tabla de posiciones por categorías, nóminas de clubes y credenciales digitales coleccionables verificadas con código QR.
-          </p>
-
-          {/* Feature Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1 text-xs text-slate-300">
-            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" /> {selectedCategory}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
-              <Shield className="w-3.5 h-3.5 text-cyan-400" /> {teams.length} Clubes Afiliados
-            </span>
-            <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1.5 backdrop-blur-sm">
-              <Award className="w-3.5 h-3.5 text-emerald-400" /> {players.length} Carnets QR Habilitados
-            </span>
-          </div>
-
-          {/* Minimalist Frosted Search Bar */}
-          <div className="pt-3 max-w-xl mx-auto">
-            <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/15 focus-within:border-cyan-400/80 focus-within:ring-2 focus-within:ring-cyan-500/20 shadow-2xl transition-all p-1.5">
-              <Search className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por equipo, jugador o cédula..."
-                className="w-full px-3 py-2.5 bg-transparent text-white text-sm outline-none placeholder-slate-400 font-medium"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors mr-1 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-              <button 
-                onClick={() => setActiveTab('standings')}
-                className="bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-bold px-4 py-2 rounded-xl transition-all cursor-pointer text-xs flex items-center gap-1.5 shrink-0 shadow-lg shadow-cyan-500/20"
-              >
-                <span>Buscar</span>
-              </button>
+      {/* BANNER OFICIAL DE MODO DEMO (REGISTRADO) */}
+      {!hasPaidFullAccess && !isSuperAdminAuth && (
+        <div className="bg-gradient-to-r from-[#030919] via-[#091533] to-[#030919] border-b border-cyan-500/30 px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+              <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
-            {searchQuery && (
-              <p className="text-xs text-cyan-400 font-medium mt-2">
-                Filtrando resultados para: <span className="font-bold">"{searchQuery}"</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Modo Demo Oficial
+                </span>
+                <span className="text-xs font-bold text-white">
+                  Liga Barrial Pichincha & Club Deportivo Deporverso
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                {userEmail ? <span className="font-semibold text-white">{userEmail} · </span> : ''}
+                Este usuario solo accede a la demo. Para acceder al portal de Deporverso completo (Vocalía Digital, VAR a la Carta, Crónicas IA, Scouting, DT y Calendario), suscríbete con 50% de descuento ($35 mayores / $25 formativas con descuento por incentivo al deporte infantil y juvenil).
               </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onNavigateTab && (
+              <button
+                onClick={() => onNavigateTab('club-deporverso')}
+                className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Explorar la demo del Club Deportivo Deporverso"
+              >
+                <Star className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Ver Demo Club Deporverso</span>
+              </button>
+            )}
+
+            {onOpenCheckout && (
+              <button
+                onClick={onOpenCheckout}
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
+              >
+                <Flame className="w-3.5 h-3.5 text-slate-950 animate-pulse" />
+                <span>Suscríbete y accede al 50% descuento</span>
+              </button>
             )}
           </div>
         </div>
-      </div>
+      )}
 
       {/* ==================== MAIN PORTAL DASHBOARD CONTENT ==================== */}
       <main className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
@@ -557,6 +573,17 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             }`}
           >
             <Users className="w-3.5 h-3.5 text-indigo-400" /> Clubes, Jugadores & Carnets
+          </button>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'analytics' 
+                ? 'deporverso-tab-pill-active font-semibold text-cyan-300' 
+                : 'deporverso-tab-pill-inactive'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-cyan-400" /> Analítica & Tendencias
           </button>
 
           <button
@@ -666,6 +693,39 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
                   Licencia Deporverso
                 </span>
+              </div>
+            </div>
+
+            {/* ACCESO RÁPIDO A ANALÍTICA RECHARTS */}
+            <div 
+              onClick={() => setActiveTab('analytics')}
+              className="bg-gradient-to-r from-[#050B1A] via-[#081534] to-[#050B1A] border border-cyan-500/30 hover:border-cyan-400 rounded-3xl p-6 transition-all duration-300 shadow-xl cursor-pointer group flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-300 group-hover:scale-110 transition-transform shrink-0">
+                  <Activity className="w-6 h-6 text-cyan-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">
+                      RECHARTS BIOMETRIC ENGINE
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold">
+                      NUEVO
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-cyan-300 transition-colors">
+                    Tendencia de Goles & Rendimiento de Equipos
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Visualiza curvas de efectividad por fecha, histograma de minutos 1-90+, balance ofensivo/defensivo y estadísticas en vivo.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-300 group-hover:translate-x-1 transition-transform shrink-0">
+                <span>Abrir Analítica Completa</span>
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
 
@@ -939,6 +999,18 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
               setActiveTab('transfers');
             }}
             onOpenTransfers={() => setActiveTab('transfers')}
+          />
+        )}
+
+        {/* SECTION: ANALÍTICA DE LIGA & TENDENCIA DE GOLES (RECHARTS) */}
+        {activeTab === 'analytics' && (
+          <LeagueAnalytics
+            tenant={tenant}
+            sport={sport}
+            matches={matches}
+            teams={teams}
+            events={events}
+            isSuperAdminAuth={isSuperAdminAuth}
           />
         )}
 

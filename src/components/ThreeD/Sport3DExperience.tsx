@@ -804,7 +804,7 @@ export const Sport3DExperience: React.FC<Sport3DExperienceProps> = ({
         R2_LATENCY: 14MS • SHADOWS: PCF_SOFT
       </div>
       <div className="absolute bottom-2 right-2 pointer-events-none text-cyan-400/50 font-mono text-[9px] select-none tracking-widest hidden sm:block">
-        DIM: {sportCode === 'FUTBOL' ? '105m x 68m FIFA' : sportCode === 'BALONCESTO' ? '28m x 15m FIBA' : sportCode === 'PADEL' ? '20m x 10m WPT' : sportCode === 'ECUAVOLEY' ? '18m x 9m RED ALTA' : 'OFICIAL FED'}
+        DIM: {sportCode === 'FUTBOL' ? '105m x 68m OFICIAL' : sportCode === 'BALONCESTO' ? '28m x 15m REGLAMENTARIA' : sportCode === 'PADEL' ? '20m x 10m REGLAMENTARIA' : sportCode === 'ECUAVOLEY' ? '18m x 9m RED ALTA' : 'OFICIAL FED'}
       </div>
 
       {/* Main Interactive 3D WebGL Canvas Viewport */}

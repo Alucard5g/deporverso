@@ -542,7 +542,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
           bg: 'bg-gradient-to-br from-[#0c2e4e] via-[#09223a] to-[#041424]',
           border: 'border-cyan-400/40',
           lines: 'border-cyan-300/40',
-          tag: 'Cancha Oficial de Fútsal FIFA (Piso Flotante Azul / 5 Jugadores)',
+          tag: 'Cancha Oficial de Fútsal Reglamentaria (Piso Flotante Azul / 5 Jugadores)',
           laser: 'via-cyan-400'
         };
       case 'INDOR_7':

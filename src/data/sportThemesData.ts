@@ -29,7 +29,7 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
   FUTBOL: {
     code: 'FUTBOL',
     name: 'Fútbol 11 & Sénior',
-    tagline: 'Gestión reglamentaria FIFA, planillas electrónicas y VAR a la carta',
+    tagline: 'Gestión reglamentaria oficial, planillas electrónicas y VAR a la carta',
     badge: '⚽ Disciplina Reina',
     heroImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200',
     actionImages: [

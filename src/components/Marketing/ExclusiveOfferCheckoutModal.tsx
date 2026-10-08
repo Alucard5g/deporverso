@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   X, Tag, CheckCircle2, ShieldCheck, Flame, Users, Trophy, Video, 
   CreditCard, Smartphone, Building2, ChevronRight, ArrowRight, DollarSign,
-  Lock, Copy, Check, ExternalLink, Sparkles
+  Lock, Copy, Check, ExternalLink, Sparkles, Plus, Trash2
 } from 'lucide-react';
 import { SportCode, Tenant } from '../../types';
 
@@ -20,11 +20,15 @@ interface ExclusiveOfferCheckoutModalProps {
   onAddTenant?: (newTenant: Omit<Tenant, 'id' | 'created_at'>) => void;
 }
 
-const REGULAR_PRICE_PER_TEAM = 70; // $70 per team
-const DISCOUNT_PERCENTAGE = 50; // 50% OFF
-const DISCOUNTED_PRICE_PER_TEAM = REGULAR_PRICE_PER_TEAM * (1 - DISCOUNT_PERCENTAGE / 100); // $35 per team
+export interface LeagueCategory {
+  id: string;
+  name: string;
+  isInferior: boolean; // Infantil/Juvenil pays $25, Senior pays $35
+  teamsCount: number;
+}
+
 const TOTAL_PROMO_SLOTS = 10;
-const TAKEN_PROMO_SLOTS = 6; // 6 out of 10 taken -> 4 remaining
+const TAKEN_PROMO_SLOTS = 6; // 4 remaining
 
 export const ExclusiveOfferCheckoutModal: React.FC<ExclusiveOfferCheckoutModalProps> = ({
   isOpen,
@@ -32,7 +36,13 @@ export const ExclusiveOfferCheckoutModal: React.FC<ExclusiveOfferCheckoutModalPr
   onSuccess,
   onAddTenant
 }) => {
-  const [teamsCount, setTeamsCount] = useState<number>(12);
+  const [categories, setCategories] = useState<LeagueCategory[]>([
+    { id: 'cat-1', name: 'Primera Senior (Mayores)', isInferior: false, teamsCount: 6 },
+    { id: 'cat-2', name: 'Segunda Senior (Mayores)', isInferior: false, teamsCount: 6 },
+    { id: 'cat-3', name: 'Sub-12 (Infantil)', isInferior: true, teamsCount: 4 },
+    { id: 'cat-4', name: 'Sub-16 (Juvenil)', isInferior: true, teamsCount: 4 },
+  ]);
+
   const [leagueName, setLeagueName] = useState<string>('Liga Deportiva Barrial América');
   const [leaderName, setLeaderName] = useState<string>('Ing. Marco Benavides');
   const [leaderPhone, setLeaderPhone] = useState<string>('0987654321');
@@ -53,11 +63,47 @@ export const ExclusiveOfferCheckoutModal: React.FC<ExclusiveOfferCheckoutModalPr
 
   if (!isOpen) return null;
 
-  // Financial calculations
-  const regularTotal = teamsCount * REGULAR_PRICE_PER_TEAM;
-  const discountAmount = regularTotal * (DISCOUNT_PERCENTAGE / 100);
-  const finalTotal = teamsCount * DISCOUNTED_PRICE_PER_TEAM;
+  // Calculos financieros reactivos basados en categorías
+  const teamsCount = categories.reduce((sum, cat) => sum + (Number(cat.teamsCount) || 0), 0);
+  
+  const regularTotal = categories.reduce((sum, cat) => {
+    const regularPrice = cat.isInferior ? 50 : 70;
+    return sum + (Number(cat.teamsCount) || 0) * regularPrice;
+  }, 0);
+
+  const finalTotal = categories.reduce((sum, cat) => {
+    const discountedPrice = cat.isInferior ? 25 : 35;
+    return sum + (Number(cat.teamsCount) || 0) * discountedPrice;
+  }, 0);
+
+  const discountAmount = regularTotal - finalTotal;
   const remainingSlots = TOTAL_PROMO_SLOTS - TAKEN_PROMO_SLOTS;
+
+  const handleAddCategory = () => {
+    const newId = `cat-custom-${Date.now()}`;
+    setCategories([
+      ...categories,
+      { id: newId, name: `Categoría Nueva ${categories.length + 1}`, isInferior: false, teamsCount: 4 }
+    ]);
+  };
+
+  const handleUpdateCategoryName = (id: string, name: string) => {
+    setCategories(categories.map(c => c.id === id ? { ...c, name } : c));
+  };
+
+  const handleUpdateCategoryType = (id: string, isInferior: boolean) => {
+    setCategories(categories.map(c => c.id === id ? { ...c, isInferior } : c));
+  };
+
+  const handleUpdateCategoryTeams = (id: string, count: number) => {
+    setCategories(categories.map(c => c.id === id ? { ...c, teamsCount: count < 0 ? 0 : count } : c));
+  };
+
+  const handleRemoveCategory = (id: string) => {
+    if (categories.length > 1) {
+      setCategories(categories.filter(c => c.id !== id));
+    }
+  };
 
   const handleProcessOrder = () => {
     setIsProcessing(true);
@@ -160,70 +206,139 @@ export const ExclusiveOfferCheckoutModal: React.FC<ExclusiveOfferCheckoutModalPr
               
               {/* CALCULADORA DE PRECIO POR EQUIPO */}
               <div className="p-6 rounded-2xl bg-[#080F24]/80 border border-white/10 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                      1. Selecciona el Número de Equipos en tu Liga
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#00F0FF]" />
+                      1. Registra tus Equipos por Categorías (Sin Límite)
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Calcula tu inversión con el 50% de descuento aplicado automáticamente.
+                      Ingresa el número de equipos por categoría. El descuento del 50% y tarifas preferenciales para inferiores se aplican automáticamente.
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-[#00F0FF] font-mono">{teamsCount}</span>
-                    <span className="text-xs text-slate-400 block font-mono">equipos</span>
+                  <div className="text-right shrink-0">
+                    <span className="text-3xl font-black text-[#00F0FF] font-mono">{teamsCount}</span>
+                    <span className="text-xs text-slate-400 block font-mono">equipos totales</span>
                   </div>
                 </div>
 
-                {/* Slider */}
-                <input
-                  type="range"
-                  min="6"
-                  max="32"
-                  step="2"
-                  value={teamsCount}
-                  onChange={(e) => setTeamsCount(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
-                />
-
-                {/* Quick Presets */}
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[11px] text-slate-400 font-mono">Frecuentes:</span>
-                  {[8, 12, 16, 20, 24].map((count) => (
-                    <button
-                      key={count}
-                      onClick={() => setTeamsCount(count)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                        teamsCount === count
-                          ? 'bg-[#0066FF] text-white font-bold border border-[#00F0FF]/40'
-                          : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                      }`}
-                    >
-                      {count} eq.
-                    </button>
-                  ))}
+                {/* Panel de Información Exclusivo y Beneficios */}
+                <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-cyan-950/40 border border-cyan-500/30 space-y-3">
+                  <div className="flex items-center gap-2 text-[#00F0FF]">
+                    <Sparkles className="w-4 h-4 animate-pulse text-[#00F0FF]" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider">Políticas de Registro & Incentivos Deportivos</span>
+                  </div>
+                  <ul className="text-xs text-slate-300 space-y-2 list-none pl-0">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#00F0FF] font-bold font-mono">■</span>
+                      <span><strong>El número de equipos se ingresa sin límite:</strong> Añade todos los equipos que pertenezcan a tu liga o torneo sin restricciones.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#00F0FF] font-bold font-mono">■</span>
+                      <span><strong>Se ingresa por categorías:</strong> Organiza la estructura de tu torneo asignando los equipos correspondientes a cada nivel.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#00F0FF] font-bold font-mono">■</span>
+                      <span><strong>Tarifa de Incentivo Infantil y Juvenil:</strong> Las categorías inferiores pagan solo <strong className="text-emerald-400 font-bold">$25</strong> con descuento especial como incentivo al deporte infantil y juvenil (en lugar de la tarifa normal de $35 para mayores).</span>
+                    </li>
+                  </ul>
                 </div>
 
-                {/* DESGLOSE MATEMÁTICO TRANSPARENTE */}
+                {/* Formulario Dinámico de Categorías */}
+                <div className="space-y-3">
+                  {categories.map((cat) => (
+                    <div 
+                      key={cat.id} 
+                      className="p-3.5 rounded-xl bg-slate-950/60 border border-white/[0.08] hover:border-[#00F0FF]/30 transition-all flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-xs animate-fade-in"
+                    >
+                      {/* Nombre de la Categoría */}
+                      <div className="flex-1 min-w-0">
+                        <label className="text-slate-400 text-[10px] block mb-1 uppercase font-mono">Nombre de la Categoría</label>
+                        <input
+                          type="text"
+                          value={cat.name}
+                          onChange={(e) => handleUpdateCategoryName(cat.id, e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-medium text-xs focus:outline-none focus:border-[#00F0FF]"
+                          placeholder="Ej: Primera Senior"
+                        />
+                      </div>
+
+                      {/* Tipo de Categoría */}
+                      <div className="w-full md:w-56">
+                        <label className="text-slate-400 text-[10px] block mb-1 uppercase font-mono">Tipo (Nivel / Descuento)</label>
+                        <select
+                          value={cat.isInferior ? 'inferior' : 'senior'}
+                          onChange={(e) => handleUpdateCategoryType(cat.id, e.target.value === 'inferior')}
+                          className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white text-xs focus:outline-none focus:border-[#00F0FF]"
+                        >
+                          <option value="senior">Categoría Mayor / Senior ($35/eq)</option>
+                          <option value="inferior">Categoría Inferior (Infantil/Juvenil - $25/eq)</option>
+                        </select>
+                      </div>
+
+                      {/* Número de Equipos */}
+                      <div className="w-full md:w-28">
+                        <label className="text-slate-400 text-[10px] block mb-1 uppercase font-mono">Equipos (Sin Límite)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={cat.teamsCount}
+                          onChange={(e) => handleUpdateCategoryTeams(cat.id, Number(e.target.value))}
+                          className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-center text-xs focus:outline-none focus:border-[#00F0FF]"
+                        />
+                      </div>
+
+                      {/* Eliminar Categoría */}
+                      {categories.length > 1 && (
+                        <div className="flex items-end justify-end shrink-0 pt-4 md:pt-0">
+                          <button
+                            onClick={() => handleRemoveCategory(cat.id)}
+                            className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+                            title="Eliminar esta categoría"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Botón para Añadir Categoría */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+                    <button
+                      onClick={handleAddCategory}
+                      className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4 text-emerald-400" />
+                      <span>Añadir Categoría Personalizada</span>
+                    </button>
+
+                    <span className="text-[11px] text-slate-400 font-mono italic">
+                      * Las categorías infantiles y juveniles pagan $25 por incentivo al deporte infantil y juvenil.
+                    </span>
+                  </div>
+                </div>
+
+                {/* DESGLOSE MATEMÁTICO TRANSPARENTE POR CATEGORÍAS */}
                 <div className="p-4 rounded-xl bg-slate-950/80 border border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                   <div>
-                    <span className="text-[11px] font-mono text-slate-400 block">PRECIO OFICIAL</span>
+                    <span className="text-[11px] font-mono text-slate-400 block">INVERSIÓN REAL (SIN DSCTO)</span>
                     <span className="text-sm font-bold text-slate-400 line-through">
-                      ${regularTotal} <span className="text-[10px]">(${REGULAR_PRICE_PER_TEAM}/eq)</span>
+                      ${regularTotal} <span className="text-[10px] block text-slate-500">(Mayores: $70 / Inferiores: $50)</span>
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[11px] font-mono text-emerald-400 block">DESCUENTO (50% OFF)</span>
+                    <span className="text-[11px] font-mono text-emerald-400 block">DESCUENTO LANZAMIENTO & INCENTIVO</span>
                     <span className="text-sm font-bold text-emerald-400">
-                      -${discountAmount} <span className="text-[10px]">Ahorro Real</span>
+                      -${discountAmount} <span className="text-[10px] block text-emerald-500">Ahorro Real</span>
                     </span>
                   </div>
 
-                  <div className="bg-[#0066FF]/20 rounded-lg p-1.5 border border-[#00F0FF]/30">
-                    <span className="text-[11px] font-mono text-[#00F0FF] block font-bold">TOTAL A PAGAR</span>
+                  <div className="bg-[#0066FF]/20 rounded-lg p-1.5 border border-[#00F0FF]/30 flex flex-col justify-center">
+                    <span className="text-[11px] font-mono text-[#00F0FF] block font-bold">TOTAL NETO A PAGAR</span>
                     <span className="text-xl font-black text-white font-mono">
-                      ${finalTotal} <span className="text-xs font-normal text-cyan-200">(${DISCOUNTED_PRICE_PER_TEAM}/eq)</span>
+                      ${finalTotal} <span className="text-[10px] block text-cyan-200">(Mayores: $35 / Inferiores: $25)</span>
                     </span>
                   </div>
                 </div>

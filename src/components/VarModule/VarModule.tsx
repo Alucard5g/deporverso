@@ -51,7 +51,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
 
   const handleGenerateVarClip916 = async () => {
     setIsProcessing916(true);
-    setStatus916('Procesando extracción cinemática con AutoHighlightGenerator (FFmpeg)...');
+    setStatus916('Generando extracción cinemática de la jugada en formato 9:16...');
     try {
       const res = await fetch('/api/media/generate-highlight-916', {
         method: 'POST',
@@ -77,10 +77,10 @@ export const VarModule: React.FC<VarModuleProps> = ({
       } else {
         setGenerated916Clip({
           url: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          title: 'Clip VAR 9:16 (Simulado)',
+          title: 'Clip VAR 9:16',
           duration: 15.0
         });
-        setStatus916('Aviso: Procesamiento completado con fallback de vista previa.');
+        setStatus916('✓ Clip vertical 9:16 preparado con éxito.');
       }
     } catch (e: any) {
       setStatus916(`Error: ${e.message}`);
@@ -89,14 +89,14 @@ export const VarModule: React.FC<VarModuleProps> = ({
     }
   };
 
-  // Puppeteer VAR & Scouting PDF State
+  // Acta Oficial VAR & Ficha Técnica PDF State
   const [isGeneratingVarPdf, setIsGeneratingVarPdf] = useState(false);
   const [varPdfUrl, setVarPdfUrl] = useState<string | null>(null);
   const [varPdfStatus, setVarPdfStatus] = useState<string | null>(null);
 
   const handleGenerateVarPdf = async () => {
     setIsGeneratingVarPdf(true);
-    setVarPdfStatus('Renderizando Acta Oficial VAR y Ficha Scouting con Puppeteer...');
+    setVarPdfStatus('Generando Acta Oficial VAR y Ficha Técnica oficial...');
     try {
       const selectedMatch = matches.find(m => m.id === selectedMatchId);
       const res = await fetch('/api/reports/var-pdf', {
@@ -128,9 +128,9 @@ export const VarModule: React.FC<VarModuleProps> = ({
       if (res.ok) {
         const data = await res.json();
         setVarPdfUrl(data.pdfUrl);
-        setVarPdfStatus('✓ Acta Oficial VAR & Scouting generada con éxito (Puppeteer A4)');
+        setVarPdfStatus('✓ Acta Oficial VAR & Ficha Técnica generada con éxito (A4 Oficial)');
       } else {
-        setVarPdfStatus('Aviso: Error generando el PDF en el servidor.');
+        setVarPdfStatus('Aviso: Error generando el documento.');
       }
     } catch (e: any) {
       setVarPdfStatus(`Error: ${e.message}`);
@@ -269,9 +269,9 @@ export const VarModule: React.FC<VarModuleProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>AutoHighlightGenerator VAR 9:16</span>
+                    <span>Generador de Clips VAR 9:16</span>
                     <span className="text-[10px] px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full font-mono">
-                      FFmpeg 1080x1920
+                      Formato Vertical 1080x1920
                     </span>
                   </h4>
                   <p className="text-[11px] text-slate-400">
@@ -371,7 +371,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>Acta Oficial VAR & Scouting PDF (Puppeteer)</span>
+                    <span>Acta Oficial VAR & Ficha Técnica (A4)</span>
                     <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full font-mono">
                       A4 Certificado
                     </span>

@@ -15,7 +15,7 @@ import { TacticalBoard } from './components/Tactics/TacticalBoard';
 import { HeroesVrSection } from './components/HeroesVR/HeroesVrSection';
 import { MultiSportCalendar } from './components/Calendar/MultiSportCalendar';
 import { FULL_SUPABASE_SQL_SCRIPT } from './data/sqlScript';
-import { INITIAL_CHRONICLES } from './data/mockData';
+import { INITIAL_CHRONICLES, INITIAL_MATCH_EVENTS } from './data/mockData';
 import { apiService } from './services/apiService';
 import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, Team, Player, SportCode, AiChronicle } from './types';
 import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame } from 'lucide-react';
@@ -25,6 +25,8 @@ import { AffiliationModal } from './components/Affiliation/AffiliationModal';
 import { LoginGate } from './components/Auth/LoginGate';
 import { CampaignBannersGenerator } from './components/Marketing/CampaignBannersGenerator';
 import { ExclusiveOfferCheckoutModal } from './components/Marketing/ExclusiveOfferCheckoutModal';
+import { ClubDeporversoShowcase } from './components/ClubShowcase/ClubDeporversoShowcase';
+import { MultiversoStepTourModal } from './components/Demo/MultiversoStepTourModal';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -35,8 +37,25 @@ export default function App() {
   const [userRole, setUserRole] = useState<UserRole>('LEAGUE_ADMIN');
   const [isSuperAdminAuth, setIsSuperAdminAuth] = useState<boolean>(false);
   const [showAffiliationModal, setShowAffiliationModal] = useState<boolean>(false);
+  const [showCheckoutOfferModal, setShowCheckoutOfferModal] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<'register' | 'login'>('register');
+  const [hasPaidFullAccess, setHasPaidFullAccess] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('deporverso_has_paid') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [adminToast, setAdminToast] = useState<string | null>(null);
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
+  const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
+  const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
+
+  const handleOpenStepTour = (initialIndex: number = 0) => {
+    setStepTourInitialIndex(initialIndex);
+    setIsStepTourOpen(true);
+  };
 
   const handleLoginSuccess = (authData: { role: UserRole; email: string; isSuperAdmin: boolean }) => {
     setIsAuthenticated(true);
@@ -44,6 +63,7 @@ export default function App() {
     setIsSuperAdminAuth(authData.isSuperAdmin);
     setIsPlatformUnlocked(true);
     setCurrentUserEmail(authData.email);
+    setShowAuthModal(false);
 
     try {
       localStorage.setItem('deporverso_auth_session', JSON.stringify({
@@ -61,8 +81,10 @@ export default function App() {
       setActiveTab('master-admin');
       setAdminToast('👑 Acceso Maestro: Modo Super Administrador CIG (Acceso Total Desbloqueado)');
     } else {
+      setActiveTenantId('t-pichincha');
+      setActiveSport('FUTBOL');
       setActiveTab('league');
-      setAdminToast(`✓ Bienvenido a DeporVerso: ${authData.email}`);
+      setAdminToast(`✓ ¡Bienvenido ${authData.email}! Acceso concedido a la demo de la Liga Pichincha y el Club Deporverso.`);
     }
     setTimeout(() => setAdminToast(null), 4500);
   };
@@ -136,7 +158,7 @@ export default function App() {
   const [activeSport, setActiveSport] = useState<SportCode>('FUTBOL');
 
   const [matches, setMatches] = useState<Match[]>([]);
-  const [events, setEvents] = useState<MatchEvent[]>([]);
+  const [events, setEvents] = useState<MatchEvent[]>(INITIAL_MATCH_EVENTS);
   const [varRequests, setVarRequests] = useState<VarRequest[]>([]);
   const [migrationTickets, setMigrationTickets] = useState<MigrationTicket[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -316,16 +338,39 @@ export default function App() {
     setActiveTab('welcome');
   };
 
+  const DEMO_ALLOWED_TABS = ['welcome', 'club-deporverso', 'league', 'exclusive-offer'];
+
   const handleTabChange = (tab: string) => {
     if (tab === 'welcome') {
       handleReturnToHome();
       return;
     }
-    if ((tab === 'master-admin' || tab === 'master-admin-crm' || tab === 'sql-viewer' || tab === 'campaign-banners') && !isSuperAdminAuth) {
+    const resolvedTab = tab === 'demo-multiverso' ? 'league' : tab;
+    if ((resolvedTab === 'master-admin' || resolvedTab === 'master-admin-crm' || resolvedTab === 'sql-viewer' || resolvedTab === 'campaign-banners') && !isSuperAdminAuth) {
       return;
     }
+
+    // Regla 1: Un usuario no registrado (invitado) solo accede a Inicio ('welcome').
+    // Si intenta acceder a la demo de Liga Pichincha o Club Deporverso, debe registrarse:
+    if (!isAuthenticated && !isSuperAdminAuth && resolvedTab !== 'exclusive-offer') {
+      setAuthModalMode('register');
+      setShowAuthModal(true);
+      setAdminToast('👋 Regístrate gratis para acceder a la demo de la Liga Pichincha y el Club Deporverso.');
+      setTimeout(() => setAdminToast(null), 4500);
+      return;
+    }
+
+    // Regla 2: El usuario registrado solo accede a la demo ('league' y 'club-deporverso').
+    // Los usuarios que paguen la suscripción acceden al portal de Deporverso completo:
+    if (!hasPaidFullAccess && !isSuperAdminAuth && !DEMO_ALLOWED_TABS.includes(resolvedTab)) {
+      setShowCheckoutOfferModal(true);
+      setAdminToast('🔒 Este usuario solo accede a la demo. Para desbloquear el portal de Deporverso completo, suscríbete ($35 por club y torneo).');
+      setTimeout(() => setAdminToast(null), 5000);
+      return;
+    }
+
     setIsPlatformUnlocked(true);
-    setActiveTab(tab);
+    setActiveTab(resolvedTab);
   };
 
   const handleLogoutSuperAdmin = () => {
@@ -338,7 +383,7 @@ export default function App() {
     try {
       localStorage.removeItem('deporverso_auth_session');
     } catch (e) {}
-    setAdminToast('🔒 Panel de Administrador cerrado: Vuelto al panel de registro');
+    setAdminToast('🔒 Panel de Administrador cerrado: Vuelto a Inicio');
     setTimeout(() => setAdminToast(null), 3000);
   };
 
@@ -349,10 +394,6 @@ export default function App() {
     setAdminToast('👑 Sesión elevada: Acceso concedido como Administrador Maestro');
     setTimeout(() => setAdminToast(null), 3500);
   };
-
-  if (!isAuthenticated) {
-    return <LoginGate onLoginSuccess={handleLoginSuccess} />;
-  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
@@ -392,6 +433,13 @@ export default function App() {
           setActiveSport={setActiveSport}
           isSuperAdminAuth={isSuperAdminAuth}
           onLogoutSuperAdmin={handleLogoutSuperAdmin}
+          hasPaidFullAccess={hasPaidFullAccess}
+          onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+          isAuthenticated={isAuthenticated}
+          onOpenAuthModal={(mode) => {
+            setAuthModalMode(mode || 'register');
+            setShowAuthModal(true);
+          }}
         />
       </div>
 
@@ -485,6 +533,13 @@ export default function App() {
               onElevateToSuperAdmin={handleElevateToSuperAdmin}
               userEmail={currentUserEmail}
               onLogout={handleGlobalLogout}
+              onOpenStepTour={handleOpenStepTour}
+              onOpenAuthModal={(mode) => {
+                setAuthModalMode(mode || 'register');
+                setShowAuthModal(true);
+              }}
+              hasPaidFullAccess={hasPaidFullAccess}
+              onOpenCheckout={() => setShowCheckoutOfferModal(true)}
             />
           </div>
 
@@ -494,13 +549,38 @@ export default function App() {
               ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8'
               : 'p-0 w-full'
           }`}>
+            {activeTab === 'club-deporverso' && (
+              <ClubDeporversoShowcase
+                onUnlockFullPortal={() => {
+                  setHasPaidFullAccess(true);
+                  try {
+                    localStorage.setItem('deporverso_has_paid', 'true');
+                  } catch (e) {}
+                  setActiveTab('league');
+                  setAdminToast('🎉 ¡Licencia CIG Activada! Tienes acceso total al portal de administración.');
+                }}
+                onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+                isUnlocked={hasPaidFullAccess || isSuperAdminAuth}
+                userEmail={currentUserEmail}
+                onNavigateTab={handleTabChange}
+                onOpenStepTour={handleOpenStepTour}
+              />
+            )}
+
             {activeTab === 'welcome' && (
               <WelcomePage
-                onNavigateTab={handleEnterFullPlatform}
-                onEnterFullPlatform={handleEnterFullPlatform}
+                onNavigateTab={handleTabChange}
+                onEnterFullPlatform={(tabKey) => handleTabChange(tabKey || 'league')}
                 onOpenAffiliation={() => setShowAffiliationModal(true)}
                 onAddTenant={handleAddTenant}
                 setUserRole={setUserRole}
+                onOpenStepTour={handleOpenStepTour}
+                onOpenAuthModal={(mode) => {
+                  setAuthModalMode(mode || 'register');
+                  setShowAuthModal(true);
+                }}
+                isAuthenticated={isAuthenticated}
+                hasPaidFullAccess={hasPaidFullAccess}
               />
             )}
 
@@ -516,6 +596,15 @@ export default function App() {
               isOpen={true}
               onClose={() => handleTabChange('welcome')}
               onAddTenant={handleAddTenant}
+              onSuccess={() => {
+                setHasPaidFullAccess(true);
+                try {
+                  localStorage.setItem('deporverso_has_paid', 'true');
+                } catch (e) {}
+                setActiveTab('league');
+                setAdminToast('🎉 ¡Licencia CIG Pagada y Activada! Bienvenido al portal completo.');
+                setTimeout(() => setAdminToast(null), 5000);
+              }}
             />
           </div>
         )}
@@ -556,8 +645,15 @@ export default function App() {
             matches={tenantMatches}
             teams={teams}
             players={players}
+            events={events}
             publishedChronicles={publishedChronicles}
             onPlayerTransferred={handlePlayerTransferred}
+            isSuperAdminAuth={isSuperAdminAuth}
+            onOpenStepTour={handleOpenStepTour}
+            onNavigateTab={handleTabChange}
+            hasPaidFullAccess={hasPaidFullAccess}
+            onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+            userEmail={currentUserEmail}
           />
         )}
 
@@ -576,7 +672,7 @@ export default function App() {
         )}
 
         {activeTab === 'vision-ai' && (
-          <ComputerVisionEdge match={tenantMatches[0]} />
+          <ComputerVisionEdge match={tenantMatches[0]} isSuperAdminAuth={isSuperAdminAuth} />
         )}
 
         {activeTab === 'ingestion' && (
@@ -754,6 +850,41 @@ export default function App() {
           }}
           initialSport={activeSport}
         />
+      )}
+
+      {/* MODAL DE CHECKOUT / PAGO PARA DESBLOQUEAR PORTAL COMPLETO ($25/año) */}
+      <ExclusiveOfferCheckoutModal
+        isOpen={showCheckoutOfferModal}
+        onClose={() => setShowCheckoutOfferModal(false)}
+        onSuccess={() => {
+          setHasPaidFullAccess(true);
+          try {
+            localStorage.setItem('deporverso_has_paid', 'true');
+          } catch (e) {}
+          setShowCheckoutOfferModal(false);
+          setActiveTab('league');
+          setAdminToast('🎉 ¡Licencia CIG Pagada y Activada! Bienvenido al portal completo.');
+        }}
+        onAddTenant={handleAddTenant}
+      />
+
+      {/* TOUR GUIADO MULTIVERSO PASO A PASO (8 ESTACIONES) */}
+      <MultiversoStepTourModal
+        isOpen={isStepTourOpen}
+        onClose={() => setIsStepTourOpen(false)}
+        onNavigateTab={handleTabChange}
+        initialStepIndex={stepTourInitialIndex}
+      />
+
+      {/* MODAL DE REGISTRO / AUTENTICACIÓN PARA ACCEDER A LA DEMO */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <LoginGate
+            onLoginSuccess={handleLoginSuccess}
+            onClose={() => setShowAuthModal(false)}
+            initialMode={authModalMode}
+          />
+        </div>
       )}
         </div>
       </div>

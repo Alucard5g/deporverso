@@ -26,6 +26,31 @@ export interface ClubData {
 
 export const CLUBS_DATA: ClubData[] = [
   {
+    id: "club-deporverso",
+    name: "Club Deportivo Deporverso",
+    shortName: "CDD",
+    category: "Serie A / Baloncesto Oro",
+    city: "Quito, EC",
+    badgeColor: "from-cyan-400 via-sky-500 to-black",
+    nextMatch: {
+      opponent: "Deportivo Quito Norte",
+      date: "Sábado 25 Oct",
+      time: "16:00",
+      stadium: "Estadio Metropolitano Deporverso"
+    },
+    position: 1,
+    stats: {
+      pj: 16,
+      pg: 14,
+      pe: 2,
+      pp: 0,
+      gf: 48,
+      gc: 12,
+      pts: 44
+    },
+    subdomain: "club.deporverso.app"
+  },
+  {
     id: "club-001",
     name: "Atlético San Roque",
     shortName: "ASR",

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Shield, Lock, Mail, Eye, EyeOff, ArrowRight, 
-  AlertCircle, UserPlus, LogIn, User, CheckCircle
+  AlertCircle, UserPlus, LogIn, User, CheckCircle, X
 } from 'lucide-react';
 import { UserRole } from '../../types';
 import { authService, AppUser } from '../../services/authService';
@@ -12,13 +12,19 @@ interface LoginGateProps {
     email: string;
     isSuperAdmin: boolean;
   }) => void;
+  onClose?: () => void;
+  initialMode?: 'register' | 'login';
 }
 
-export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
+export const LoginGate: React.FC<LoginGateProps> = ({ 
+  onLoginSuccess,
+  onClose,
+  initialMode = 'register'
+}) => {
   // Modo de visualización:
   // 'register': Registro ágil de interesados (sin selector de rol)
   // 'login': Iniciar Sesión para usuarios registrados (con correo y contraseña guardados en navegador/dispositivo)
-  const [authMode, setAuthMode] = useState<'register' | 'login'>('register');
+  const [authMode, setAuthMode] = useState<'register' | 'login'>(initialMode);
 
   // Formulario Usuario Registrado (Inicio de Sesión)
   const [email, setEmail] = useState('');
@@ -140,6 +146,16 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
       {/* Tarjeta de Acceso */}
       <div className="relative w-full max-w-md bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-7 sm:p-9 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-300">
         
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+            title="Cerrar y volver a Inicio"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Cabecera y Marca Oficial */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-widest uppercase">
@@ -190,8 +206,8 @@ export const LoginGate: React.FC<LoginGateProps> = ({ onLoginSuccess }) => {
         {/* ================================================================ */}
         {authMode === 'register' && (
           <form onSubmit={handleRegisterSubmit} autoComplete="on" className="space-y-3.5 text-xs animate-in fade-in">
-            <div className="bg-amber-400/10 border border-amber-400/20 p-2.5 rounded-xl text-slate-300 text-[11px] leading-relaxed">
-              <strong className="text-amber-300">Registro de Interesados:</strong> Crea tu cuenta gratuita para acceder a la plataforma. Tus datos quedarán guardados en tu dispositivo para acceso en 1 toque.
+            <div className="bg-cyan-500/10 border border-cyan-500/30 p-2.5 rounded-xl text-slate-300 text-[11px] leading-relaxed">
+              <strong className="text-cyan-300 font-bold">Acceso a la Demo Oficial:</strong> Al registrarte gratis accedes inmediatamente a la demo de la Liga Barrial Pichincha y el Club Deportivo Deporverso (este usuario solo accede a la demo). Los usuarios que paguen la suscripción acceden al portal de Deporverso completo.
             </div>
 
             {/* Nombre Completo / Organización */}

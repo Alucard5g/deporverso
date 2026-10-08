@@ -14,6 +14,7 @@ export default defineConfig(() => {
     server: {
       // HMR is disabled in AI Studio
       hmr: false,
+      ws: false,
       watch: null,
     },
     build: {

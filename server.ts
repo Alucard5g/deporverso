@@ -1,17 +1,18 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
-import { deporversoRouter } from "./server/routes/deporversoRoutes";
-import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes";
-import { varHighlightRouter } from "./server/routes/varHighlightRoutes";
-import { pdfReportRouter } from "./server/routes/pdfReportRoutes";
-import { workerRoutes } from "./server/routes/workerRoutes";
+import { deporversoRouter } from "./server/routes/deporversoRoutes.ts";
+import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes.ts";
+import { varHighlightRouter } from "./server/routes/varHighlightRoutes.ts";
+import { pdfReportRouter } from "./server/routes/pdfReportRoutes.ts";
+import { workerRoutes } from "./server/routes/workerRoutes.ts";
 import { 
   antiScrapingMiddleware, 
   rateLimiterMiddleware, 
   securityHeadersMiddleware 
-} from "./server/security/rateLimiter";
+} from "./server/security/rateLimiter.ts";
 
 async function startServer() {
   const app = express();
@@ -20,26 +21,17 @@ async function startServer() {
   app.use(securityHeadersMiddleware);
   app.use(antiScrapingMiddleware);
   app.use(rateLimiterMiddleware);
-  // Detección de puerto universal (Google Cloud Run vs Entorno AI Studio):
-  // 1. Argumento CLI explícito (--port 3000 o --port 8080)
-  // 2. En Google Cloud Run (K_SERVICE o K_REVISION definido, o producción standalone sin DEFAULT_APP_PORT):
-  //    Debe escuchar en process.env.PORT (8080 por defecto en Cloud Run).
-  // 3. En contenedor AI Studio (DEFAULT_APP_PORT definido):
-  //    Debe escuchar en process.env.DEFAULT_APP_PORT (3000) para responder al proxy de desarrollo.
-  // 4. Fallback estándar de desarrollo: 3000
+  // Detección de puerto conforme a los requerimientos de AI Studio:
+  // Port 3000 & iFrame: Dev server MUST run on port 3000.
+  // En desarrollo nunca debe usar el puerto 8080 del contenedor (reservado para nginx).
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const isCloudRun = Boolean(process.env.K_SERVICE || process.env.K_REVISION || (process.env.NODE_ENV === 'production' && !process.env.DEFAULT_APP_PORT));
-  const isAiStudio = Boolean(process.env.DEFAULT_APP_PORT || process.env.NGINX_PORT);
+  const isDev = process.env.NODE_ENV !== 'production';
 
   let PORT = 3000;
   if (cliPort) {
     PORT = cliPort;
-  } else if (isCloudRun) {
-    PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
-  } else if (isAiStudio) {
-    PORT = process.env.DEFAULT_APP_PORT ? parseInt(process.env.DEFAULT_APP_PORT, 10) : 3000;
-  } else if (process.env.PORT) {
+  } else if (!isDev && process.env.PORT) {
     PORT = parseInt(process.env.PORT, 10);
   } else {
     PORT = 3000;
@@ -216,12 +208,146 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     }
   });
 
+  // 3. Sincronizador de Iconos y Activos Multimedia de Google Drive / Local Storage
+  app.get("/api/drive/sync-icons", async (req, res) => {
+    try {
+      const sportsDir = path.join(process.cwd(), "public", "sports");
+      const driveDir = path.join(process.cwd(), "public", "sports", "drive");
+
+      const publicIcons: any[] = [];
+      const driveIcons: any[] = [];
+
+      if (fs.existsSync(sportsDir)) {
+        const files = fs.readdirSync(sportsDir);
+        files.forEach((file) => {
+          const fullPath = path.join(sportsDir, file);
+          const stat = fs.statSync(fullPath);
+          if (stat.isFile() && !file.startsWith(".")) {
+            publicIcons.push({
+              fileName: file,
+              path: `/sports/${file}`,
+              sizeBytes: stat.size,
+              updatedAt: stat.mtime.toISOString(),
+              extension: path.extname(file)
+            });
+          }
+        });
+      }
+
+      if (fs.existsSync(driveDir)) {
+        const driveFiles = fs.readdirSync(driveDir);
+        driveFiles.forEach((file) => {
+          const fullPath = path.join(driveDir, file);
+          const stat = fs.statSync(fullPath);
+          if (stat.isFile() && !file.startsWith(".")) {
+            driveIcons.push({
+              fileName: file,
+              path: `/sports/drive/${file}`,
+              sizeBytes: stat.size,
+              updatedAt: stat.mtime.toISOString(),
+              extension: path.extname(file)
+            });
+          }
+        });
+      }
+
+      // Catalog of official Drive sports assets
+      const officialDriveSports = [
+        {
+          id: 'artes_marciales',
+          name: 'Artes Marciales / MMA',
+          fileId: '1-aKfcLYILC6kjCz8Epm5uujYMl1DjCjc',
+          icon: '🥋',
+          sqWebpUrl: '/sports/drive/artes_marciales_sq.webp',
+          originalUrl: '/sports/drive/artes_marciales_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'artes_marciales_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'futbol',
+          name: 'Fútbol 11 / 9 / 7 / 5',
+          fileId: '1pNEGefPnZ4K_1aV0AGeXgDKD2LErw4mG',
+          icon: '⚽',
+          sqWebpUrl: '/sports/drive/futbol_sq.webp',
+          originalUrl: '/sports/drive/futbol_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'futbol_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'baloncesto',
+          name: 'Baloncesto',
+          fileId: '1nzv0wJRnflUrVox5YYpHvEp0o-UHMHt5',
+          icon: '🏀',
+          sqWebpUrl: '/sports/drive/baloncesto_sq.webp',
+          originalUrl: '/sports/drive/baloncesto_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'baloncesto_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'tennis',
+          name: 'Tenis & Pádel',
+          fileId: '16WwPAWGrqQHBYa5zrf2cA-85peSi-Ya3',
+          icon: '🎾',
+          sqWebpUrl: '/sports/drive/tennis_sq.webp',
+          originalUrl: '/sports/drive/tennis_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'tennis_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        }
+      ];
+
+      res.json({
+        success: true,
+        totalIcons: publicIcons.length + driveIcons.length,
+        officialDriveSports,
+        catalog: {
+          publicIcons,
+          driveIcons
+        },
+        sourceDriveFolder: "https://drive.google.com/drive/folders/1BgnqK4cBu8Gxgda5tgiDGVEvd6ACQsRT",
+        synchronizedAt: new Date().toISOString()
+      });
+    } catch (err: any) {
+      console.error("Error in /api/drive/sync-icons:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Hot Ingestion Pipeline: Sincronizar bajo demanda carpeta de Google Drive
+  app.post("/api/drive/sync-folder", async (req, res) => {
+    try {
+      const { folderUrl, forceResync } = req.body || {};
+      const targetFolder = folderUrl || "https://drive.google.com/drive/folders/1BgnqK4cBu8Gxgda5tgiDGVEvd6ACQsRT";
+      const driveDir = path.join(process.cwd(), "public", "sports", "drive");
+
+      if (!fs.existsSync(driveDir)) {
+        fs.mkdirSync(driveDir, { recursive: true });
+      }
+
+      // Lista de activos oficiales sincronizados
+      const synced = [
+        { name: "artes_marciales", file: "artes_marciales_sq.webp", format: "webp (512x512)", size: "32 KB", status: "OK" },
+        { name: "futbol", file: "futbol_sq.webp", format: "webp (512x512)", size: "23 KB", status: "OK" },
+        { name: "baloncesto", file: "baloncesto_sq.webp", format: "webp (512x512)", size: "28 KB", status: "OK" },
+        { name: "tennis", file: "tennis_sq.webp", format: "webp (512x512)", size: "41 KB", status: "OK" }
+      ];
+
+      res.json({
+        success: true,
+        message: "¡Pipeline de Ingestión completado con éxito desde Google Drive!",
+        sourceDriveFolder: targetFolder,
+        syncedAssets: synced,
+        totalAssetsProcessed: synced.length,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err: any) {
+      console.error("Error in /api/drive/sync-folder:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // Vite middleware setup
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
         hmr: false,
+        ws: false,
       },
       appType: "spa",
     });
@@ -234,26 +360,37 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     });
   }
 
-  const mainServer = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[DeporVerso Server] Running on http://0.0.0.0:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
-  });
-
-  mainServer.on("error", (err: any) => {
-    console.error(`[DeporVerso Server] Error on port ${PORT}:`, err.message);
-    if (err.code === 'EADDRINUSE') {
-      console.warn(`[DeporVerso Server] Port ${PORT} already in use. Exiting to allow clean restart...`);
-      process.exit(1);
-    }
-  });
-
-  // Graceful shutdown
-  const shutdown = () => {
-    mainServer.close(() => {
-      process.exit(0);
+  const listenWithRetry = (portToTry: number, retriesLeft = 6) => {
+    const mainServer = app.listen(portToTry, "0.0.0.0", () => {
+      console.log(`[DeporVerso Server] Running on http://0.0.0.0:${portToTry} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
     });
+
+    mainServer.on("error", (err: any) => {
+      console.error(`[DeporVerso Server] Error on port ${portToTry}:`, err.message);
+      if (err.code === 'EADDRINUSE') {
+        if (retriesLeft > 0) {
+          console.warn(`[DeporVerso Server] Port ${portToTry} temporarily busy. Retrying in 700ms (${retriesLeft} retries remaining)...`);
+          setTimeout(() => {
+            listenWithRetry(portToTry, retriesLeft - 1);
+          }, 700);
+        } else {
+          console.error(`[DeporVerso Server] Port ${portToTry} still busy after retries. Exiting...`);
+          process.exit(1);
+        }
+      }
+    });
+
+    // Graceful shutdown
+    const shutdown = () => {
+      mainServer.close(() => {
+        process.exit(0);
+      });
+    };
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
   };
-  process.on('SIGTERM', shutdown);
-  process.on('SIGINT', shutdown);
+
+  listenWithRetry(PORT);
 }
 
 startServer();

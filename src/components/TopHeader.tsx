@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Trophy, Shield, Plus, Sparkles, ChevronDown, 
-  Building2, QrCode, Globe, Check, Zap, LogOut, Flame
+  Building2, QrCode, Globe, Check, Zap, LogOut, Flame, ExternalLink
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 import { SPORT_THEMES } from './Navbar';
@@ -22,9 +22,14 @@ interface TopHeaderProps {
   onElevateToSuperAdmin?: () => void;
   userEmail?: string;
   onLogout?: () => void;
+  onOpenStepTour?: (stepIndex?: number) => void;
+  onOpenAuthModal?: (mode?: 'register' | 'login') => void;
+  hasPaidFullAccess?: boolean;
+  onOpenCheckout?: () => void;
 }
 
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
+  'club-deporverso': { title: 'Club Deportivo Deporverso', subtitle: 'Equipos de Fútbol, Baloncesto, Estadísticas Oficiales, Portada y Carnets Holográficos' },
   welcome: { title: 'Plataforma Global Deporverso', subtitle: 'Gestión Multideporte con Sistema VAR, Vocalía Digital y Analítica Oficial' },
   calendar: { title: 'Calendario & Fixture Multideporte', subtitle: 'Cronograma oficial de fechas, sedes y sincronización .ICS' },
   league: { title: 'Portal de Competición & Tablas', subtitle: 'Estadísticas, posiciones, fixture y sanciones en tiempo real' },
@@ -58,7 +63,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onLogoutSuperAdmin,
   onElevateToSuperAdmin,
   userEmail,
-  onLogout
+  onLogout,
+  onOpenStepTour,
+  onOpenAuthModal,
+  hasPaidFullAccess = false,
+  onOpenCheckout
 }) => {
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -77,16 +86,24 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     <header className="sticky top-0 z-50 bg-[#070b14]/90 backdrop-blur-xl border-b border-white/[0.07] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
       {/* TÍTULO & BREADCRUMB CONTEXTUAL */}
       <div className="flex items-center gap-3">
-        <div className="hidden sm:flex w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] items-center justify-center text-emerald-400 font-extrabold text-sm shadow-inner">
-          {currentSportTheme.icon}
+        <div className="hidden sm:flex w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] items-center justify-center p-1.5 shadow-inner overflow-hidden">
+          {currentSportTheme.imageIcon ? (
+            <img src={currentSportTheme.imageIcon} alt={currentSportTheme.name} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]" />
+          ) : (
+            <span className="text-emerald-400 font-extrabold text-sm">{currentSportTheme.icon}</span>
+          )}
         </div>
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
               {currentTabInfo.title}
             </h1>
-            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border hidden md:inline-flex items-center gap-1 ${currentSportTheme.badgeClass}`}>
-              <span>{currentSportTheme.icon}</span>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border hidden md:inline-flex items-center gap-1.5 ${currentSportTheme.badgeClass}`}>
+              {currentSportTheme.imageIcon ? (
+                <img src={currentSportTheme.imageIcon} alt="" className="w-3.5 h-3.5 object-contain" />
+              ) : (
+                <span>{currentSportTheme.icon}</span>
+              )}
               <span>{currentSportTheme.name}</span>
             </span>
           </div>
@@ -96,141 +113,132 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </div>
 
-      {/* TELEMETRÍA EN VIVO Y BARRA DE ACCIONES RÁPIDAS */}
+      {/* BARRA DE NAVEGACIÓN Y SELECCIÓN DE COMPETICIÓN */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* TELEMETRY HUD PILL */}
-        <div className="hidden xl:flex items-center gap-2 bg-white/[0.02] border border-white/[0.06] px-2.5 py-1 rounded-lg text-[10px] font-mono shadow-sm">
-          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            LIVE
-          </span>
-          <span className="text-white/15">|</span>
-          <span className="text-slate-400">LATENCIA <span className="text-cyan-400 font-semibold">12ms</span></span>
-          <span className="text-white/15">|</span>
-          <span className="text-slate-400">VAR <span className="text-emerald-400 font-semibold">4K EDGE</span></span>
-        </div>
+        {/* SELECTORES EXCLUSIVOS PARA ADMINISTRADOR */}
+        {isSuperAdminAuth && (
+          <>
+            {/* SELECTOR DE MODALIDAD FÚTBOL */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowSportDropdown(!showSportDropdown);
+                  setShowTenantDropdown(false);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 hover:border-emerald-500/50 transition-all cursor-pointer font-bold shadow-xs"
+                title="Disciplina activa para el lanzamiento: Fútbol (11, Indor 9, Indor 7 y Futsal 5)"
+              >
+                <img src="/sports/drive/futbol_sq.webp" alt="Fútbol" className="w-4 h-4 object-contain inline-block filter drop-shadow-[0_0_6px_rgba(0,240,255,0.4)]" />
+                <span className="font-extrabold tracking-wide">FÚTBOL</span>
+                <span className="hidden lg:inline text-[10px] text-emerald-400/80 font-mono bg-emerald-500/15 px-1.5 py-0.5 rounded">11 • 9 • 7 • 5</span>
+                <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
+              </button>
 
-        {/* SELECTOR DE MODALIDAD FÚTBOL (LANZAMIENTO EXCLUSIVO) */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowSportDropdown(!showSportDropdown);
-              setShowRoleDropdown(false);
-              setShowTenantDropdown(false);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 hover:border-emerald-500/50 transition-all cursor-pointer font-bold shadow-xs"
-            title="Disciplina activa para el lanzamiento: Fútbol (11, Indor 9, Indor 7 y Futsal 5)"
-          >
-            <span className="text-sm">⚽</span>
-            <span className="font-extrabold tracking-wide">FÚTBOL</span>
-            <span className="hidden lg:inline text-[10px] text-emerald-400/80 font-mono bg-emerald-500/15 px-1.5 py-0.5 rounded">11 • 9 • 7 • 5</span>
-            <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
-          </button>
-
-          {showSportDropdown && (
-            <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-2 py-1 border-b border-white/10 mb-1">
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block font-mono">
-                  Fútbol por Lanzamiento
-                </span>
-                <span className="text-[10px] text-slate-400 block">
-                  Formatos oficiales activos en DeporVerso:
-                </span>
-              </div>
-
-              {[
-                { name: 'Fútbol 11', players: '11 Jugadores', desc: 'Cancha reglamentaria • Torneos federados y barriales' },
-                { name: 'Indor Fútbol 9', players: '9 Jugadores', desc: 'Césped sintético / tierra • Formato intermedio 9 vs 9' },
-                { name: 'Indor Fútbol 7', players: '7 Jugadores', desc: 'Cancha sintética • Formato rápido 7 vs 7' },
-                { name: 'Fútsal 5', players: '5 Jugadores', desc: 'Coliseo / sala / cemento • Formato 5 vs 5' },
-              ].map((m, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setActiveSport('FUTBOL');
-                    setShowSportDropdown(false);
-                  }}
-                  className="p-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-xs flex items-center gap-1.5 group-hover:text-emerald-300">
-                      <span>⚽</span>
-                      <span>{m.name}</span>
+              {showSportDropdown && (
+                <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl shadow-2xl p-2 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2 py-1 border-b border-white/10 mb-1">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block font-mono">
+                      Fútbol por Lanzamiento
                     </span>
-                    <span className="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">
-                      {m.players}
+                    <span className="text-[10px] text-slate-400 block">
+                      Formatos oficiales activos en DeporVerso:
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
-                    {m.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* SELECTOR DE LIGA / TENANT */}
-        {(visibleTenants?.length || 0) > 0 && (
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowTenantDropdown(!showTenantDropdown);
-                setShowRoleDropdown(false);
-                setShowSportDropdown(false);
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer font-semibold"
-            >
-              <Building2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="truncate max-w-[130px] font-medium">{currentTenant?.name || 'LIGA'}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-emerald-400/70" />
-            </button>
-
-            {showTenantDropdown && (
-              <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
-                <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/[0.06]">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Ligas Registradas
-                  </span>
-                  <button
-                    onClick={() => {
-                      setShowTenantDropdown(false);
-                      onOpenOnboarding();
-                    }}
-                    className="text-[10px] font-semibold text-cyan-400 hover:underline cursor-pointer"
-                  >
-                    + Nueva Liga
-                  </button>
-                </div>
-                {visibleTenants.map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      setActiveTenantId(t.id);
-                      setActiveSport(t.sport_code);
-                      setShowTenantDropdown(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
-                      activeTenantId === t.id
-                        ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold'
-                        : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
-                    }`}
-                  >
-                    <div className="text-left truncate">
-                      <div className="flex items-center gap-1.5">
-                        <span className="block truncate font-medium text-white">{t.name}</span>
+                  {[
+                    { name: 'Fútbol 11', players: '11 Jugadores', desc: 'Cancha reglamentaria • Torneos federados y barriales' },
+                    { name: 'Indor Fútbol 9', players: '9 Jugadores', desc: 'Césped sintético / tierra • Formato intermedio 9 vs 9' },
+                    { name: 'Indor Fútbol 7', players: '7 Jugadores', desc: 'Cancha sintética • Formato rápido 7 vs 7' },
+                    { name: 'Fútsal 5', players: '5 Jugadores', desc: 'Coliseo / sala / cemento • Formato 5 vs 5' },
+                  ].map((m, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        setActiveSport('FUTBOL');
+                        setShowSportDropdown(false);
+                      }}
+                      className="p-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-white text-xs flex items-center gap-2 group-hover:text-emerald-300">
+                          <img src="/sports/drive/futbol_sq.webp" alt="" className="w-4 h-4 object-contain filter drop-shadow-[0_0_6px_rgba(0,240,255,0.4)]" />
+                          <span>{m.name}</span>
+                        </span>
+                        <span className="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">
+                          {m.players}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[9px] text-cyan-400/90 font-mono font-medium block">{t.domain}</span>
-                        <span className="text-[8px] bg-white/10 text-slate-300 px-1 rounded uppercase">{t.sport_code}</span>
-                      </div>
+                      <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                        {m.desc}
+                      </p>
                     </div>
-                    {activeTenantId === t.id && <Check className="w-3.5 h-3.5 shrink-0 text-cyan-400" />}
-                  </button>
-                ))}
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* SELECTOR DE LIGA / TENANT */}
+            {(visibleTenants?.length || 0) > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowTenantDropdown(!showTenantDropdown);
+                    setShowSportDropdown(false);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer font-semibold"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="truncate max-w-[130px] font-medium">{currentTenant?.name || 'LIGA'}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-emerald-400/70" />
+                </button>
+
+                {showTenantDropdown && (
+                  <div className="absolute right-0 mt-2 w-72 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
+                    <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/[0.06]">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Ligas Registradas
+                      </span>
+                      <button
+                        onClick={() => {
+                          setShowTenantDropdown(false);
+                          onOpenOnboarding();
+                        }}
+                        className="text-[10px] font-semibold text-cyan-400 hover:underline cursor-pointer"
+                      >
+                        + Nueva Liga
+                      </button>
+                    </div>
+                    {visibleTenants.map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setActiveTenantId(t.id);
+                          setActiveSport(t.sport_code);
+                          setShowTenantDropdown(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                          activeTenantId === t.id
+                            ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold'
+                            : 'text-slate-300 hover:bg-white/[0.04] hover:text-white font-medium'
+                        }`}
+                      >
+                        <div className="text-left truncate">
+                          <div className="flex items-center gap-1.5">
+                            <span className="block truncate font-medium text-white">{t.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[9px] text-cyan-400/90 font-mono font-medium block">{t.domain}</span>
+                            <span className="text-[8px] bg-white/10 text-slate-300 px-1 rounded uppercase">{t.sport_code}</span>
+                          </div>
+                        </div>
+                        {activeTenantId === t.id && <Check className="w-3.5 h-3.5 shrink-0 text-cyan-400" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-          </div>
+          </>
         )}
 
         {/* INDICADOR Y BOTÓN DE SALIDA MODO ADMIN */}
@@ -254,40 +262,78 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               </button>
             )}
           </div>
-        ) : (
-          onLogout && (
-            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] px-2.5 py-1 rounded-lg">
-              <div className="flex flex-col text-right hidden sm:block">
-                <span className="text-[10px] text-slate-400 font-mono truncate max-w-[120px]">{userEmail || 'Usuario'}</span>
+        ) : userEmail ? (
+          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] px-2.5 py-1 rounded-lg">
+            <div className="flex flex-col text-right hidden sm:block">
+              <span className="text-[10px] text-slate-400 font-mono truncate max-w-[120px]">{userEmail}</span>
+            </div>
+
+            {hasPaidFullAccess ? (
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold flex items-center gap-1">
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span>Portal Completo</span>
+              </span>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono font-bold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-cyan-400" />
+                  <span>Modo Demo</span>
+                </span>
+                {onOpenCheckout && (
+                  <button
+                    onClick={onOpenCheckout}
+                    className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[11px] shadow-sm flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                    title="Desbloquear el portal completo por $35"
+                  >
+                    <Flame className="w-3 h-3 text-slate-950 animate-pulse" />
+                    <span>Desbloquear Portal ($35)</span>
+                  </button>
+                )}
               </div>
+            )}
+
+            {onLogout && (
               <button
                 onClick={onLogout}
                 className="flex items-center gap-1 text-[10px] font-medium text-slate-300 hover:text-rose-300 bg-white/5 hover:bg-rose-500/10 border border-white/10 hover:border-rose-500/30 px-2 py-0.5 rounded transition-colors cursor-pointer"
-                title="Cerrar sesión y bloquear plataforma"
+                title="Cerrar sesión y volver al inicio"
               >
                 <LogOut className="w-3 h-3 text-slate-400 group-hover:text-rose-400" />
                 <span>Cerrar Sesión</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          onOpenAuthModal && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onOpenAuthModal('register')}
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-all cursor-pointer flex items-center gap-1"
+              >
+                <span>Registrarse en la App</span>
+              </button>
+              <button
+                onClick={() => onOpenAuthModal('login')}
+                className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+              >
+                Ingresar
               </button>
             </div>
           )
         )}
 
-        {/* INSIGNIA FIREBASE FIRESTORE EN VIVO */}
-        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.02] border border-white/[0.06] text-[10px] text-slate-300" title="Base de datos en tiempo real Google Firebase Firestore activa">
-          <Flame className="w-3 h-3 text-amber-400" />
-          <span className="text-slate-400">Cloud Sync:</span>
-          <span className="text-amber-400/90 font-mono text-[9px]">En Línea</span>
-        </div>
-
-        {/* BOTÓN CREAR LIGA DIRECTO */}
-        <button
-          onClick={onOpenOnboarding}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span className="hidden lg:inline">Crear Mi Liga</span>
-          <span className="lg:hidden">Crear Liga</span>
-        </button>
+        {/* ACCIONES EXCLUSIVAS DE ADMINISTRACIÓN */}
+        {isSuperAdminAuth && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenOnboarding}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nueva Liga</span>
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

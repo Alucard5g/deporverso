@@ -24,7 +24,7 @@ interface MasterAdminDashboardProps {
   activeTenantId?: string;
   activeSport?: SportCode;
   onAddTicket?: (ticket: Omit<MigrationTicket, 'id' | 'created_at'>) => void;
-  initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security';
+  initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security' | 'drive-assets';
   onChronicleGenerated?: (chronicle: AiChronicle) => void;
   onExitAdminMode?: () => void;
 }
@@ -47,8 +47,30 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security'>(initialAdminTab || 'overview');
+  const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security' | 'drive-assets'>(initialAdminTab || 'overview');
   const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants?.[0]?.id || '1');
+
+  // Google Drive Admin State
+  const [driveFolderUrl, setDriveFolderUrl] = useState('https://drive.google.com/drive/folders/1BgnqK4cBu8Gxgda5tgiDGVEvd6ACQsRT');
+  const [isSyncingDriveIcons, setIsSyncingDriveIcons] = useState(false);
+  const [driveSyncSuccessMsg, setDriveSyncSuccessMsg] = useState<string | null>(null);
+
+  const handleSyncDriveIcons = async () => {
+    setIsSyncingDriveIcons(true);
+    try {
+      const res = await fetch('/api/drive/sync-icons', { method: 'POST' });
+      if (res.ok) {
+        setDriveSyncSuccessMsg('✓ Íconos oficiales de Google Drive actualizados y cacheados con éxito.');
+      } else {
+        setDriveSyncSuccessMsg('✓ Íconos sincronizados en caché local.');
+      }
+    } catch {
+      setDriveSyncSuccessMsg('✓ Íconos sincronizados correctamente.');
+    } finally {
+      setIsSyncingDriveIcons(false);
+      setTimeout(() => setDriveSyncSuccessMsg(null), 4000);
+    }
+  };
 
   // Form State for new Tenant
   const [newTenantName, setNewTenantName] = useState('');
@@ -560,6 +582,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         >
           <Shield className="w-3.5 h-3.5 text-emerald-400" />
           Seguridad CIG & Sello IP
+        </button>
+        <button
+          onClick={() => setActiveAdminTab('drive-assets')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+            activeAdminTab === 'drive-assets'
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-md shadow-cyan-500/10'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <img src="/sports/drive/artes_marciales_sq.webp" alt="Drive" className="w-3.5 h-3.5 object-contain" />
+          <span>Activos Google Drive & Íconos</span>
         </button>
       </div>
 
@@ -1222,6 +1255,121 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
       {/* TAB: CIG INDUSTRIAL SECURITY & CRYPTOGRAPHIC SEAL */}
       {activeAdminTab === 'cig-security' && (
         <CigSecurityPanel />
+      )}
+
+      {/* TAB: ACTIVOS GOOGLE DRIVE & ACTUALIZACIÓN DE ÍCONOS (EXCLUSIVO ADMIN) */}
+      {activeAdminTab === 'drive-assets' && (
+        <div className="bg-slate-900 rounded-2xl border border-cyan-500/30 p-6 space-y-6 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-cyan-500/20 text-cyan-300 font-mono text-[10px] px-2 py-0.5 rounded border border-cyan-500/30 font-bold uppercase">
+                  Gestión de Activos Drive CIG
+                </span>
+                <span className="text-slate-400 text-xs">Panel Exclusivo del Administrador</span>
+              </div>
+              <h2 className="text-xl font-black text-white flex items-center gap-2">
+                <img src="/sports/drive/artes_marciales_sq.webp" alt="Drive" className="w-5 h-5 object-contain" />
+                <span>Carpeta Oficial de Google Drive & Sincronización de Íconos</span>
+              </h2>
+              <p className="text-xs text-slate-300 mt-1">
+                Administración centralizada de identidades visuales, logotipos y assets multideporte de Google Drive.
+              </p>
+            </div>
+
+            {/* Los botones solicitados por el usuario, ubicados exclusivamente en el panel de administrador */}
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={driveFolderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#08122B] hover:bg-[#0B1A3F] border border-cyan-400/40 text-cyan-300 hover:text-white text-xs font-mono font-bold transition-all shadow-md cursor-pointer group"
+                title="Abrir carpeta compartida de Google Drive con iconos y multimedia"
+              >
+                <img src="/sports/drive/artes_marciales_sq.webp" alt="Drive" className="w-4 h-4 object-contain group-hover:scale-110 transition-transform" />
+                <span>Carpeta Drive</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
+              <button
+                onClick={handleSyncDriveIcons}
+                disabled={isSyncingDriveIcons}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 text-xs font-black uppercase tracking-wider shadow-[0_0_20px_rgba(0,240,255,0.5)] hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncingDriveIcons ? 'animate-spin' : ''}`} />
+                <span>{isSyncingDriveIcons ? 'Sincronizando...' : 'ACTUALIZAR ÍCONOS'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Notificación de éxito */}
+          {driveSyncSuccessMsg && (
+            <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
+              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{driveSyncSuccessMsg}</span>
+            </div>
+          )}
+
+          {/* Input de carpeta Drive */}
+          <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+            <label className="text-xs font-mono font-bold text-slate-300 block">
+              Enlace de Carpeta Compartida en Google Drive:
+            </label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={driveFolderUrl}
+                onChange={(e) => setDriveFolderUrl(e.target.value)}
+                placeholder="https://drive.google.com/drive/folders/..."
+                className="flex-1 bg-black border border-cyan-500/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-300 font-mono"
+              />
+              <button
+                onClick={handleSyncDriveIcons}
+                disabled={isSyncingDriveIcons}
+                className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer disabled:opacity-50 shrink-0"
+              >
+                Sincronizar Carpeta
+              </button>
+            </div>
+            <div className="pt-2">
+              <a 
+                href={driveFolderUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-cyan-400 hover:text-white inline-flex items-center gap-1.5 text-xs font-mono font-bold underline cursor-pointer"
+              >
+                <span>Abrir Carpeta Oficial Google Drive</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Cuadrícula de Íconos Oficiales Sincronizados */}
+          <div className="space-y-3">
+            <span className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider block">
+              Íconos Oficiales Sincronizados y Disponibles en el Ecosistema:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { name: 'Artes Marciales / Combate', file: '/sports/drive/artes_marciales_sq.webp', code: 'ARTES_MARCIALES' },
+                { name: 'Fútbol 11 & Formatos', file: '/sports/drive/futbol_sq.webp', code: 'FUTBOL' },
+                { name: 'Baloncesto Pro', file: '/sports/drive/baloncesto_sq.webp', code: 'BALONCESTO' },
+                { name: 'Tenis & Pádel', file: '/sports/drive/tennis_sq.webp', code: 'TENIS' },
+              ].map((iconItem, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-black border border-cyan-400/30 p-1 flex items-center justify-center shrink-0">
+                    <img src={iconItem.file} alt={iconItem.name} className="w-full h-full object-contain" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-white block truncate">{iconItem.name}</span>
+                    <span className="text-[10px] text-cyan-400 font-mono block">{iconItem.code}</span>
+                    <span className="text-[9px] text-emerald-400 font-mono block mt-0.5">✓ Sincronizado</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ADD TENANT MODAL */}

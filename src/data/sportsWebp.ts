@@ -8,13 +8,15 @@ export interface SportWebpCard {
 }
 
 export const SPORTS_WEBP_CATALOG: SportWebpCard[] = [
-  { id: 'futbol', name: 'Fútbol', icon: '⚽', url: '/sports/futbol.webp', category: 'CAMPO', accentColor: '#f59e0b' },
-  { id: 'basquetbol', name: 'Básquetbol', icon: '🏀', url: '/sports/basquetbol.webp', category: 'CANCHA', accentColor: '#f97316' },
+  { id: 'artes_marciales', name: 'Artes Marciales', icon: '🥋', url: '/sports/drive/artes_marciales_sq.webp', category: 'COMBATE', accentColor: '#ef4444' },
+  { id: 'futbol', name: 'Fútbol', icon: '⚽', url: '/sports/drive/futbol_sq.webp', category: 'CAMPO', accentColor: '#f59e0b' },
+  { id: 'basquetbol', name: 'Básquetbol', icon: '🏀', url: '/sports/drive/baloncesto_sq.webp', category: 'CANCHA', accentColor: '#f97316' },
   { id: 'voleibol', name: 'Voleibol', icon: '🏐', url: '/sports/voleibol.webp', category: 'CANCHA', accentColor: '#eab308' },
   { id: 'futsal', name: 'Futsal', icon: '⚡', url: '/sports/futsal.webp', category: 'CANCHA', accentColor: '#10b981' },
-  { id: 'tenis', name: 'Tenis', icon: '🎾', url: '/sports/tenis.webp', category: 'CANCHA', accentColor: '#84cc16' },
+  { id: 'tenis', name: 'Tenis', icon: '🎾', url: '/sports/drive/tennis_sq.webp', category: 'CANCHA', accentColor: '#84cc16' },
+  { id: 'cig_game', name: 'C.I.G Deporverso game', icon: '🎮', url: '/sports/cig_game.webp', category: 'CANCHA', accentColor: '#00F0FF' },
   { id: 'atletismo', name: 'Atletismo', icon: '🏃', url: '/sports/atletismo.webp', category: 'CAMPO', accentColor: '#fbbf24' },
-  { id: 'boxeo', name: 'Boxeo', icon: '🥊', url: '/sports/boxeo.webp', category: 'COMBATE', accentColor: '#ef4444' },
+  { id: 'boxeo', name: 'Boxeo', icon: '🥊', url: '/sports/drive/artes_marciales_sq.webp', category: 'COMBATE', accentColor: '#ef4444' },
   { id: 'beisbol', name: 'Béisbol', icon: '⚾', url: '/sports/beisbol.webp', category: 'CAMPO', accentColor: '#d97706' },
   { id: 'natacion', name: 'Natación', icon: '🏊', url: '/sports/natacion.webp', category: 'AGUA_RUEDAS', accentColor: '#06b6d4' },
   { id: 'ciclismo', name: 'Ciclismo', icon: '🚴', url: '/sports/ciclismo.webp', category: 'AGUA_RUEDAS', accentColor: '#14b8a6' },
@@ -24,7 +26,7 @@ export const SPORTS_WEBP_CATALOG: SportWebpCard[] = [
   { id: 'gimnasia', name: 'Gimnasia', icon: '🤸', url: '/sports/gimnasia.webp', category: 'PRECISION', accentColor: '#a855f7' },
   { id: 'hockey', name: 'Hockey', icon: '🏑', url: '/sports/hockey.webp', category: 'CAMPO', accentColor: '#38bdf8' },
   { id: 'tenis_mesa', name: 'Tenis de Mesa', icon: '🏓', url: '/sports/tenis_mesa.webp', category: 'CANCHA', accentColor: '#f87171' },
-  { id: 'taekwondo', name: 'Taekwondo', icon: '🥋', url: '/sports/taekwondo.webp', category: 'COMBATE', accentColor: '#fb923c' },
+  { id: 'taekwondo', name: 'Taekwondo', icon: '🥋', url: '/sports/drive/artes_marciales_sq.webp', category: 'COMBATE', accentColor: '#fb923c' },
   { id: 'skateboarding', name: 'Skateboarding', icon: '🛹', url: '/sports/skateboarding.webp', category: 'AGUA_RUEDAS', accentColor: '#facc15' },
   { id: 'halterofilia', name: 'Halterofilia', icon: '🏋️', url: '/sports/halterofilia.webp', category: 'PRECISION', accentColor: '#fb7185' },
   { id: 'badminton', name: 'Bádminton', icon: '🏸', url: '/sports/badminton.webp', category: 'CANCHA', accentColor: '#2dd4bf' },

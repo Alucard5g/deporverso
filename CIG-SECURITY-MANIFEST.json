@@ -2,18 +2,18 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-10-02T13:28:09.052Z",
-  "epoch_timestamp_ms": 1790947689052,
+  "timestamp_utc": "2026-10-08T13:24:56.514Z",
+  "epoch_timestamp_ms": 1791465896514,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "41ebb06cfd6c0a2ab02dbc46260d2b6d341ed63ee02ca1235b63a6ff6d131c24",
-  "signature_base64": "aqCdff3dcXvAq6hjBHS3ZRufc/r4e32xSPZHGqDfXZFdQYxK8oBcbcqCWM+YB4zUOMUMtk3mEMjhdxATz7cdBg==",
+  "merkle_master_root_hash": "c9e1f66bf9e23e1b86358284754cc518589158ed324db5d1dfa4f09fcf005322",
+  "signature_base64": "5qrmUt8cLFs/XaExu2geRLBNaMGN/oL0Hjp3t7BNsSo9ihJkgMtI54mcblIp7sx9admXX5STcDN5VsmGYlrnCg==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 159,
+  "total_audited_files": 186,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "path": "bun.lock",
-      "sizeBytes": 167251,
-      "sha256": "6ab9f63162d282bf60d00c74899d6d9f31549ed1b5ac1343bed7f14ac7719173"
+      "sizeBytes": 175338,
+      "sha256": "5d9e3271c06a99cac84ab04ba1b4f334ccc6b8993ba7dd91dffc3810e5054bf7"
     },
     {
       "path": "cloudbuild.yaml",
@@ -88,8 +88,8 @@
     },
     {
       "path": "index.html",
-      "sizeBytes": 1361,
-      "sha256": "5ffa425fbe4c9009db2384c0cf19f605d0c760572fa49e98be40d3c9f64dc66c"
+      "sizeBytes": 2321,
+      "sha256": "9474c60a74bb6cd14781c12d88de0eb6aa08c59ff5cf553226a73feaa6d9ae59"
     },
     {
       "path": "main_serverless_worker.py",
@@ -103,8 +103,8 @@
     },
     {
       "path": "package.json",
-      "sizeBytes": 1713,
-      "sha256": "8f00a976479206d699df0b0ddf7e8ce94417fa62a4bf6c6eb5b0ebfca1b74547"
+      "sizeBytes": 1740,
+      "sha256": "c0a440233e4d1b8271d81acfed3d700a277f607adea63356d85af3e21aebc4b5"
     },
     {
       "path": "public/generated-reports/acta_var_1790693971194.pdf",
@@ -120,6 +120,11 @@
       "path": "public/landing.html",
       "sizeBytes": 31494,
       "sha256": "9faa70ae4299915b6a44b9fb15fe99344c44e6d22d496c5681fb6317e03e6f5c"
+    },
+    {
+      "path": "public/sports/artes_marciales.webp",
+      "sizeBytes": 32686,
+      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
     },
     {
       "path": "public/sports/atletismo.webp",
@@ -138,8 +143,8 @@
     },
     {
       "path": "public/sports/basquetbol.webp",
-      "sizeBytes": 21324,
-      "sha256": "d431ad770e3458507b263ccad78cbce651dc85c8dacb9ec060aaa4ec4d224b90"
+      "sizeBytes": 27936,
+      "sha256": "e1adb40f3a75afda83c22180d0a76176aa89cd37c231ab65e41169dc7eecd092"
     },
     {
       "path": "public/sports/beisbol.webp",
@@ -157,9 +162,69 @@
       "sha256": "33c879e78a8d344ef3e9146e8907633fb9e974d0cd8f500650bf7d1578527be8"
     },
     {
+      "path": "public/sports/cig_game.webp",
+      "sizeBytes": 7378,
+      "sha256": "960ffb8684f6e096ee06c0c52d1c49eef062173413c1a1e8fdcf43bb78d478e0"
+    },
+    {
       "path": "public/sports/crossfit.webp",
       "sizeBytes": 23478,
       "sha256": "b996366650f57a1b203833bab18038a2c205912ace8d6afc5991b9111f836be0"
+    },
+    {
+      "path": "public/sports/drive/artes_marciales_sq.webp",
+      "sizeBytes": 32686,
+      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
+    },
+    {
+      "path": "public/sports/drive/artes_marciales.webp",
+      "sizeBytes": 32686,
+      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
+    },
+    {
+      "path": "public/sports/drive/baloncesto_original.jpg",
+      "sizeBytes": 532634,
+      "sha256": "707076ea5399d4a08b06726f42fc28202f4835b8af1797fd15dde824164032b9"
+    },
+    {
+      "path": "public/sports/drive/baloncesto_sq.webp",
+      "sizeBytes": 27936,
+      "sha256": "e1adb40f3a75afda83c22180d0a76176aa89cd37c231ab65e41169dc7eecd092"
+    },
+    {
+      "path": "public/sports/drive/baloncesto.webp",
+      "sizeBytes": 63508,
+      "sha256": "1ed2ce8f3accf8312e3a03eb245e5b7e6945c8e47c76d81c4a20994ce6a06118"
+    },
+    {
+      "path": "public/sports/drive/futbol_original.jpg",
+      "sizeBytes": 464936,
+      "sha256": "c42ca05f828b5ebf01e7642ca5dd39f2f13add090c632ecb936d4019d2480feb"
+    },
+    {
+      "path": "public/sports/drive/futbol_sq.webp",
+      "sizeBytes": 23174,
+      "sha256": "789758d0dc9effdf7c2cc32e59d35c457ecbad1b039b8cb09ddeaefa6108b0ac"
+    },
+    {
+      "path": "public/sports/drive/futbol.webp",
+      "sizeBytes": 47456,
+      "sha256": "2557451225a15f1ea899633d8be5f587edd42d4d284ad0400639129456c1065a"
+    },
+    {
+      "path": "public/sports/drive/tennis_original.jpg",
+      "sizeBytes": 448145,
+      "sha256": "b16d51d7a56d6d8ae5596af3738b6e4b3da20225f9f6113837d89bc66abfe317"
+    },
+    {
+      "path": "public/sports/drive/tennis_sq.webp",
+      "sizeBytes": 40994,
+      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
+    },
+    {
+      "path": "public/sports/drive/tennis.webp",
+      "sizeBytes": 80906,
+      "sha256": "974ff83fb275777ce1d02a1e2e06eee78bd1ef7f7210020eebe6048245a67df6"
     },
     {
       "path": "public/sports/esgrima.webp",
@@ -167,9 +232,14 @@
       "sha256": "0522e0b5c5353b28bed12c3dc151096266c604808ac4da6ccd329cf15216e181"
     },
     {
+      "path": "public/sports/esports.webp",
+      "sizeBytes": 7378,
+      "sha256": "960ffb8684f6e096ee06c0c52d1c49eef062173413c1a1e8fdcf43bb78d478e0"
+    },
+    {
       "path": "public/sports/futbol.webp",
-      "sizeBytes": 17774,
-      "sha256": "12c63c35622f5cb164761b609078d8b87b3f006d7a8388ecf73fa21dbb3de833"
+      "sizeBytes": 23174,
+      "sha256": "789758d0dc9effdf7c2cc32e59d35c457ecbad1b039b8cb09ddeaefa6108b0ac"
     },
     {
       "path": "public/sports/futsal.webp",
@@ -203,8 +273,13 @@
     },
     {
       "path": "public/sports/padel.webp",
-      "sizeBytes": 24784,
-      "sha256": "04db4d442032ce2c161e8c5fffdc835a88463ca259ac8bf7c9795afb8532a504"
+      "sizeBytes": 40994,
+      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
+    },
+    {
+      "path": "public/sports/pichincha_portada.jpg",
+      "sizeBytes": 1075859,
+      "sha256": "f121ef512671664f5cacc9a26c66347e26237572fa299891c519acfbe4469490"
     },
     {
       "path": "public/sports/rugby.webp",
@@ -218,8 +293,8 @@
     },
     {
       "path": "public/sports/taekwondo.webp",
-      "sizeBytes": 15710,
-      "sha256": "5af1d929e82da2b7446ed983d4c317589e697919fb2b3e8194e91b61be92cead"
+      "sizeBytes": 32686,
+      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
     },
     {
       "path": "public/sports/tenis_mesa.webp",
@@ -228,8 +303,8 @@
     },
     {
       "path": "public/sports/tenis.webp",
-      "sizeBytes": 24072,
-      "sha256": "a5a110e6822fc967679e6675eecce64520970892793470dd3b8da2c45b1c15e8"
+      "sizeBytes": 40994,
+      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
     },
     {
       "path": "public/sports/tiro_arco.webp",
@@ -245,6 +320,11 @@
       "path": "public/sports/voleibol.webp",
       "sizeBytes": 18028,
       "sha256": "6a39bc7f78ad8a92a14583a937f30ad66d4ccd2cd30bdc0bf58c0dc01ea17c8e"
+    },
+    {
+      "path": "public/videos/futbol_animation.mp4",
+      "sizeBytes": 917851,
+      "sha256": "90fc7a844b950793946442850d537ceff070cdcccea08ead575cac5780548b8a"
     },
     {
       "path": "requirements.txt",
@@ -278,8 +358,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 9792,
-      "sha256": "312eaffa0778611f70678051487eef51a2a753006d56bd2f55ffcdb9fe35ac76"
+      "sizeBytes": 14879,
+      "sha256": "13f7a81ebfb4ad8e9a0ad6b2efbf10ddd4c109e6e9462d0a4ed187cfc1913df7"
     },
     {
       "path": "server/config/database.ts",
@@ -368,8 +448,8 @@
     },
     {
       "path": "src/App.tsx",
-      "sizeBytes": 30980,
-      "sha256": "47c9c36f20ce4e4dd5ef563176048b69be20092468ebff2eed7c30eb80242b8c"
+      "sizeBytes": 37159,
+      "sha256": "06428126fb57cbaf5105d8991b47c94c65b085f49983384abd2ddf4d65bdac14"
     },
     {
       "path": "src/assets/images/acto1_cancha_tierra_1789418204541.jpg",
@@ -402,9 +482,29 @@
       "sha256": "5f98219ab6528ad02936317ed9f75e6a77d0fad2ef80c5bcb3c03e1db3a64257"
     },
     {
+      "path": "src/assets/images/deporverso_club_logo_1791029063761.jpg",
+      "sizeBytes": 779418,
+      "sha256": "56ad625ecc72794b42df8d8162625edb0440537054d53d4231f7905f7c1ec71d"
+    },
+    {
+      "path": "src/assets/images/deporverso_club_portada_1791029077367.jpg",
+      "sizeBytes": 883317,
+      "sha256": "2440eb348e4b56512330cf4d46e7f01350cbea2e8d20ed213268ac52771d2340"
+    },
+    {
       "path": "src/assets/images/deporverso_dark_bg_1789426720628.jpg",
       "sizeBytes": 694391,
       "sha256": "da8964ead3a9268761eb11c958ec01466e1e968e5b63917745f089d399f448e5"
+    },
+    {
+      "path": "src/assets/images/pichincha_portada_1791304548998.jpg",
+      "sizeBytes": 1075859,
+      "sha256": "f121ef512671664f5cacc9a26c66347e26237572fa299891c519acfbe4469490"
+    },
+    {
+      "path": "src/assets/images/pichincha_portada.jpg",
+      "sizeBytes": 1075859,
+      "sha256": "f121ef512671664f5cacc9a26c66347e26237572fa299891c519acfbe4469490"
     },
     {
       "path": "src/assets/images/soccer_hero_banner_1785853921446.jpg",
@@ -448,13 +548,13 @@
     },
     {
       "path": "src/components/Auth/LoginGate.tsx",
-      "sizeBytes": 22085,
-      "sha256": "43eddf6db6c43e1acbc19b4a89ed59f43be49ada6b9dc385639535512c7dee81"
+      "sizeBytes": 17817,
+      "sha256": "e746019c76796f264db50a00a6f0d707962d304e197b2ff455baa4e3b7858de1"
     },
     {
       "path": "src/components/Calendar/MultiSportCalendar.tsx",
-      "sizeBytes": 41579,
-      "sha256": "1cd1aad9b857f69ac89873b52a2ee1293ad21aadd5d342b28cc3c9196edbc3f2"
+      "sizeBytes": 42474,
+      "sha256": "922df30bfa52debc405513d64a4bb0565b17b16356a3c1cad649ec47e7b404af"
     },
     {
       "path": "src/components/CalendarCardGenerator.tsx",
@@ -465,6 +565,21 @@
       "path": "src/components/Chronicle/AiChronicleGenerator.tsx",
       "sizeBytes": 6860,
       "sha256": "c5d1cda45071bc21b41ee1f0e0f4fde20851ea79479bcc41784437a6e2f1b9d1"
+    },
+    {
+      "path": "src/components/ClubShowcase/ClubDeporversoShowcase.tsx",
+      "sizeBytes": 38820,
+      "sha256": "7e92af5483cd5419a21940c2934c6ae41adf51d0fad37dc2810c3beff665695a"
+    },
+    {
+      "path": "src/components/Demo/MultiversoExecutiveDemo.tsx",
+      "sizeBytes": 40955,
+      "sha256": "13344071e725402b4f1e7ed5f902e93bc5b589d819c1f826f1cd280bd022c197"
+    },
+    {
+      "path": "src/components/Demo/MultiversoStepTourModal.tsx",
+      "sizeBytes": 30227,
+      "sha256": "b574c0550b5ee7d4e71ec64c9fb47b7c4eec02aee524fad6d780d089b017bf47"
     },
     {
       "path": "src/components/ErrorBoundary.tsx",
@@ -488,8 +603,8 @@
     },
     {
       "path": "src/components/immersive/CinematicActImage.tsx",
-      "sizeBytes": 5626,
-      "sha256": "8c87402842678412ce462bf42b90f7b37382b66ac6ba1abf959bdbe7e145f6f1"
+      "sizeBytes": 4554,
+      "sha256": "dd25e33643447c4aafd02ab7b0a6a09ff89b1761ff1e57d1ef829982a58ab01e"
     },
     {
       "path": "src/components/immersive/DeporversoSegmentsDirectory.tsx",
@@ -523,13 +638,18 @@
     },
     {
       "path": "src/components/immersive/ScrollytellingLightbox.tsx",
-      "sizeBytes": 7348,
-      "sha256": "5d02cf3ec181938c4e328b8e6368166622c2a0c21ccfdcd76d5fc56fef763cc3"
+      "sizeBytes": 7089,
+      "sha256": "f27e6fa6be37f9711e4653c5e4ee53e25ef414346ff980773f2968f19f436bce"
+    },
+    {
+      "path": "src/components/Landing/CyberSportEcosystemStage.tsx",
+      "sizeBytes": 68603,
+      "sha256": "92964922b1c0a190239349c1325593d8a72cf695e7d7b016fd4142c4171912c7"
     },
     {
       "path": "src/components/Landing/FuturisticLanding.tsx",
-      "sizeBytes": 36501,
-      "sha256": "c0427eb82b02647d42bc02ce3dd4b9b2939687a9abd885fb6620247049b1ab72"
+      "sizeBytes": 33393,
+      "sha256": "899b35d2f38b8a3f2386d332afbb3a8f984a163b1a3447b6eb2004237cfc8760"
     },
     {
       "path": "src/components/Landing/ThematicSportsGallery.tsx",
@@ -538,13 +658,13 @@
     },
     {
       "path": "src/components/Landing/UnifiedDeporversoExperience.tsx",
-      "sizeBytes": 50167,
-      "sha256": "607e59569d9cd8d05ff658c3a26fe5d2a30108838b8194122559c4102a8902c7"
+      "sizeBytes": 37487,
+      "sha256": "f001ce555e137385e19fd914a6239d038ef01ca49804a932735b661942bc879d"
     },
     {
       "path": "src/components/Landing/WelcomePage.tsx",
-      "sizeBytes": 1351,
-      "sha256": "5b9d2a16475e2f8be7d155429599b376dfa2bb5b082b4691203839a90ee165b7"
+      "sizeBytes": 7430,
+      "sha256": "f62af3c15a43ec8c6b44501f4916b6199eabfb5eba55ca4e0cb0ed67d737d30d"
     },
     {
       "path": "src/components/LeaguePortal/ClubAndRosterDetail.tsx",
@@ -557,9 +677,14 @@
       "sha256": "527b2ed1cbdef19e4c7ffa1b6686aec584f2157b43ef152d9ab35451a7f761bc"
     },
     {
+      "path": "src/components/LeaguePortal/LeagueAnalytics.tsx",
+      "sizeBytes": 68524,
+      "sha256": "b1d6797ce26f8dd7a9fb9a38b05ed40e04c2cc4da1eb98c1fa2e226562f1cce8"
+    },
+    {
       "path": "src/components/LeaguePortal/LeagueDashboard.tsx",
-      "sizeBytes": 77436,
-      "sha256": "49a11eb5058ad81b67ce2c1b7d311ed95511509f0e43cf82f336d855bf4dc3af"
+      "sizeBytes": 77393,
+      "sha256": "f4091f2cf914224664446e67d59bbddcc34e35c0389c880d43e58dc1fb0fe6a9"
     },
     {
       "path": "src/components/LeaguePortal/LeagueFixtureTable.tsx",
@@ -570,6 +695,11 @@
       "path": "src/components/LeaguePortal/LiveStreamingPanel.tsx",
       "sizeBytes": 64471,
       "sha256": "b9359d62f55815b5a91906243bb35140629820faf3935c741975beccfec085cd"
+    },
+    {
+      "path": "src/components/LeaguePortal/PichinchaExecutiveDemo.tsx",
+      "sizeBytes": 30236,
+      "sha256": "24f9d093e90695a3934b83e7916e98e3587089da1590bcbfa9a287d4e6706a7e"
     },
     {
       "path": "src/components/LeaguePortal/PlayerTransfersManager.tsx",
@@ -608,13 +738,13 @@
     },
     {
       "path": "src/components/Marketing/CampaignBannersGenerator.tsx",
-      "sizeBytes": 20741,
-      "sha256": "19f44d992dbf0a6c06a8e690211c239fd19f64f76adac01e8f344bc3a002c3ee"
+      "sizeBytes": 20750,
+      "sha256": "2460f35f07cf0de995036e752a39f6f4d6dd7ca536c8c668038b0e98004ade8a"
     },
     {
       "path": "src/components/Marketing/ExclusiveOfferCheckoutModal.tsx",
-      "sizeBytes": 29038,
-      "sha256": "67b6eee8e6dd5ae47ae48dbba07686b8cf8075b16fae8e3fbf3ba4a7b6db673f"
+      "sizeBytes": 36062,
+      "sha256": "7fcb4b29542da478268f868c5a32ae6a02d950abd9e4cc71414a3726c1b1e13f"
     },
     {
       "path": "src/components/MasterAdmin/AdminCRM.tsx",
@@ -633,13 +763,13 @@
     },
     {
       "path": "src/components/MasterAdmin/MasterAdminDashboard.tsx",
-      "sizeBytes": 86134,
-      "sha256": "f3d31d0e4391744461ee5a91e469bed5a434cddcd2d2f82a079ee582b98b1d7f"
+      "sizeBytes": 94466,
+      "sha256": "1520fa679b84604fea8a686db274409e4cfe5942fc561da784f2b4e2af7582c3"
     },
     {
       "path": "src/components/Navbar.tsx",
-      "sizeBytes": 16102,
-      "sha256": "f52d7cbd70ffacf867a256c1ff875aa564ebced308250ad0bd81dfb4844f1d28"
+      "sizeBytes": 24067,
+      "sha256": "70d1e9cd62a40e167a3c7695ddadd62c8506d811c60b5d05161ff83a6ed760b4"
     },
     {
       "path": "src/components/Scouting/ScoutingHub.tsx",
@@ -653,8 +783,8 @@
     },
     {
       "path": "src/components/Tactics/TacticalBoard.tsx",
-      "sizeBytes": 54152,
-      "sha256": "f3ddad86373ec6b925fbbc752664b5b74a8a421b944a63e554bdb268a0fa93c3"
+      "sizeBytes": 54161,
+      "sha256": "c17db5864266078b2d9af2169d3200250f3ad7f2151db26fac12d9795d31e21f"
     },
     {
       "path": "src/components/three/DeporversoCanvas.tsx",
@@ -663,23 +793,23 @@
     },
     {
       "path": "src/components/ThreeD/Sport3DExperience.tsx",
-      "sizeBytes": 33671,
-      "sha256": "bb3b9f303da26a0b391a760427a6b75e4035932f5b75de4b73226134c33f871d"
+      "sizeBytes": 33693,
+      "sha256": "01395c04cdc5f6a12359f2237e6d55a84756fe98e0d2f156be6156dcd5b76c64"
     },
     {
       "path": "src/components/TopHeader.tsx",
-      "sizeBytes": 23785,
-      "sha256": "4631b70cd53166b88b344d46abf1c3e936b94f142828d88785c53734b9a7c214"
+      "sizeBytes": 18760,
+      "sha256": "224011a830db95c1203d6ceb7c5df5236297e93937c8c14c0fa3cacda8b96ec3"
     },
     {
       "path": "src/components/VarModule/VarModule.tsx",
-      "sizeBytes": 22321,
-      "sha256": "2b0f79e179ae0c25b075f4841306ad8f998dcff9e01cf67e8d73811d1e983c26"
+      "sizeBytes": 22281,
+      "sha256": "1cbda281b99252fafbf5cf3075536f896dbb4276c923d5dcb78c16b1db1688fe"
     },
     {
       "path": "src/components/Vocalia/ComputerVisionEdge.tsx",
-      "sizeBytes": 28710,
-      "sha256": "593ee4f6862cdec07d6249d77092ad436fd6182cdcee8b915e96e2bee870585e"
+      "sizeBytes": 24523,
+      "sha256": "38c6796c5e3236f6b990f7431ab9b904e353a96efd2531606fb18f10931c932b"
     },
     {
       "path": "src/components/Vocalia/ContinuousQrScannerModal.tsx",
@@ -688,13 +818,18 @@
     },
     {
       "path": "src/components/Vocalia/VocaliaDigital.tsx",
-      "sizeBytes": 82405,
-      "sha256": "969c52448b698f25f137a6f012de8ec128d1d6dd3cada5e7b28e5942616a5182"
+      "sizeBytes": 82415,
+      "sha256": "a7775682917dcc56a840b8a17fa17005320f99a8fb67cc2c43118d4147592c41"
     },
     {
       "path": "src/data/clubs.ts",
-      "sizeBytes": 2529,
-      "sha256": "57a407a2ce1b656d4e93ccc9fe4e1243ad510e6d499ee85bae3e90223c370138"
+      "sizeBytes": 3081,
+      "sha256": "f10599931d178168db17d9fde79e044908f94e01a18cc2161322dafc33b6e4db"
+    },
+    {
+      "path": "src/data/deporversoClubData.ts",
+      "sizeBytes": 21916,
+      "sha256": "a4cc0d3ce2374b11a721fda5a8833959822ebc8afcbb59929189d02d89683bf7"
     },
     {
       "path": "src/data/mockCrmData.ts",
@@ -703,8 +838,8 @@
     },
     {
       "path": "src/data/mockData.ts",
-      "sizeBytes": 47085,
-      "sha256": "df8f98f490ac90f5b8e063cf7f5959b567dd8d72ca5307c92710c2ff1e4f5906"
+      "sizeBytes": 55659,
+      "sha256": "3fee72e73aa64c338725b2b232980154785673daf30f22048f87d8dc17c60835"
     },
     {
       "path": "src/data/players.ts",
@@ -718,18 +853,18 @@
     },
     {
       "path": "src/data/sportsWebp.ts",
-      "sizeBytes": 3372,
-      "sha256": "0ae4aeabe41070ad2603199cdbd49a9268b14b83de35509398cb4621b21a186a"
+      "sizeBytes": 3734,
+      "sha256": "d0f74aa9243b64710f67ed7125a950107afd554c07baf1f4f1b695a78bfc46c1"
     },
     {
       "path": "src/data/sportTemplates.ts",
-      "sizeBytes": 67445,
-      "sha256": "7e8c5a1bf5f24bebf104ae901960997f448b67aa5183ed2cfd34abbea0e8ba1d"
+      "sizeBytes": 67463,
+      "sha256": "82b41079ab9bceaa742280cec223c7e75feabba554772f63ee45120e898a405c"
     },
     {
       "path": "src/data/sportThemesData.ts",
-      "sizeBytes": 21038,
-      "sha256": "eda94ab34f471d7c1efaa3ff5def08db821404bef6dd3ad2784ce295d20bb28c"
+      "sizeBytes": 21041,
+      "sha256": "4837706905169671aa19c05c7f76c1bfb470668cbbea44433ae6bdb3de262565"
     },
     {
       "path": "src/data/sqlScript.ts",
@@ -773,8 +908,8 @@
     },
     {
       "path": "src/services/authService.ts",
-      "sizeBytes": 8315,
-      "sha256": "73817071343c131cd0a98179d96e15b89a9689acaa1684e8a077267d8e8ca0be"
+      "sizeBytes": 8327,
+      "sha256": "d9796f85fa3d3ae76f666932d8c7473e9c1405d2974b4a00df69f8f168bfe198"
     },
     {
       "path": "src/services/firebaseService.ts",
@@ -783,8 +918,8 @@
     },
     {
       "path": "src/types.ts",
-      "sizeBytes": 9470,
-      "sha256": "84760395d87324c7a49d8e48f86b05cb76a23ac5d65bbaa28eaf7f19af64bb41"
+      "sizeBytes": 9491,
+      "sha256": "48aeb64d765a2ab401b98b00f0dc96a5a18eaa9a1011907af3673bc3924367a2"
     },
     {
       "path": "src/utils/playerStatsHelper.ts",
@@ -808,8 +943,8 @@
     },
     {
       "path": "vite.config.ts",
-      "sizeBytes": 1316,
-      "sha256": "df9ee3dcddd30868e83e44dcbd6cd1eb72bf019ebdeb012720870faadc98e948"
+      "sizeBytes": 1333,
+      "sha256": "965ed38183b417bcfa47467ca66e05905ef359fc4f1db7f9f000ffd55bc896b2"
     }
   ]
 }

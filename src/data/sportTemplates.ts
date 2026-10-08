@@ -43,7 +43,7 @@ export const SPORTS_CATALOG: SportCatalogItem[] = [
     code: 'FUTBOL', 
     name: 'Fútbol 11 / 7', 
     icon: '⚽', 
-    badge: 'Reglamento FIFA', 
+    badge: 'Reglamento Oficial', 
     desc: '11 vs 11 o 7 vs 7, tiempos reglamentarios, actas electrónicas y Módulo VAR',
     automationFocus: 'Control de tarjetas acumuladas, planillas digitales y actas arbitrales'
   },
@@ -107,7 +107,7 @@ export const SPORTS_CATALOG: SportCatalogItem[] = [
     code: 'BALONCESTO', 
     name: 'Baloncesto', 
     icon: '🏀', 
-    badge: 'FIBA 4 Cuartos', 
+    badge: 'Reglamento 4 Cuartos', 
     desc: 'Anotaciones de 1, 2 y 3 puntos, acumulación de faltas colectivas y reloj 24s',
     automationFocus: 'Cronómetro integrado con bocina digital, faltas personales y tiro libre automatizado'
   },
@@ -1430,8 +1430,8 @@ export function getSegmentsForSport(sport: SportCode): LeagueSegment[] {
       return [
         {
           id: 'seg-bk-1',
-          title: '1. Primera División Masculina (Norma FIBA)',
-          badge: 'Primera Masculina FIBA',
+          title: '1. Primera División Masculina (Norma Oficial)',
+          badge: 'Primera Masculina Oficial',
           colorClass: 'text-red-400',
           borderClass: 'border-red-500/40',
           bgClass: 'bg-red-500/10',
@@ -1519,7 +1519,7 @@ export function getSegmentsForSport(sport: SportCode): LeagueSegment[] {
           borderClass: 'border-emerald-500/40',
           bgClass: 'bg-emerald-500/10',
           ageRequirement: 'Categoría abierta (edad libre con registro federado/barrial)',
-          duration: '2 tiempos reglamentarios de 45 minutos (Norma FIFA)',
+          duration: '2 tiempos reglamentarios de 45 minutos (Norma Oficial)',
           rules: [
             'Máximo 5 sustituciones en 3 ventanas reglamentarias oficiales.',
             'Acta de vocalía 100% digital en tiempo real con sincronización a la nube.',

@@ -6,7 +6,7 @@ export const INITIAL_SPORTS: Sport[] = [
     code: 'FUTBOL',
     name: 'Fútbol 11 / 7',
     icon: 'futbol',
-    description: 'Reglamento FIFA adaptable para torneos comunitarios, interclubes y profesionales',
+    description: 'Reglamento Oficial adaptable para torneos comunitarios, interclubes y profesionales',
     sport_rules: {
       periods: 2,
       period_duration_minutes: 45,
@@ -326,6 +326,21 @@ export const INITIAL_CATEGORIES: Category[] = [
 ];
 
 export const INITIAL_TEAMS: Team[] = [
+  // Club Deportivo Deporverso (Fútbol 11 - Equipo Insignia Oficial)
+  { 
+    id: 'tm-deporverso-fut', 
+    tenant_id: 't-pichincha', 
+    category_id: 'cat-1', 
+    name: 'Club Deportivo Deporverso', 
+    primary_color: '#38bdf8', // Celeste
+    secondary_color: '#ffffff', // Blanco
+    stadium_name: 'Estadio Metropolitano Deporverso',
+    founded_year: 2024,
+    coach_name: 'Prof. Marcelo Gallardo E.',
+    president_name: 'Dirección CIG Deporverso',
+    city: 'Quito, EC'
+  },
+
   // Fútbol 11 (Liga Barrial Pichincha)
   { id: 'tm-1', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'Deportivo Quito Norte', primary_color: '#ef4444', secondary_color: '#1e3a8a' },
   { id: 'tm-2', tenant_id: 't-pichincha', category_id: 'cat-1', name: 'Atlético San Antonio', primary_color: '#10b981', secondary_color: '#ffffff' },
@@ -345,6 +360,19 @@ export const INITIAL_TEAMS: Team[] = [
   { id: 'tm-fut4', tenant_id: 't-futsal-metro', category_id: 'cat-fut1', name: 'Leones del Norte Futsal 5', primary_color: '#3b82f6', secondary_color: '#ffffff' },
   
   // Baloncesto (Asociación de Baloncesto de Quito)
+  { 
+    id: 'tm-deporverso-bk', 
+    tenant_id: 't-quito-basket', 
+    category_id: 'cat-3', 
+    name: 'Club Deportivo Deporverso (Basket)', 
+    primary_color: '#38bdf8', // Celeste
+    secondary_color: '#090d16', // Negro
+    stadium_name: 'Coliseo Arena Deporverso',
+    founded_year: 2024,
+    coach_name: 'Coach Gregory "Pop" Albarracín',
+    president_name: 'Dirección CIG Deporverso',
+    city: 'Quito, EC'
+  },
   { id: 'tm-bk1', tenant_id: 't-quito-basket', category_id: 'cat-3', name: 'Grizzlies de Quito', primary_color: '#7c3aed', secondary_color: '#fbbf24' },
   { id: 'tm-bk2', tenant_id: 't-quito-basket', category_id: 'cat-3', name: 'Halcones del Valle', primary_color: '#2563eb', secondary_color: '#ffffff' },
 
@@ -360,6 +388,124 @@ export const INITIAL_TEAMS: Team[] = [
 ];
 
 export const INITIAL_PLAYERS: Player[] = [
+  // ========================================================
+  // CLUB DEPORTIVO DEPORVERSO - PLANTILLA FÚTBOL 11
+  // ========================================================
+  { 
+    id: 'pl-dpv-f10', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Mateo "El Rayo" Silva', 
+    jersey_number: 10, 
+    position: 'Mediocampista Creativo', 
+    photo_url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-MATEO-10', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-f9', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Gabriel Torres', 
+    jersey_number: 9, 
+    position: 'Delantero Centro', 
+    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-TORRES-09', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-f1', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Lucas Benítez', 
+    jersey_number: 1, 
+    position: 'Portero Titular', 
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-LUCAS-01', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-f4', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Carlos Arboleda', 
+    jersey_number: 4, 
+    position: 'Defensa Central', 
+    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-ARBOLEDA-04', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-f7', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Julián Morales', 
+    jersey_number: 7, 
+    position: 'Extremo Derecho', 
+    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-MORALES-07', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-f8', 
+    tenant_id: 't-pichincha', 
+    team_id: 'tm-deporverso-fut', 
+    full_name: 'Sebastián Rivas', 
+    jersey_number: 8, 
+    position: 'Pivote Organizador', 
+    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-RIVAS-08', 
+    is_active: true 
+  },
+
+  // ========================================================
+  // CLUB DEPORTIVO DEPORVERSO - PLANTILLA BALONCESTO
+  // ========================================================
+  { 
+    id: 'pl-dpv-b7', 
+    tenant_id: 't-quito-basket', 
+    team_id: 'tm-deporverso-bk', 
+    full_name: 'Kevin "Sniper" Andrade', 
+    jersey_number: 7, 
+    position: 'Escolta Tirador', 
+    photo_url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-ANDRADE-07', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-b23', 
+    tenant_id: 't-quito-basket', 
+    team_id: 'tm-deporverso-bk', 
+    full_name: 'Dante "Air" Caicedo', 
+    jersey_number: 23, 
+    position: 'Alero Capitán', 
+    photo_url: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-CAICEDO-23', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-b3', 
+    tenant_id: 't-quito-basket', 
+    team_id: 'tm-deporverso-bk', 
+    full_name: 'Marcus Valdivieso', 
+    jersey_number: 3, 
+    position: 'Base Armador', 
+    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-VALDIVIESO-03', 
+    is_active: true 
+  },
+  { 
+    id: 'pl-dpv-b33', 
+    tenant_id: 't-quito-basket', 
+    team_id: 'tm-deporverso-bk', 
+    full_name: 'Bruno Moreira', 
+    jersey_number: 33, 
+    position: 'Pívot Titular', 
+    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    qr_code: 'DPV-QR-MOREIRA-33', 
+    is_active: true 
+  },
+
   // Deportivo Quito Norte (tm-1)
   { 
     id: 'pl-1', 
@@ -699,7 +845,7 @@ export const INITIAL_MATCHES: Match[] = [
     match_data: {
       round: 'Fecha 1 - Inauguración',
       venue_name: 'Estadio La Floresta Central',
-      referee_name: 'Carlos Vera (Árbitro FIFA Ret.)',
+      referee_name: 'Carlos Vera (Árbitro Internacional Ret.)',
       vocal_name: 'Dra. Patricia Vinueza',
       court_surface: 'Césped Natural',
       weather_temp: '18°C Soleado',
@@ -731,6 +877,93 @@ export const INITIAL_MATCHES: Match[] = [
       is_public_published: true
     },
     created_at: '2026-07-20T10:00:00Z'
+  },
+  // Partidos Oficiales de Club Deportivo Deporverso en Liga Barrial Pichincha
+  {
+    id: 'm-dpv-f1',
+    tenant_id: 't-pichincha',
+    category_id: 'cat-1',
+    home_team_id: 'tm-deporverso-fut',
+    away_team_id: 'tm-4',
+    sport_code: 'FUTBOL',
+    match_date: '2026-07-21T15:00:00Z',
+    field_location: 'Estadio Metropolitano Deporverso - Cancha Central',
+    status: 'FINISHED',
+    home_score: 4,
+    away_score: 0,
+    match_data: {
+      round: 'Fecha 1 - Inauguración',
+      venue_name: 'Estadio Metropolitano Deporverso',
+      referee_name: 'Árbitro Byron Moreno (Designado)',
+      vocal_name: 'Comisión de Mesa CIG',
+      court_surface: 'Césped Sintético Monofilamento 50mm',
+      weather_temp: '20°C Soleado',
+      ticket_status: 'Lleno Total (500 espectadores)',
+      is_public_published: true,
+      fouls_home: 3,
+      fouls_away: 7,
+      player_stats: {
+        'pl-dpv-f10': { player_id: 'pl-dpv-f10', jersey_number: 10, player_name: 'Mateo "El Rayo" Silva', team_id: 'tm-deporverso-fut', goals: 1, yellow_cards: 0, red_cards: 0 },
+        'pl-dpv-f9': { player_id: 'pl-dpv-f9', jersey_number: 9, player_name: 'Gabriel Torres', team_id: 'tm-deporverso-fut', goals: 2, yellow_cards: 0, red_cards: 0 },
+        'pl-dpv-f7': { player_id: 'pl-dpv-f7', jersey_number: 7, player_name: 'Julián Morales', team_id: 'tm-deporverso-fut', goals: 1, yellow_cards: 0, red_cards: 0 }
+      }
+    },
+    created_at: '2026-07-20T10:00:00Z'
+  },
+  {
+    id: 'm-dpv-f2',
+    tenant_id: 't-pichincha',
+    category_id: 'cat-1',
+    home_team_id: 'tm-3',
+    away_team_id: 'tm-deporverso-fut',
+    sport_code: 'FUTBOL',
+    match_date: '2026-07-28T12:30:00Z',
+    field_location: 'Estadio Liga Barrial Pichincha - Cancha Principal 1',
+    status: 'FINISHED',
+    home_score: 1,
+    away_score: 3,
+    match_data: {
+      round: 'Fecha 2 - Fase Clasificatoria',
+      venue_name: 'Estadio Central La Vicentina',
+      referee_name: 'Árbitro Guillermo Guerrero',
+      vocal_name: 'Mesa Oficial Pichincha',
+      court_surface: 'Césped Sintético Monofilamento 50mm',
+      weather_temp: '19°C Parcial Nublado',
+      ticket_status: 'General $1.50',
+      is_public_published: true,
+      fouls_home: 5,
+      fouls_away: 4,
+      player_stats: {
+        'pl-dpv-f10': { player_id: 'pl-dpv-f10', jersey_number: 10, player_name: 'Mateo "El Rayo" Silva', team_id: 'tm-deporverso-fut', goals: 1, yellow_cards: 0, red_cards: 0 },
+        'pl-dpv-f9': { player_id: 'pl-dpv-f9', jersey_number: 9, player_name: 'Gabriel Torres', team_id: 'tm-deporverso-fut', goals: 1, yellow_cards: 0, red_cards: 0 },
+        'pl-dpv-f8': { player_id: 'pl-dpv-f8', jersey_number: 8, player_name: 'Sebastián Rivas', team_id: 'tm-deporverso-fut', goals: 1, yellow_cards: 1, red_cards: 0 }
+      }
+    },
+    created_at: '2026-07-27T10:00:00Z'
+  },
+  {
+    id: 'm-dpv-f3',
+    tenant_id: 't-pichincha',
+    category_id: 'cat-1',
+    home_team_id: 'tm-deporverso-fut',
+    away_team_id: 'tm-2',
+    sport_code: 'FUTBOL',
+    match_date: '2026-08-04T15:30:00Z',
+    field_location: 'Estadio Metropolitano Deporverso - Cancha Central',
+    status: 'SCHEDULED',
+    home_score: 0,
+    away_score: 0,
+    match_data: {
+      round: 'Fecha 3 - Clásicos Barriales',
+      venue_name: 'Estadio Metropolitano Deporverso',
+      referee_name: 'Árbitro Terna Oficial Pichincha',
+      vocal_name: 'Comisión de Turno',
+      court_surface: 'Césped Sintético Monofilamento 50mm',
+      weather_temp: 'Pronóstico 21°C',
+      ticket_status: 'Preventa Digital $2.00',
+      stream_url: 'https://youtube.com/live/deporverso-clasico'
+    },
+    created_at: '2026-07-28T12:00:00Z'
   },
   {
     id: 'm-sched-1',
@@ -818,7 +1051,7 @@ export const INITIAL_MATCHES: Match[] = [
     match_data: {
       round: 'Fecha 1 - Apertura de Baloncesto',
       venue_name: 'Coliseo Julio César Hidalgo',
-      referee_name: 'Árbitro Juan Silva (FIBA)',
+      referee_name: 'Árbitro Juan Silva (Oficial CIG)',
       vocal_name: 'Mesa Arbitral FEB',
       court_surface: 'Tablado de Madera Flotante Roble',
       weather_temp: 'Climatizado Techado',
@@ -842,7 +1075,7 @@ export const INITIAL_MATCHES: Match[] = [
     match_data: { 
       round: 'Fecha 2 - Serie de Honor',
       venue_name: 'Coliseo Julio César Hidalgo',
-      referee_name: 'Árbitro Juan Silva (FIBA) & J. Alarcón',
+      referee_name: 'Árbitro Juan Silva (Oficial CIG) & J. Alarcón',
       vocal_name: 'Cronometrador Marcelo Peña',
       court_surface: 'Tablado de Madera Flotante Roble',
       weather_temp: 'Techado Climatizado',
@@ -871,7 +1104,7 @@ export const INITIAL_MATCHES: Match[] = [
     match_data: {
       round: 'Fecha 3 - Revancha Semifinal',
       venue_name: 'Coliseo General Rumiñahui',
-      referee_name: 'Terna Arbitral FIBA Pichincha',
+      referee_name: 'Terna Arbitral Oficial Pichincha',
       vocal_name: 'Mesa de Control FEB',
       court_surface: 'Piso de Maple Flotante',
       ticket_status: 'Preferencial $3.00'
@@ -1052,9 +1285,9 @@ export const INITIAL_MATCHES: Match[] = [
     match_data: {
       round: 'Fecha 2 - Copa Metropolitana Futsal 5',
       venue_name: 'Coliseo Mayor Central',
-      referee_name: 'Árbitro FIFA Futsal Jorge Silva',
+      referee_name: 'Árbitro Oficial Futsal Jorge Silva',
       vocal_name: 'Sr. David Paredes (Mesa Futsal)',
-      court_surface: 'Piso Parquet Flotante Oficial FIFA',
+      court_surface: 'Piso Parquet Flotante Oficial Reglamentario',
       weather_temp: 'Techado Climatizado',
       ticket_status: 'Entrada $1.50',
       stream_url: 'https://youtube.com/live/deporverso-futsal',
