@@ -385,34 +385,71 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     });
   }
 
-  const listenWithRetry = (portToTry: number, retriesLeft = 6) => {
+  let activeServer: any = null;
+
+  // Manejo de señales de apagado una sola vez a nivel de proceso
+  const handleGracefulShutdown = (signal: string) => {
+    if (activeServer) {
+      console.log(`[DeporVerso Server] Recibida señal ${signal}. Cerrando servidor y conexiones...`);
+      try {
+        if (typeof activeServer.closeAllConnections === 'function') {
+          activeServer.closeAllConnections();
+        }
+        if (typeof activeServer.closeIdleConnections === 'function') {
+          activeServer.closeIdleConnections();
+        }
+      } catch {
+        // Ignorar si no está disponible
+      }
+      activeServer.close(() => {
+        console.log(`[DeporVerso Server] Servidor cerrado limpiamente.`);
+        process.exit(0);
+      });
+      // Forzar salida si sockets lentos no cierran tras 1.5s
+      setTimeout(() => process.exit(0), 1500).unref();
+    } else {
+      process.exit(0);
+    }
+  };
+
+  process.once('SIGTERM', () => handleGracefulShutdown('SIGTERM'));
+  process.once('SIGINT', () => handleGracefulShutdown('SIGINT'));
+  process.once('SIGUSR2', () => handleGracefulShutdown('SIGUSR2'));
+
+  const listenWithRetry = (portToTry: number, retriesLeft = 10, delayMs = 500) => {
     const mainServer = app.listen(portToTry, "0.0.0.0", () => {
+      activeServer = mainServer;
+      // Optimizar timeouts de keep-alive para evitar sockets zombis en reinicios rápidos
+      mainServer.keepAliveTimeout = 3000;
+      mainServer.headersTimeout = 4000;
       console.log(`[DeporVerso Server] Running on http://0.0.0.0:${portToTry} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
     });
 
     mainServer.on("error", (err: any) => {
-      console.error(`[DeporVerso Server] Error on port ${portToTry}:`, err.message);
       if (err.code === 'EADDRINUSE') {
+        // Cerrar explícitamente el servidor para liberar descriptores y evitar fugas
+        try {
+          if (typeof mainServer.closeAllConnections === 'function') {
+            mainServer.closeAllConnections();
+          }
+          mainServer.close();
+        } catch {
+          // Ignorar errores al cerrar descriptor no asignado
+        }
+
         if (retriesLeft > 0) {
-          console.warn(`[DeporVerso Server] Port ${portToTry} temporarily busy. Retrying in 700ms (${retriesLeft} retries remaining)...`);
+          console.warn(`[DeporVerso Server] Puerto ${portToTry} ocupado temporalmente. Reintentando en ${delayMs}ms (${retriesLeft} intentos restantes)...`);
           setTimeout(() => {
-            listenWithRetry(portToTry, retriesLeft - 1);
-          }, 700);
+            listenWithRetry(portToTry, retriesLeft - 1, Math.min(delayMs + 300, 2000));
+          }, delayMs);
         } else {
-          console.error(`[DeporVerso Server] Port ${portToTry} still busy after retries. Exiting...`);
+          console.error(`[DeporVerso Server] Error crítico: El puerto ${portToTry} no se liberó tras múltiples reintentos. Exiting...`);
           process.exit(1);
         }
+      } else {
+        console.error(`[DeporVerso Server] Error en puerto ${portToTry}:`, err.message);
       }
     });
-
-    // Graceful shutdown
-    const shutdown = () => {
-      mainServer.close(() => {
-        process.exit(0);
-      });
-    };
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
   };
 
   listenWithRetry(PORT);

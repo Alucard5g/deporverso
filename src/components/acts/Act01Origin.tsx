@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowDown, Flame, Sparkles, MapPin, ChevronRight } from 'lucide-react';
-import canchaTierraImg from '../../assets/images/acto1_cancha_tierra_1789418204541.jpg';
 import { CinematicActImage } from '../immersive/CinematicActImage';
 
 interface Act01OriginProps {
@@ -51,21 +50,15 @@ export const Act01Origin: React.FC<Act01OriginProps> = ({ onNextAct, onOpenLight
           </p>
         </div>
 
-        {/* Imagen Cinematográfica con Enmarcado Glassmorphic */}
-        <div className="relative max-w-4xl mx-auto my-8">
-          <div className="absolute -inset-1 bg-gradient-to-r from-[#0066FF] to-[#00F0FF] rounded-3xl blur-xl opacity-30 group-hover:opacity-60 transition duration-1000" />
-          <CinematicActImage
-            id="img-act1-cancha-tierra"
-            actNumber="01"
-            tag="LA GÉNESIS BARRIAL"
-            meta="CANCHA EL TRÉBOL • 18:30 HRS"
-            title="La Cancha de Tierra: El Suelo Sagrado del Fútbol Barrial"
-            caption="El polvo suspendido bajo el sol poniente: el terreno donde la pasión no necesita alfombra verde para ser eterna. Todo ecosistema digital nace honrando esta raíz."
-            imageSrc={canchaTierraImg}
-            imageAlt="Cancha de fútbol barrial de tierra al atardecer con polvo dorado y jugadores con pasión pura"
-            accent="cyan"
-            onExpand={() => onOpenLightbox?.(0)}
-          />
+        {/* Video Embed */}
+        <div className="relative max-w-4xl mx-auto my-8 rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-video">
+          <iframe
+            className="w-full h-full"
+            src="https://docs.google.com/videos/d/1iuuXLfwDlk56MnlzZLTfMzqjsRmy3r374VT7LeiXLLw/preview"
+            title="Video del Acto 1"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
         </div>
 
         {/* Cuadrícula de 4 Tarjetas Numeradas (01, 02, 03, 04) - Estilo Video */}

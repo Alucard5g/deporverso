@@ -2,18 +2,18 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-10-09T17:49:35.500Z",
-  "epoch_timestamp_ms": 1791568175500,
+  "timestamp_utc": "2026-10-10T21:14:02.501Z",
+  "epoch_timestamp_ms": 1791666842501,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "025d1d688a726a346eaae6129159caa715d0f2ccd9c9cb8b566305cc319e27ab",
-  "signature_base64": "yblRsN6XjNVOY8Zo7gw8u4TuodpI7lYyB9xXidL+8THmUnLOAX3xfYOsRvBuKMe20LNw4hg932FYXYW65RuLDg==",
+  "merkle_master_root_hash": "b91ad867ca4a31b64cc7cc10de6db779605d745de09513dc66b1ac07e255f732",
+  "signature_base64": "YFbqWkNzIIj4UYakHZF+n6i7Dpu9U1OmPZ1EHKrowER6nZPuBWXrtRURPE/CPNuIIh04PU6fkOt6yp4rpGXrBA==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 187,
+  "total_audited_files": 190,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
     {
@@ -322,6 +322,21 @@
       "sha256": "6a39bc7f78ad8a92a14583a937f30ad66d4ccd2cd30bdc0bf58c0dc01ea17c8e"
     },
     {
+      "path": "public/videos/comercial_deporverso_720p.mp4",
+      "sizeBytes": 30670896,
+      "sha256": "2f04acba175ddd588bda1dea5f8a8f0830851199b40e293a8dbb11b576824760"
+    },
+    {
+      "path": "public/videos/comercial_deporverso.mp4",
+      "sizeBytes": 30670896,
+      "sha256": "2f04acba175ddd588bda1dea5f8a8f0830851199b40e293a8dbb11b576824760"
+    },
+    {
+      "path": "public/videos/comercial_poster.jpg",
+      "sizeBytes": 235900,
+      "sha256": "214b35e94dc00763bb49dee5fd8f6a6b66a798eb5a5f398eba8293570cf80657"
+    },
+    {
       "path": "public/videos/futbol_animation.mp4",
       "sizeBytes": 917851,
       "sha256": "90fc7a844b950793946442850d537ceff070cdcccea08ead575cac5780548b8a"
@@ -348,8 +363,8 @@
     },
     {
       "path": "scripts/test-browser.cjs",
-      "sizeBytes": 2433,
-      "sha256": "6e4f8370725bc64aac41c3bf92c9afaff40258072fada54037c2f47892b08989"
+      "sizeBytes": 2216,
+      "sha256": "630528ccf8a7e610e1c03c3fcc7bba43bc03fedd348341e8c335eef511fc11f5"
     },
     {
       "path": "scripts/verify-ip.js",
@@ -363,8 +378,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 15821,
-      "sha256": "6ad98c9b7dba4e5c81f9740c63d67a5cb8874c83b726caac70e84ae81e7c9863"
+      "sizeBytes": 17419,
+      "sha256": "ad84aab5103e429a3571b649fb7691b19744f33124fe8d51ee9fa5baac2dc4bf"
     },
     {
       "path": "server/config/database.ts",
@@ -648,8 +663,8 @@
     },
     {
       "path": "src/components/Landing/CyberSportEcosystemStage.tsx",
-      "sizeBytes": 74208,
-      "sha256": "f85d932f6c3beb3dcf40d621e86d76aa749e05c8ef41c76b0cad93541c8043c7"
+      "sizeBytes": 58941,
+      "sha256": "f21fdab038b5ce0a484767d260bfa313ae71bd80a2c4ffd2f160db0c2de5e9fc"
     },
     {
       "path": "src/components/Landing/FuturisticLanding.tsx",
@@ -668,8 +683,8 @@
     },
     {
       "path": "src/components/Landing/WelcomePage.tsx",
-      "sizeBytes": 8491,
-      "sha256": "f35add760329ac664aa3e1e79a695754faa8ba61c3f8042194b04b9bc228e9e2"
+      "sizeBytes": 8316,
+      "sha256": "9d11127585fa2731ec9654afb922c33870b430135fd0105c35f3b5d26b78dbd2"
     },
     {
       "path": "src/components/LeaguePortal/ClubAndRosterDetail.tsx",

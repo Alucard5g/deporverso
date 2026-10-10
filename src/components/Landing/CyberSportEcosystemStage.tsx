@@ -38,21 +38,16 @@ import {
   Printer,
   Copy,
   Check,
-  Tv2,
-  VolumeX,
-  Film
+  Tv2
 } from 'lucide-react';
 import { SportCode } from '../../types';
 import { SPORTS_WEBP_CATALOG, SportWebpCard } from '../../data/sportsWebp';
 
 export type CameraAngle = 'CAM_MAIN' | 'CAM_GOAL' | 'CAM_VAR';
 
-export const GOOGLE_DRIVE_COMMERCIAL_ID = "116Eg11CUX_vrYtlpGVM-aHBSrV5yRxb_";
-export const GOOGLE_DRIVE_VIDEO_PREVIEW_URL = `https://drive.google.com/file/d/${GOOGLE_DRIVE_COMMERCIAL_ID}/preview`;
-export const GOOGLE_DRIVE_DIRECT_URL = `https://drive.google.com/uc?id=${GOOGLE_DRIVE_COMMERCIAL_ID}&export=download`;
-export const GOOGLE_DRIVE_VIEW_URL = `https://drive.google.com/file/d/${GOOGLE_DRIVE_COMMERCIAL_ID}/view`;
-export const LOCAL_COMMERCIAL_VIDEO_URL = "/videos/comercial_deporverso.mp4";
-export const LOCAL_COMMERCIAL_POSTER_URL = "/videos/comercial_poster.jpg";
+const GOOGLE_DRIVE_VIDEO_PREVIEW_URL = "https://drive.google.com/file/d/1iuuXLfwDlk56MnlzZLTfMzqjsRmy3r374VT7LeiXLLw/preview";
+const GOOGLE_DRIVE_DIRECT_URL = "https://drive.google.com/uc?id=1iuuXLfwDlk56MnlzZLTfMzqjsRmy3r374VT7LeiXLLw";
+const GOOGLE_DRIVE_VIEW_URL = "https://drive.google.com/file/d/1iuuXLfwDlk56MnlzZLTfMzqjsRmy3r374VT7LeiXLLw/view";
 
 export interface SportEcosystemModule {
   id: string;
@@ -568,15 +563,6 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
   const [viewMode, setViewMode] = useState<'core' | 'catalog'>('core');
   const [catalogFilter, setCatalogFilter] = useState<string>('ALL');
   const [activeCamera, setActiveCamera] = useState<CameraAngle>('CAM_MAIN');
-  const [videoSourceMode, setVideoSourceMode] = useState<'direct' | 'drive' | 'cinema'>('direct');
-  const [isPlayingCommercial, setIsPlayingCommercial] = useState<boolean>(true);
-  const [isCommercialMuted, setIsCommercialMuted] = useState<boolean>(true);
-  const [commercialCurrentTime, setCommercialCurrentTime] = useState<number>(0);
-  const [commercialDuration, setCommercialDuration] = useState<number>(136);
-  const [commercialSpeed, setCommercialSpeed] = useState<number>(1);
-  const [hasVideoError, setHasVideoError] = useState<boolean>(false);
-  const commercialVideoRef = useRef<HTMLVideoElement>(null);
-
   const [varFrameOffset, setVarFrameOffset] = useState<number>(0);
   const [isPlayingVar, setIsPlayingVar] = useState<boolean>(true);
   const [isSlowMo, setIsSlowMo] = useState<boolean>(false);
@@ -590,55 +576,6 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
       setActiveCamera(cam);
       setCameraTransitioning(false);
     }, 120);
-  };
-
-  const handleTogglePlayCommercial = () => {
-    if (!commercialVideoRef.current) return;
-    if (commercialVideoRef.current.paused) {
-      commercialVideoRef.current.play().catch(() => {});
-      setIsPlayingCommercial(true);
-    } else {
-      commercialVideoRef.current.pause();
-      setIsPlayingCommercial(false);
-    }
-  };
-
-  const handleToggleMuteCommercial = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (!commercialVideoRef.current) return;
-    const nextMute = !isCommercialMuted;
-    commercialVideoRef.current.muted = nextMute;
-    setIsCommercialMuted(nextMute);
-  };
-
-  const handleSeekCommercial = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setCommercialCurrentTime(val);
-    if (commercialVideoRef.current) {
-      commercialVideoRef.current.currentTime = val;
-    }
-  };
-
-  const handleSkipCommercial = (seconds: number, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (!commercialVideoRef.current) return;
-    const target = Math.max(0, Math.min(commercialDuration, commercialVideoRef.current.currentTime + seconds));
-    commercialVideoRef.current.currentTime = target;
-    setCommercialCurrentTime(target);
-  };
-
-  const handleSpeedCommercial = (speed: number, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (!commercialVideoRef.current) return;
-    commercialVideoRef.current.playbackRate = speed;
-    setCommercialSpeed(speed);
-  };
-
-  const formatVideoTime = (secs: number) => {
-    if (isNaN(secs) || secs < 0) return '00:00';
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   // Selected sport module
@@ -669,11 +606,6 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
 
   const handleReloadVideo = () => {
     setIframeKey((prev) => prev + 1);
-    if (commercialVideoRef.current) {
-      commercialVideoRef.current.currentTime = 0;
-      commercialVideoRef.current.play().catch(() => {});
-      setIsPlayingCommercial(true);
-    }
   };
 
   const handleToggleFullscreen = () => {
@@ -761,8 +693,8 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                     : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
                 }`}
               >
-                <Film className="w-3.5 h-3.5" />
-                <span>CAM 01: Comercial DeporVerso</span>
+                <Camera className="w-3.5 h-3.5" />
+                <span>CAM 01: Principal 4K</span>
               </button>
 
               <button
@@ -831,76 +763,22 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                     ? 'border-amber-500/40 text-amber-300'
                     : 'border-emerald-500/40 text-emerald-300'
                 }`}>
-                  {activeCamera === 'CAM_MAIN' && 'CAM 01 • COMERCIAL OFICIAL DEPORVERSO 1080P'}
+                  {activeCamera === 'CAM_MAIN' && 'CAM 01 • TRANSMISIÓN PRINCIPAL 4K'}
                   {activeCamera === 'CAM_GOAL' && 'CAM 02 • ÁNGULO DE ARCO Y LÍNEA DE GOL'}
                   {activeCamera === 'CAM_VAR' && 'CAM 03 • CABINA DE REVISIÓN VAR & FUERA DE JUEGO'}
                 </span>
               </div>
 
               {/* Botones de control en la esquina superior derecha */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <a
-                  href={GOOGLE_DRIVE_VIEW_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600/90 hover:bg-blue-500 text-white font-mono text-[10px] font-bold border border-blue-400/50 shadow transition-all cursor-pointer"
-                  title="Abrir comercial oficial directamente en Google Drive (Pestaña nueva)"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  <span className="hidden sm:inline">VER EN DRIVE</span>
-                  <span className="sm:hidden">DRIVE</span>
-                </a>
-
-                {/* Selector de modo de señal */}
-                <div className="flex items-center bg-black/80 rounded-lg border border-cyan-500/30 p-0.5 backdrop-blur-md">
-                  <button
-                    type="button"
-                    onClick={() => setVideoSourceMode('direct')}
-                    className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
-                      videoSourceMode === 'direct'
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black shadow'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                    title="Reproducción nativa 1080p con audio y barra de tiempo"
-                  >
-                    1080P PRO
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVideoSourceMode('drive')}
-                    className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
-                      videoSourceMode === 'drive'
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black shadow'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                    title="Visor embebido oficial de Google Drive"
-                  >
-                    DRIVE
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVideoSourceMode('cinema')}
-                    className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
-                      videoSourceMode === 'cinema'
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black shadow'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                    title="Ficha técnica cinema CIG"
-                  >
-                    CINEMA
-                  </button>
-                </div>
-
+              <div className="flex items-center gap-2">
                 <button
-                  type="button"
                   onClick={handleReloadVideo}
                   className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-slate-300 hover:text-cyan-300 border border-white/10 hover:border-cyan-400/50 transition-all cursor-pointer"
-                  title="Reiniciar y recargar video"
+                  title="Recargar transmisión"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  type="button"
                   onClick={handleToggleFullscreen}
                   className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-slate-300 hover:text-cyan-300 border border-white/10 hover:border-cyan-400/50 transition-all cursor-pointer"
                   title="Pantalla completa"
@@ -912,247 +790,14 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
 
             {/* CONTENIDO SEGÚN LA CÁMARA SELECCIONADA */}
             {activeCamera === 'CAM_MAIN' && (
-              <div className="relative w-full h-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                {videoSourceMode === 'direct' && !hasVideoError ? (
-                  <div className="relative w-full h-full flex items-center justify-center bg-black group/player">
-                    {/* Elemento de video HTML5 real con el comercial oficial de Deporverso */}
-                    <video
-                      ref={commercialVideoRef}
-                      src={LOCAL_COMMERCIAL_VIDEO_URL}
-                      poster={LOCAL_COMMERCIAL_POSTER_URL}
-                      autoPlay
-                      loop
-                      playsInline
-                      muted={isCommercialMuted}
-                      onTimeUpdate={() => {
-                        if (commercialVideoRef.current) {
-                          setCommercialCurrentTime(commercialVideoRef.current.currentTime);
-                        }
-                      }}
-                      onLoadedMetadata={() => {
-                        if (commercialVideoRef.current && commercialVideoRef.current.duration) {
-                          setCommercialDuration(commercialVideoRef.current.duration);
-                        }
-                      }}
-                      onError={() => {
-                        console.warn('Fallback a modo drive por restricción');
-                        setHasVideoError(true);
-                        setVideoSourceMode('drive');
-                      }}
-                      onClick={handleTogglePlayCommercial}
-                      className="w-full h-full object-cover bg-black cursor-pointer"
-                    />
-
-                    {/* Botón flotante para activar audio con un solo clic */}
-                    {isCommercialMuted && (
-                      <button
-                        type="button"
-                        onClick={handleToggleMuteCommercial}
-                        className="absolute top-14 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-amber-500/90 hover:bg-amber-400 text-slate-950 font-mono text-[11px] font-black flex items-center gap-2 shadow-[0_0_25px_rgba(245,158,11,0.7)] animate-pulse transition-all cursor-pointer active:scale-95"
-                      >
-                        <VolumeX className="w-4 h-4 text-slate-950" />
-                        <span>AUDIO SILENCIADO • CLIC PARA ACTIVAR SONIDO</span>
-                      </button>
-                    )}
-
-                    {/* Watermark de transmisión CIG en vivo */}
-                    <div className="absolute top-14 left-4 z-20 pointer-events-none hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-cyan-500/30">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                      <span className="font-mono text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
-                        COMERCIAL OFICIAL DEPORVERSO • 1080P
-                      </span>
-                    </div>
-
-                    {/* Overlay central de Play/Pausa al pausar */}
-                    {!isPlayingCommercial && (
-                      <div 
-                        onClick={handleTogglePlayCommercial}
-                        className="absolute inset-0 z-20 bg-black/50 backdrop-blur-[1px] flex items-center justify-center cursor-pointer"
-                      >
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 shadow-[0_0_30px_rgba(0,240,255,0.8)] transition-transform hover:scale-110">
-                          <Play className="w-8 h-8 fill-slate-950 ml-1" />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Barra de controles HUD profesional inferior */}
-                    <div className="absolute bottom-0 inset-x-0 z-30 p-2 sm:p-3 bg-gradient-to-t from-black/95 via-black/80 to-transparent flex flex-col gap-1.5 transition-opacity duration-200">
-                      {/* Timeline Scrubber */}
-                      <div className="flex items-center gap-2 w-full">
-                        <input
-                          type="range"
-                          min={0}
-                          max={commercialDuration || 136}
-                          step={0.1}
-                          value={commercialCurrentTime}
-                          onChange={handleSeekCommercial}
-                          className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg appearance-none hover:h-2 transition-all"
-                        />
-                      </div>
-
-                      {/* Botones de reproducción, volumen, telemetría y saltos */}
-                      <div className="flex items-center justify-between gap-2 text-white font-mono text-[10px]">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={handleTogglePlayCommercial}
-                            className="p-1.5 rounded-lg bg-white/10 hover:bg-cyan-500 hover:text-slate-950 transition-all cursor-pointer"
-                            title={isPlayingCommercial ? 'Pausar' : 'Reproducir'}
-                          >
-                            {isPlayingCommercial ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={(e) => handleSkipCommercial(-10, e)}
-                            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all cursor-pointer"
-                            title="Retroceder 10 segundos"
-                          >
-                            <Rewind className="w-3.5 h-3.5" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={(e) => handleSkipCommercial(10, e)}
-                            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all cursor-pointer"
-                            title="Adelantar 10 segundos"
-                          >
-                            <FastForward className="w-3.5 h-3.5" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleToggleMuteCommercial}
-                            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                              isCommercialMuted 
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
-                                : 'bg-white/10 text-cyan-300 hover:bg-white/20'
-                            }`}
-                            title={isCommercialMuted ? 'Activar Sonido' : 'Silenciar'}
-                          >
-                            {isCommercialMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                          </button>
-
-                          {/* Contador de tiempo */}
-                          <span className="text-slate-300 font-mono text-[11px] ml-1">
-                            <strong className="text-cyan-300">{formatVideoTime(commercialCurrentTime)}</strong> / {formatVideoTime(commercialDuration)}
-                          </span>
-                        </div>
-
-                        {/* Velocidades y Selector de Calidad */}
-                        <div className="flex items-center gap-1.5">
-                          <div className="hidden sm:flex items-center gap-1 bg-black/60 rounded-md px-1 py-0.5 border border-white/10">
-                            {[1, 1.25, 1.5].map((spd) => (
-                              <button
-                                key={spd}
-                                type="button"
-                                onClick={(e) => handleSpeedCommercial(spd, e)}
-                                className={`px-1.5 py-0.5 rounded text-[9px] font-bold cursor-pointer ${
-                                  commercialSpeed === spd 
-                                    ? 'bg-cyan-500 text-slate-950' 
-                                    : 'text-slate-400 hover:text-white'
-                                }`}
-                              >
-                                {spd}x
-                              </button>
-                            ))}
-                          </div>
-
-                          <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[9px] font-bold hidden sm:inline">
-                            1080P HD
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={handleToggleFullscreen}
-                            className="p-1 rounded bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white cursor-pointer"
-                            title="Pantalla completa"
-                          >
-                            {isFullscreen ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : videoSourceMode === 'drive' || hasVideoError ? (
-                  <div className="relative w-full h-full bg-slate-950 flex flex-col items-center justify-center">
-                    <iframe
-                      key={iframeKey}
-                      src={`${GOOGLE_DRIVE_VIDEO_PREVIEW_URL}?autoplay=1`}
-                      title="Comercial Oficial DeporVerso en Google Drive"
-                      className="w-full h-full object-cover bg-black border-0"
-                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                      allowFullScreen
-                    />
-                    {/* Barra informativa inferior en modo Drive */}
-                    <div className="absolute bottom-2.5 inset-x-3 z-30 pointer-events-auto flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-cyan-500/30 text-[10px]">
-                      <div className="flex items-center gap-2 text-slate-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        <span className="font-mono text-cyan-300 font-bold">DRIVE STREAM</span>
-                        <span className="text-slate-400 hidden sm:inline">• ID: {GOOGLE_DRIVE_COMMERCIAL_ID}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setVideoSourceMode('direct')}
-                          className="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold cursor-pointer transition-all"
-                        >
-                          Ver en 1080p Nativo
-                        </button>
-                        <a
-                          href={GOOGLE_DRIVE_VIEW_URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-cyan-300 hover:text-white font-bold underline flex items-center gap-1"
-                        >
-                          <span>Abrir en Google Drive</span>
-                          <ExternalLink className="w-2.5 h-2.5" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-                    <img
-                      src={LOCAL_COMMERCIAL_POSTER_URL}
-                      alt="Comercial Oficial DeporVerso"
-                      className="absolute inset-0 w-full h-full object-cover filter brightness-90 contrast-115 scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/60 pointer-events-none" />
-                    
-                    {/* Telemetría 4K y HUD */}
-                    <div className="relative z-10 text-center p-6 space-y-3 max-w-md bg-black/85 backdrop-blur-md rounded-2xl border border-cyan-500/40 shadow-2xl">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-[11px] font-bold">
-                        <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>COMERCIAL OFICIAL DEPORVERSO</span>
-                      </div>
-                      <h4 className="text-lg font-black text-white">Comercial Extendido CIG Digital</h4>
-                      <p className="text-xs text-slate-300">
-                        Presentación completa de la plataforma con señal 1080p Full HD y sincronización en Google Drive oficial.
-                      </p>
-                      <div className="flex items-center justify-center gap-3 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => setVideoSourceMode('direct')}
-                          className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-90 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-slate-950" />
-                          <span>Reproducir Comercial 1080p</span>
-                        </button>
-                        <a
-                          href={GOOGLE_DRIVE_VIEW_URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all cursor-pointer flex items-center gap-1"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          <span>Abrir en Drive</span>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <iframe
+                key={iframeKey}
+                src={`${GOOGLE_DRIVE_VIDEO_PREVIEW_URL}?autoplay=1`}
+                title="Video Oficial DeporVerso Fútbol Pro"
+                className="w-full h-full object-cover bg-black border-0"
+                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
             )}
 
             {/* VISTA CÁMARA 2: DETRÁS DEL ARCO & TECNOLOGÍA LÍNEA DE GOL */}
