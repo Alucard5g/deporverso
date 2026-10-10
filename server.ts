@@ -21,21 +21,19 @@ async function startServer() {
   app.use(securityHeadersMiddleware);
   app.use(antiScrapingMiddleware);
   app.use(rateLimiterMiddleware);
-  // Detección de puerto universal (Google Cloud Run vs Entorno Local):
+  // Detección de puerto universal (Google Cloud Run vs Entorno Local/AI Studio):
   // 1. Argumento CLI explícito (--port 3000)
-  // 2. process.env.PORT asignado por Google Cloud Run (ej. 8080)
-  // 3. process.env.DEFAULT_APP_PORT definido en entorno AI Studio (3000)
-  // 4. Fallback estándar: 3000
+  // 2. En producción (Google Cloud Run), process.env.PORT asignado dinámicamente (ej. 8080)
+  // 3. En desarrollo (AI Studio), SIEMPRE puerto 3000 para cumplir con el runtime proxy
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
+  const isProd = process.env.NODE_ENV === "production";
 
   let PORT = 3000;
   if (cliPort) {
     PORT = cliPort;
-  } else if (process.env.PORT) {
+  } else if (isProd && process.env.PORT) {
     PORT = parseInt(process.env.PORT, 10);
-  } else if (process.env.DEFAULT_APP_PORT) {
-    PORT = parseInt(process.env.DEFAULT_APP_PORT, 10);
   } else {
     PORT = 3000;
   }
@@ -344,6 +342,11 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     }
   });
 
+  const publicPath = path.join(process.cwd(), 'public');
+  if (fs.existsSync(publicPath)) {
+    app.use(express.static(publicPath));
+  }
+
   // Vite middleware setup
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -356,13 +359,29 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = fs.existsSync(path.join(process.cwd(), 'dist')) 
+      ? path.join(process.cwd(), 'dist') 
+      : path.join(__dirname);
+
     app.use(express.static(distPath));
+
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'Endpoint no encontrado', path: req.path });
       }
-      res.sendFile(path.join(distPath, 'index.html'));
+
+      // Salvaguarda crítica para Cloud Run: Si el navegador pide un asset estático que no existe,
+      // devolver 404 en lugar de index.html para evitar "SyntaxError: Unexpected token '<'"
+      if (/\.(js|css|webp|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm|json)$/i.test(req.path)) {
+        return res.status(404).type('text/plain').send('Asset no encontrado');
+      }
+
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(500).send('Error: dist/index.html no encontrado. Ejecuta npm run build.');
+      }
     });
   }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { UnifiedDeporversoExperience } from './UnifiedDeporversoExperience';
 import { Tenant, UserRole } from '../../types';
 import { 
-  ArrowRight, UserPlus, Tag, Flame, CheckCircle2, Shield, Sparkles
+  ArrowRight, UserPlus, Tag, Flame, CheckCircle2, Shield, Sparkles, Video, ExternalLink
 } from 'lucide-react';
 
 interface WelcomePageProps {
@@ -125,6 +125,18 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
             <Shield className="w-3.5 h-3.5 text-cyan-400" />
             <span>Ecosistema Multideporte</span>
           </button>
+
+          <a
+            href="https://drive.google.com/file/d/116Eg11CUX_vrYtlpGVM-aHBSrV5yRxb_/view"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
+            title="Ver Comercial Oficial DeporVerso alojado en Google Drive"
+          >
+            <Video className="w-3.5 h-3.5 text-blue-400" />
+            <span>Comercial Oficial Drive</span>
+            <ExternalLink className="w-2.5 h-2.5 text-blue-400" />
+          </a>
 
           <button
             onClick={() => onNavigateTab('exclusive-offer')}

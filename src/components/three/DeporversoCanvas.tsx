@@ -369,8 +369,13 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       cyanPointLight.intensity = Math.max(1.5, 3.5 - p * 1.5);
       cobaltPointLight.intensity = Math.min(3.5, 1.5 + p * 2.5);
 
-      renderer.render(scene, camera);
-      animFrameIdRef.current = requestAnimationFrame(animate);
+      try {
+        renderer.render(scene, camera);
+        animFrameIdRef.current = requestAnimationFrame(animate);
+      } catch (err) {
+        console.warn('[DeporversoCanvas] Fallo en el ciclo de renderizado WebGL, activando fallback 2D:', err);
+        setWebglFailed(true);
+      }
     };
 
     animFrameIdRef.current = requestAnimationFrame(animate);
