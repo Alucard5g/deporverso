@@ -165,67 +165,67 @@ export const LoginGate: React.FC<LoginGateProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#020617] relative flex items-center justify-center p-4 selection:bg-cyan-500 selection:text-black overflow-hidden font-sans">
-      {/* Fondo con cuadrícula cibernética y resplandores discretos */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+      {/* Fondo decorativo */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#081325_1px,transparent_1px),linear-gradient(to_bottom,#081325_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Tarjeta de Acceso */}
-      <div className="relative w-full max-w-md bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-7 sm:p-9 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-sm bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 z-10 my-auto">
         
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
-            title="Cerrar y volver a Inicio"
+            className="absolute top-3 right-3 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer z-20"
+            title="Cerrar"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         )}
 
         {/* Cabecera y Marca Oficial */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5 pt-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-widest uppercase">
             <Shield className="w-3 h-3 text-cyan-400" />
             <span>Plataforma Oficial CIG</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight pt-1">
+          <h1 className="text-2xl font-black text-white tracking-tight">
             Depor<span className="text-cyan-400">Verso</span>
           </h1>
 
-          <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-            Gestión Oficial de Fútbol (11, Indor 9, Indor 7 y Fútsal 5), Sistema VAR y Vocalía Digital.
+          <p className="text-xs text-slate-400 mx-auto leading-relaxed max-w-[280px]">
+            Gestión Oficial de Fútbol, VAR y Vocalía Digital.
           </p>
         </div>
 
-        {/* Pestañas de Navegación de Acceso (Solo Registro de Interesados e Ingreso) */}
-        <div className="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-white/10 gap-1 text-[11px]">
+        {/* Pestañas de Navegación de Acceso */}
+        <div className="grid grid-cols-2 bg-slate-950 p-1.5 rounded-2xl border border-white/10 gap-1.5">
           <button
             type="button"
             onClick={() => { setAuthMode('register'); setError(null); setSuccessMsg(null); }}
-            className={`py-2.5 px-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer truncate ${
+            className={`py-3 px-2 font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer truncate text-xs ${
               authMode === 'register'
                 ? 'bg-amber-400 text-slate-950 shadow-md font-black'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5 shrink-0" />
-            <span>Registro de Interesados</span>
+            <UserPlus className="w-4 h-4 shrink-0" />
+            <span>Registro</span>
           </button>
 
           <button
             type="button"
             onClick={() => { setAuthMode('login'); setError(null); setSuccessMsg(null); }}
-            className={`py-2.5 px-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer truncate ${
+            className={`py-3 px-2 font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer truncate text-xs ${
               authMode === 'login'
                 ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <LogIn className="w-3.5 h-3.5 shrink-0" />
-            <span>Ingresar a Mi Cuenta</span>
+            <LogIn className="w-4 h-4 shrink-0" />
+            <span>Ingresar</span>
           </button>
         </div>
 
