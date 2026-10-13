@@ -18,7 +18,7 @@ import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
 import { InscriptionsAndStreaming } from './InscriptionsAndStreaming';
 import { LiveStreamingPanel } from './LiveStreamingPanel';
 import pichinchaPortadaImg from '../../assets/images/pichincha_portada.jpg';
-import heroBannerImg from '../../assets/images/soccer_hero_banner_1785853921446.jpg';
+import heroBannerImg from '../../assets/images/league_cover_premium_1791927270491.jpg';
 import basketballHeroImg from '../../assets/images/basketball_hero_bg_1785854264293.jpg';
 import volleyballHeroImg from '../../assets/images/volleyball_hero_bg_1785854282070.jpg';
 

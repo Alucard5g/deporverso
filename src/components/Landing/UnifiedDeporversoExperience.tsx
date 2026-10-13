@@ -13,7 +13,7 @@ import { useScrollProgress } from '../../hooks/useScrollProgress';
 import { ClubData } from '../../data/clubs';
 
 import deporversoDarkBg from '../../assets/images/deporverso_dark_bg_1789426720628.jpg';
-import canchaTierraImg from '../../assets/images/acto1_cancha_tierra_1789418204541.jpg';
+import canchaTierraImg from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
 import despertarDigitalImg from '../../assets/images/acto2_despertar_digital_1789418217850.jpg';
 import estadioVarImg from '../../assets/images/acto3_estadio_var_1789418234243.jpg';
 import multiverseCosmicoImg from '../../assets/images/acto4_multiverso_cosmico_1789418246887.jpg';

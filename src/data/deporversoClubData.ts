@@ -1,5 +1,5 @@
 import deporversoClubLogo from '../assets/images/deporverso_club_logo_1791029063761.jpg';
-import deporversoClubPortada from '../assets/images/deporverso_club_portada_1791029077367.jpg';
+import deporversoClubPortada from '../assets/images/club_cover_premium_1791927254176.jpg';
 
 export interface ClubPlayerStatsFutbol {
   pj: number;
