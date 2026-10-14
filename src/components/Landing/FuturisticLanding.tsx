@@ -440,7 +440,7 @@ export const FuturisticLanding: React.FC<FuturisticLandingProps> = ({
               <div className="px-4 sm:px-5 py-3 rounded-2xl bg-[#0F172A]/90 backdrop-blur-xl border border-[#00F0FF]/40 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3.5 hover:border-[#00F0FF] hover:shadow-[0_0_25px_rgba(0,240,255,0.6)] transition-all">
                 <div className="w-11 h-11 rounded-xl bg-[#0066FF]/30 border border-[#00F0FF]/50 p-1 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(0,240,255,0.35)]">
                   <img 
-                    src="/sports/cig_game.webp" 
+                    src="/sports/drive/cig_game_sq.webp" 
                     alt="C.I.G Deporverso game" 
                     className="w-full h-full object-cover rounded-lg"
                   />

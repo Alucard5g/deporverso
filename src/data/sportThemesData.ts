@@ -31,7 +31,7 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Fútbol 11 & Sénior',
     tagline: 'Gestión reglamentaria oficial, planillas electrónicas y VAR a la carta',
     badge: '⚽ Disciplina Reina',
-    heroImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200',
+    heroImage: '/sports/drive/futbol_original.jpg',
     actionImages: [
       {
         title: 'Estadio Iluminado & Graderías',
@@ -71,7 +71,7 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Baloncesto & Streetball',
     tagline: 'Cronómetro de posesión, cuartos dinámicos y tableros de puntuación 1-2-3',
     badge: '🏀 Alta Intensidad',
-    heroImage: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=1200',
+    heroImage: '/sports/drive/baloncesto_original.jpg',
     actionImages: [
       {
         title: 'Remate en el Aro con Suspensión',
@@ -111,7 +111,7 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Ecuavoley Tradicional',
     tagline: 'Modalidad de 3 vs 3 con cambios de saque, batidas, ponchadas y quinces',
     badge: '🏐 Tradición & Pasión',
-    heroImage: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&q=80&w=1200',
+    heroImage: '/sports/drive/voleibol_original.jpg',
     actionImages: [
       {
         title: 'Batida & Bloqueo en la Red Alta',
@@ -151,7 +151,7 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Pádel & Tenis',
     tagline: 'Control de sets, ventajas o punto de oro, tie-breaks y rankings por parejas',
     badge: '🎾 Precisión & Estrategia',
-    heroImage: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&q=80&w=1200',
+    heroImage: '/sports/drive/tennis_original.jpg',
     actionImages: [
       {
         title: 'Pista Panorámica de Cristal',

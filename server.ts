@@ -255,15 +255,6 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
       // Catalog of official Drive sports assets
       const officialDriveSports = [
         {
-          id: 'artes_marciales',
-          name: 'Artes Marciales / MMA',
-          fileId: '1-aKfcLYILC6kjCz8Epm5uujYMl1DjCjc',
-          icon: '🥋',
-          sqWebpUrl: '/sports/drive/artes_marciales_sq.webp',
-          originalUrl: '/sports/drive/artes_marciales_original.jpg',
-          status: fs.existsSync(path.join(driveDir, 'artes_marciales_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
-        },
-        {
           id: 'futbol',
           name: 'Fútbol 11 / 9 / 7 / 5',
           fileId: '1pNEGefPnZ4K_1aV0AGeXgDKD2LErw4mG',
@@ -274,7 +265,7 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
         },
         {
           id: 'baloncesto',
-          name: 'Baloncesto',
+          name: 'Baloncesto Oficial',
           fileId: '1nzv0wJRnflUrVox5YYpHvEp0o-UHMHt5',
           icon: '🏀',
           sqWebpUrl: '/sports/drive/baloncesto_sq.webp',
@@ -289,6 +280,186 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
           sqWebpUrl: '/sports/drive/tennis_sq.webp',
           originalUrl: '/sports/drive/tennis_original.jpg',
           status: fs.existsSync(path.join(driveDir, 'tennis_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'cig_game',
+          name: 'C.I.G Deporverso Game',
+          fileId: '1Crb3nQ7QhRX-DiijZkvwj3AxVxLd0ek2',
+          icon: '🎮',
+          sqWebpUrl: '/sports/drive/cig_game_sq.webp',
+          originalUrl: '/sports/drive/cig_game_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'cig_game_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'artes_marciales',
+          name: 'Artes Marciales / MMA',
+          fileId: '1-aKfcLYILC6kjCz8Epm5uujYMl1DjCjc',
+          icon: '🥋',
+          sqWebpUrl: '/sports/drive/artes_marciales_sq.webp',
+          originalUrl: '/sports/drive/artes_marciales_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'artes_marciales_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'natacion',
+          name: 'Natación Olímpica',
+          fileId: '139tn5Z9ERuDlx5n4wj1Yfe3-xK0Quh9V',
+          icon: '🏊',
+          sqWebpUrl: '/sports/drive/natacion_sq.webp',
+          originalUrl: '/sports/drive/natacion_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'natacion_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'atletismo',
+          name: 'Atletismo & Pista',
+          fileId: '1CxMLUUxK5WohDrAWrR4MA8WsesYT4AyR',
+          icon: '🏃',
+          sqWebpUrl: '/sports/drive/atletismo_sq.webp',
+          originalUrl: '/sports/drive/atletismo_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'atletismo_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'voleibol',
+          name: 'Voleibol & Ecuavoley',
+          fileId: '14uaJHVS1xgsrFvmm5HH8P66t2tbZr0Fy',
+          icon: '🏐',
+          sqWebpUrl: '/sports/drive/voleibol_sq.webp',
+          originalUrl: '/sports/drive/voleibol_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'voleibol_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'boxeo',
+          name: 'Boxeo Olímpico',
+          fileId: '1TXSv3iDoF149Y1293heREKlVjDIwj0_r',
+          icon: '🥊',
+          sqWebpUrl: '/sports/drive/boxeo_sq.webp',
+          originalUrl: '/sports/drive/boxeo_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'boxeo_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'beisbol',
+          name: 'Béisbol & Sóftbol',
+          fileId: '1V9G9tkfdaYlHcKEh1MX5xhlNpGbSn46e',
+          icon: '⚾',
+          sqWebpUrl: '/sports/drive/beisbol_sq.webp',
+          originalUrl: '/sports/drive/beisbol_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'beisbol_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'ciclismo',
+          name: 'Ciclismo de Ruta & Pista',
+          fileId: '1t2p9HDDo6CZo86jDsAwsVhBUvOHWZAsQ',
+          icon: '🚴',
+          sqWebpUrl: '/sports/drive/ciclismo_sq.webp',
+          originalUrl: '/sports/drive/ciclismo_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'ciclismo_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'crossfit',
+          name: 'CrossFit / Fitness',
+          fileId: '1D0Gw4yRtViNB1eKQchHW7YRgXEB_J7Yk',
+          icon: '🔥',
+          sqWebpUrl: '/sports/drive/crossfit_sq.webp',
+          originalUrl: '/sports/drive/crossfit_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'crossfit_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'esgrima',
+          name: 'Esgrima',
+          fileId: '1LwwxzwLXjJv0kZKnhAot6vFmDi98qBLp',
+          icon: '🤺',
+          sqWebpUrl: '/sports/drive/esgrima_sq.webp',
+          originalUrl: '/sports/drive/esgrima_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'esgrima_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'futbol_americano',
+          name: 'Fútbol Americano',
+          fileId: '1kJX0gal1w-bFGVKQqnL_k5eXRwllJR2X',
+          icon: '🏈',
+          sqWebpUrl: '/sports/drive/futbol_americano_sq.webp',
+          originalUrl: '/sports/drive/futbol_americano_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'futbol_americano_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'gimnasia',
+          name: 'Gimnasia Artística',
+          fileId: '1RJA0hTszJBDRNF-0RYjHYPc3-i6Yb75P',
+          icon: '🤸',
+          sqWebpUrl: '/sports/drive/gimnasia_sq.webp',
+          originalUrl: '/sports/drive/gimnasia_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'gimnasia_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'halterofilia',
+          name: 'Halterofilia & Pesas',
+          fileId: '1CgOF_xnsbgHDcZGuuB4mShxLeNTyKu0u',
+          icon: '🏋️',
+          sqWebpUrl: '/sports/drive/halterofilia_sq.webp',
+          originalUrl: '/sports/drive/halterofilia_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'halterofilia_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'hockey',
+          name: 'Hockey sobre Césped',
+          fileId: '1NEcyxqsbgt7xIjsseWrTR4zChzMp9Ynq',
+          icon: '🏑',
+          sqWebpUrl: '/sports/drive/hockey_sq.webp',
+          originalUrl: '/sports/drive/hockey_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'hockey_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'rugby',
+          name: 'Rugby 15 & Sevens',
+          fileId: '1CUTWcqZBDyI66AUWbexoxd7IQTkjrf2w',
+          icon: '🏉',
+          sqWebpUrl: '/sports/drive/rugby_sq.webp',
+          originalUrl: '/sports/drive/rugby_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'rugby_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'skateboarding',
+          name: 'Skateboarding',
+          fileId: '1SNm3OjafYj03-Uq47wdAC4lx5fmeQTd2',
+          icon: '🛹',
+          sqWebpUrl: '/sports/drive/skateboarding_sq.webp',
+          originalUrl: '/sports/drive/skateboarding_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'skateboarding_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'taekwondo',
+          name: 'Taekwondo WT',
+          fileId: '1TcW-gMHnCJaHzAEbkFrhsLj3seWAyV5z',
+          icon: '🥋',
+          sqWebpUrl: '/sports/drive/taekwondo_sq.webp',
+          originalUrl: '/sports/drive/taekwondo_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'taekwondo_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'tenis_mesa',
+          name: 'Tenis de Mesa',
+          fileId: '1OrLZuw2nVb2wvOlaMy8x73npGgT8if1r',
+          icon: '🏓',
+          sqWebpUrl: '/sports/drive/tenis_mesa_sq.webp',
+          originalUrl: '/sports/drive/tenis_mesa_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'tenis_mesa_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'tiro_arco',
+          name: 'Tiro con Arco',
+          fileId: '1DGLGGv2F1Rm4RBqAjWVwbp-H9lhFi-o-',
+          icon: '🏹',
+          sqWebpUrl: '/sports/drive/tiro_arco_sq.webp',
+          originalUrl: '/sports/drive/tiro_arco_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'tiro_arco_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
+        },
+        {
+          id: 'balonmano',
+          name: 'Balonmano',
+          fileId: '1cs_0HqTv4DpW7n5s2-P58-ez1ugP1YHk',
+          icon: '🤾',
+          sqWebpUrl: '/sports/drive/balonmano_sq.webp',
+          originalUrl: '/sports/drive/balonmano_original.jpg',
+          status: fs.existsSync(path.join(driveDir, 'balonmano_sq.webp')) ? 'SYNCHRONIZED' : 'PENDING'
         }
       ];
 
@@ -322,10 +493,14 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
 
       // Lista de activos oficiales sincronizados
       const synced = [
-        { name: "artes_marciales", file: "artes_marciales_sq.webp", format: "webp (512x512)", size: "32 KB", status: "OK" },
-        { name: "futbol", file: "futbol_sq.webp", format: "webp (512x512)", size: "23 KB", status: "OK" },
-        { name: "baloncesto", file: "baloncesto_sq.webp", format: "webp (512x512)", size: "28 KB", status: "OK" },
-        { name: "tennis", file: "tennis_sq.webp", format: "webp (512x512)", size: "41 KB", status: "OK" }
+        { name: "futbol", file: "futbol_sq.webp", format: "webp (HD)", size: "51 KB", status: "OK" },
+        { name: "baloncesto", file: "baloncesto_sq.webp", format: "webp (HD)", size: "61 KB", status: "OK" },
+        { name: "tennis", file: "tennis_sq.webp", format: "webp (HD)", size: "76 KB", status: "OK" },
+        { name: "cig_game", file: "cig_game_sq.webp", format: "webp (HD)", size: "147 KB", status: "OK" },
+        { name: "artes_marciales", file: "artes_marciales_sq.webp", format: "webp (HD)", size: "69 KB", status: "OK" },
+        { name: "natacion", file: "natacion_sq.webp", format: "webp (HD)", size: "175 KB", status: "OK" },
+        { name: "atletismo", file: "atletismo_sq.webp", format: "webp (HD)", size: "79 KB", status: "OK" },
+        { name: "voleibol", file: "voleibol_sq.webp", format: "webp (HD)", size: "164 KB", status: "OK" }
       ];
 
       res.json({

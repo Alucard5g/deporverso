@@ -1,146 +1,146 @@
 [
   {
     "id": "futbol",
-    "name": "FÚTBOL",
-    "icon": "⚽",
-    "url": "/sports/futbol.webp"
+    "name": "F\u00daTBOL",
+    "icon": "\u26bd",
+    "url": "/sports/drive/futbol_sq.webp"
   },
   {
     "id": "basquetbol",
-    "name": "BÁSQUETBOL",
-    "icon": "🏀",
-    "url": "/sports/basquetbol.webp"
+    "name": "B\u00c1SQUETBOL",
+    "icon": "\ud83c\udfc0",
+    "url": "/sports/drive/basquetbol_sq.webp"
   },
   {
     "id": "voleibol",
     "name": "VOLEIBOL",
-    "icon": "🏐",
-    "url": "/sports/voleibol.webp"
+    "icon": "\ud83c\udfd0",
+    "url": "/sports/drive/voleibol_sq.webp"
   },
   {
     "id": "futsal",
     "name": "FUTSAL",
-    "icon": "⚡",
-    "url": "/sports/futsal.webp"
+    "icon": "\u26a1",
+    "url": "/sports/drive/futsal_sq.webp"
   },
   {
     "id": "tenis",
     "name": "TENIS",
-    "icon": "🎾",
-    "url": "/sports/tenis.webp"
+    "icon": "\ud83c\udfbe",
+    "url": "/sports/drive/tenis_sq.webp"
   },
   {
     "id": "atletismo",
     "name": "ATLETISMO",
-    "icon": "🏃",
-    "url": "/sports/atletismo.webp"
+    "icon": "\ud83c\udfc3",
+    "url": "/sports/drive/atletismo_sq.webp"
   },
   {
     "id": "boxeo",
     "name": "BOXEO",
-    "icon": "🥊",
-    "url": "/sports/boxeo.webp"
+    "icon": "\ud83e\udd4a",
+    "url": "/sports/drive/boxeo_sq.webp"
   },
   {
     "id": "beisbol",
-    "name": "BÉISBOL",
-    "icon": "⚾",
-    "url": "/sports/beisbol.webp"
+    "name": "B\u00c9ISBOL",
+    "icon": "\u26be",
+    "url": "/sports/drive/beisbol_sq.webp"
   },
   {
     "id": "natacion",
-    "name": "NATACIÓN",
-    "icon": "🏊",
-    "url": "/sports/natacion.webp"
+    "name": "NATACI\u00d3N",
+    "icon": "\ud83c\udfca",
+    "url": "/sports/drive/natacion_sq.webp"
   },
   {
     "id": "ciclismo",
     "name": "CICLISMO",
-    "icon": "🚴",
-    "url": "/sports/ciclismo.webp"
+    "icon": "\ud83d\udeb4",
+    "url": "/sports/drive/ciclismo_sq.webp"
   },
   {
     "id": "padel",
-    "name": "PÁDEL",
-    "icon": "🎾",
-    "url": "/sports/padel.webp"
+    "name": "P\u00c1DEL",
+    "icon": "\ud83c\udfbe",
+    "url": "/sports/drive/padel_sq.webp"
   },
   {
     "id": "rugby",
     "name": "RUGBY",
-    "icon": "🏉",
-    "url": "/sports/rugby.webp"
+    "icon": "\ud83c\udfc9",
+    "url": "/sports/drive/rugby_sq.webp"
   },
   {
     "id": "balonmano",
     "name": "BALONMANO",
-    "icon": "🤾",
-    "url": "/sports/balonmano.webp"
+    "icon": "\ud83e\udd3e",
+    "url": "/sports/drive/balonmano_sq.webp"
   },
   {
     "id": "gimnasia",
     "name": "GIMNASIA",
-    "icon": "🤸",
-    "url": "/sports/gimnasia.webp"
+    "icon": "\ud83e\udd38",
+    "url": "/sports/drive/gimnasia_sq.webp"
   },
   {
     "id": "hockey",
     "name": "HOCKEY",
-    "icon": "🏑",
-    "url": "/sports/hockey.webp"
+    "icon": "\ud83c\udfd1",
+    "url": "/sports/drive/hockey_sq.webp"
   },
   {
     "id": "tenis_mesa",
     "name": "TENIS MESA",
-    "icon": "🏓",
-    "url": "/sports/tenis_mesa.webp"
+    "icon": "\ud83c\udfd3",
+    "url": "/sports/drive/tenis_mesa_sq.webp"
   },
   {
     "id": "taekwondo",
     "name": "TAEKWONDO",
-    "icon": "🥋",
-    "url": "/sports/taekwondo.webp"
+    "icon": "\ud83e\udd4b",
+    "url": "/sports/drive/taekwondo_sq.webp"
   },
   {
     "id": "skateboarding",
     "name": "SKATE",
-    "icon": "🛹",
-    "url": "/sports/skateboarding.webp"
+    "icon": "\ud83d\udef9",
+    "url": "/sports/drive/skateboarding_sq.webp"
   },
   {
     "id": "halterofilia",
     "name": "PESAS",
-    "icon": "🏋️",
-    "url": "/sports/halterofilia.webp"
+    "icon": "\ud83c\udfcb\ufe0f",
+    "url": "/sports/drive/halterofilia_sq.webp"
   },
   {
     "id": "badminton",
-    "name": "BÁDMINTON",
-    "icon": "🏸",
+    "name": "B\u00c1DMINTON",
+    "icon": "\ud83c\udff8",
     "url": "/sports/badminton.webp"
   },
   {
     "id": "voleibol_playa",
     "name": "VOLEY PLAYA",
-    "icon": "🏖️",
-    "url": "/sports/voleibol_playa.webp"
+    "icon": "\ud83c\udfd6\ufe0f",
+    "url": "/sports/drive/voleibol_playa_sq.webp"
   },
   {
     "id": "crossfit",
     "name": "CROSSFIT",
-    "icon": "🔥",
-    "url": "/sports/crossfit.webp"
+    "icon": "\ud83d\udd25",
+    "url": "/sports/drive/crossfit_sq.webp"
   },
   {
     "id": "esgrima",
     "name": "ESGRIMA",
-    "icon": "🤺",
-    "url": "/sports/esgrima.webp"
+    "icon": "\ud83e\udd3a",
+    "url": "/sports/drive/esgrima_sq.webp"
   },
   {
     "id": "tiro_arco",
     "name": "TIRO ARCO",
-    "icon": "🏹",
-    "url": "/sports/tiro_arco.webp"
+    "icon": "\ud83c\udff9",
+    "url": "/sports/drive/tiro_arco_sq.webp"
   }
 ]
