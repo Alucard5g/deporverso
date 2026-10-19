@@ -55,7 +55,7 @@ COPY --from=builder --chown=ciguser:ciggroup /app/dist ./dist
 COPY --from=builder --chown=ciguser:ciggroup /app/server/media ./server/media
 COPY --from=builder --chown=ciguser:ciggroup /app/public ./public
 COPY --from=builder --chown=ciguser:ciggroup /app/CIG-SECURITY-MANIFEST.* ./
-COPY --from=builder --chown=ciguser:ciggroup /app/.cig-security/cig-public.pem ./.cig-security/cig-public.pem
+COPY --from=builder --chown=ciguser:ciggroup /app/.cig-security ./.cig-security
 
 # Asignar permisos y cambiar al usuario seguro
 USER ciguser:ciggroup

@@ -279,7 +279,7 @@ export const INITIAL_PROFILES: Profile[] = [
     full_name: 'Rolando Guerra',
     email: 'rolando@deporverso.app',
     phone: '+593 99 123 4567',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 'u-admin-pichincha',
@@ -398,7 +398,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Mateo "El Rayo" Silva', 
     jersey_number: 10, 
     position: 'Mediocampista Creativo', 
-    photo_url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400',
     qr_code: 'DPV-QR-MATEO-10', 
     is_active: true 
   },
@@ -442,7 +442,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Julián Morales', 
     jersey_number: 7, 
     position: 'Extremo Derecho', 
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=400',
     qr_code: 'DPV-QR-MORALES-07', 
     is_active: true 
   },
@@ -514,7 +514,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Mateo Guerrero', 
     jersey_number: 10, 
     position: 'Mediocampista Creativo', 
-    photo_url: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400',
     qr_code: 'SPORTIA-QR-PL-101', 
     is_active: true 
   },
@@ -536,7 +536,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Esteban Paredes', 
     jersey_number: 7, 
     position: 'Extremo Derecho', 
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
     qr_code: 'SPORTIA-QR-PL-110', 
     is_active: true 
   },
@@ -663,7 +663,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Gonzalo Plata', 
     jersey_number: 10, 
     position: 'Delantero', 
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&q=80&w=400',
     qr_code: 'SPORTIA-QR-PL-117', 
     is_active: true 
   },
@@ -746,7 +746,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Andrés Paredes',
     jersey_number: 9,
     position: 'Delantero Punta (Indoor 7)',
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    photo_url: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400',
     qr_code: 'DV-QR-INDO-102',
     is_active: true
   },

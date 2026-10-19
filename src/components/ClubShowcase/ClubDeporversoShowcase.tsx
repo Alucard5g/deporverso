@@ -353,95 +353,142 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
               </div>
             </div>
 
-            {/* Grilla de Tarjetas de Jugadores (Disruptivo / Minimalista) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {/* Grilla de Tarjetas de Jugadores (Disruptivo / Minimalista de Alto Impacto) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {currentPlayers.map((player) => (
                 <div
                   key={player.id}
                   onClick={() => setSelectedPlayer(player)}
-                  className={`group relative bg-gradient-to-b from-slate-900/90 to-slate-950/90 border rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                  className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(0,229,255,0.25)] border ${
                     selectedPlayer?.id === player.id 
-                      ? 'border-cyan-400 ring-2 ring-cyan-400/20 shadow-cyan-500/20' 
-                      : 'border-white/10 hover:border-cyan-400/50'
+                      ? 'border-cyan-400 ring-2 ring-cyan-400/40 bg-gradient-to-b from-[#0e1c38] to-[#040816] shadow-cyan-500/30' 
+                      : 'border-white/10 hover:border-cyan-400/70 bg-gradient-to-b from-[#0a1224] via-[#070d1a] to-[#03060f]'
                   }`}
                 >
-                  {/* Dorsal y Categoría */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-black text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2.5 py-0.5 rounded-lg">
-                      #{player.dorsal}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-                        {player.positionCategory}
+                  {/* Banner Superior con Foto de Alta Definición */}
+                  <div className="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img 
+                      src={player.photoUrl} 
+                      alt={player.name}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 filter brightness-95 contrast-105" 
+                    />
+                    {/* Gradiente de sombra sobre la foto para integrar el texto */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#070d1a] via-[#070d1a]/40 to-transparent" />
+                    
+                    {/* Badge OVR en la esquina superior izquierda estilo FIFA FUT */}
+                    <div className="absolute top-3 left-3 flex flex-col items-center justify-center w-12 h-14 rounded-xl bg-gradient-to-b from-[#091533]/90 to-black/95 border border-cyan-400/60 shadow-lg backdrop-blur-md">
+                      <span className="text-base font-black text-cyan-300 font-mono leading-none">
+                        {player.ovr}
                       </span>
-                      <span className="text-white/20">·</span>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                        player.status === 'CAPITÁN' ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'text-slate-400'
-                      }`}>
-                        {player.status}
+                      <span className="text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest mt-0.5">
+                        OVR
+                      </span>
+                    </div>
+
+                    {/* Dorsal y Estatus en la esquina superior derecha */}
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                      <span className="bg-black/80 backdrop-blur-md text-cyan-300 border border-cyan-500/40 font-mono text-xs font-black px-2.5 py-1 rounded-lg shadow-md">
+                        #{player.dorsal}
+                      </span>
+                      {player.status === 'CAPITÁN' && (
+                        <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg shadow-md font-mono">
+                          CAPITÁN
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Posición & CIG Verified flotando al pie de la foto */}
+                    <div className="absolute bottom-2 inset-x-3 flex items-center justify-between text-xs font-mono">
+                      <span className="bg-black/80 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
+                        {player.positionCategory} · {player.position.split('/')[0]}
+                      </span>
+                      <span className="text-[10px] text-cyan-300 font-bold flex items-center gap-1 bg-cyan-950/80 px-2 py-0.5 rounded-md border border-cyan-800/40">
+                        <Shield className="w-3 h-3 text-cyan-400" /> CIG
                       </span>
                     </div>
                   </div>
 
-                  {/* Foto y Datos Principales */}
-                  <div className="flex items-center gap-3.5 mb-3.5">
-                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border border-white/15 shrink-0 group-hover:border-cyan-400 transition-colors">
-                      <img 
-                        src={player.photoUrl} 
-                        alt={player.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                      />
-                      <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] font-mono text-center text-cyan-300 font-bold py-0.5">
-                        {player.ovr} OVR
+                  {/* Cuerpo de la Tarjeta con Datos y Métricas */}
+                  <div className="p-4 space-y-3">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                          {player.nickname ? `"${player.nickname}"` : player.position}
+                        </span>
+                        <span className="text-[11px] font-mono font-bold text-slate-300">
+                          {player.marketValue}
+                        </span>
                       </div>
-                    </div>
-
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black text-white tracking-tight truncate group-hover:text-cyan-300 transition-colors">
+                      <h3 className="text-base font-black text-white tracking-tight group-hover:text-cyan-300 transition-colors truncate">
                         {player.name}
                       </h3>
-                      <p className="text-xs text-slate-400 truncate">
-                        {player.position}
-                      </p>
-                      <p className="text-[11px] font-mono text-cyan-400/90 mt-0.5">
-                        {player.marketValue}
+                      <p className="text-[11px] text-slate-400 line-clamp-1">
+                        {player.age} años · {player.height} · {player.footOrHand}
                       </p>
                     </div>
-                  </div>
 
-                  {/* Resumen de estadísticas según la disciplina */}
-                  <div className="pt-3 border-t border-white/5 grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
+                    {/* Barras de Atributos Deportivos */}
                     {activeDiscipline === 'FUTBOL' && player.futbolStats ? (
-                      <>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">Goles</span>
-                          <span className="font-bold text-white">{player.futbolStats.goles}</span>
+                      <div className="pt-2 border-t border-white/10 space-y-2 text-xs font-mono">
+                        <div className="grid grid-cols-4 gap-1.5 text-center">
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">RIT</span>
+                            <span className="font-bold text-white">{player.futbolStats.ritmo}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">TIR</span>
+                            <span className="font-bold text-cyan-300">{player.futbolStats.tiro}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">PAS</span>
+                            <span className="font-bold text-amber-300">{player.futbolStats.pase}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">FÍS</span>
+                            <span className="font-bold text-emerald-400">{player.futbolStats.fisico}</span>
+                          </div>
                         </div>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">Asist.</span>
-                          <span className="font-bold text-cyan-300">{player.futbolStats.asistencias}</span>
+
+                        <div className="flex items-center justify-between text-[11px] bg-cyan-950/30 border border-cyan-500/20 px-2.5 py-1.5 rounded-xl">
+                          <span className="text-slate-300">Goles en Liga: <strong className="text-white">{player.futbolStats.goles}</strong></span>
+                          <span className="text-slate-300">Rating: <strong className="text-amber-400">{player.futbolStats.rating} ★</strong></span>
                         </div>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">Rating</span>
-                          <span className="font-bold text-amber-400">{player.futbolStats.rating}</span>
-                        </div>
-                      </>
+                      </div>
                     ) : player.basketStats ? (
-                      <>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">PTS</span>
-                          <span className="font-bold text-white">{player.basketStats.ppg}</span>
+                      <div className="pt-2 border-t border-white/10 space-y-2 text-xs font-mono">
+                        <div className="grid grid-cols-4 gap-1.5 text-center">
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">PTS</span>
+                            <span className="font-bold text-white">{player.basketStats.ppg}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">REB</span>
+                            <span className="font-bold text-amber-300">{player.basketStats.rpg}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">AST</span>
+                            <span className="font-bold text-cyan-300">{player.basketStats.apg}</span>
+                          </div>
+                          <div className="bg-black/60 rounded-lg p-1 border border-white/5">
+                            <span className="text-[9px] text-slate-400 block">% 3P</span>
+                            <span className="font-bold text-emerald-400">{player.basketStats.threePct}%</span>
+                          </div>
                         </div>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">REB</span>
-                          <span className="font-bold text-amber-400">{player.basketStats.rpg}</span>
+
+                        <div className="flex items-center justify-between text-[11px] bg-amber-950/30 border border-amber-500/20 px-2.5 py-1.5 rounded-xl">
+                          <span className="text-slate-300">Efectividad: <strong className="text-white">{player.basketStats.fgPct}% FG</strong></span>
+                          <span className="text-slate-300">Rating: <strong className="text-amber-400">{player.basketStats.rating} ★</strong></span>
                         </div>
-                        <div className="bg-slate-950/60 rounded-lg py-1 px-1.5">
-                          <span className="block text-[9px] text-slate-500 uppercase">% 3P</span>
-                          <span className="font-bold text-cyan-300">{player.basketStats.threePct}%</span>
-                        </div>
-                      </>
+                      </div>
                     ) : null}
+
+                    {/* Botón rápido para abrir carnet oficial */}
+                    <div className="pt-1 flex items-center justify-between text-[11px] font-mono text-cyan-400 group-hover:text-cyan-300">
+                      <span className="flex items-center gap-1">
+                        <QrCode className="w-3.5 h-3.5" /> Ver Carnet Oficial
+                      </span>
+                      <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -509,43 +556,59 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
                         </div>
 
                         {/* Foto e insignia */}
-                        <div className="relative w-full h-48 rounded-xl overflow-hidden bg-slate-900 border border-white/10 mb-3">
+                        <div className="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden bg-slate-900 border border-cyan-500/30 mb-3 group">
                           <img 
                             src={activeCard.photoUrl} 
                             alt={activeCard.name}
-                            className="w-full h-full object-cover object-top" 
+                            className="w-full h-full object-cover object-top filter brightness-95 contrast-105 group-hover:scale-105 transition-transform duration-500" 
                           />
-                          <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-md px-2 py-1 rounded-md text-cyan-300 font-mono text-xs font-black border border-cyan-500/40">
-                            {activeCard.ovr} OVR
+                          {/* Shimmer Holográfico */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-cyan-400/15 to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-transparent to-transparent pointer-events-none" />
+
+                          <div className="absolute top-2.5 left-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1.5 rounded-lg text-cyan-300 font-mono text-sm font-black border border-cyan-400/60 shadow-lg flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                            <span>{activeCard.ovr} OVR</span>
                           </div>
-                          <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-mono border border-white/20">
+                          <div className="absolute top-2.5 right-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1 rounded text-[10px] text-white font-mono border border-white/20 font-bold shadow-md">
                             {activeCard.status}
+                          </div>
+                          <div className="absolute bottom-2.5 right-2.5 bg-cyan-950/90 text-cyan-300 text-[10px] font-mono px-2 py-0.5 rounded border border-cyan-500/40 font-bold">
+                            #{activeCard.dorsal} · {activeCard.positionCategory}
                           </div>
                         </div>
 
                         {/* Nombre y posición */}
                         <div className="space-y-0.5">
-                          <h4 className="text-base font-black text-white tracking-tight">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                              {activeCard.nickname ? `"${activeCard.nickname}"` : activeCard.nationality}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-amber-400">
+                              {activeCard.marketValue}
+                            </span>
+                          </div>
+                          <h4 className="text-lg font-black text-white tracking-tight">
                             {activeCard.name}
                           </h4>
-                          <p className="text-xs text-cyan-400 font-medium">
+                          <p className="text-xs text-cyan-300 font-medium">
                             {activeCard.position} ({activeCard.discipline})
                           </p>
                         </div>
 
                         {/* Bio / Scout brief */}
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-black/40 p-2.5 rounded-xl border border-white/5 mt-2">
+                        <p className="text-[11px] text-slate-300 leading-relaxed bg-black/50 p-3 rounded-xl border border-white/5 mt-2">
                           {activeCard.bio}
                         </p>
 
                         {/* Radar / Grid de métricas */}
                         <div className="grid grid-cols-2 gap-2 text-xs font-mono mt-3">
-                          <div className="bg-slate-900/80 p-2 rounded-xl border border-white/5">
-                            <span className="text-[10px] text-slate-400 block">Edad / Estatura</span>
+                          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-white/5">
+                            <span className="text-[10px] text-slate-400 block uppercase">Edad / Estatura</span>
                             <span className="text-white font-bold">{activeCard.age} años · {activeCard.height}</span>
                           </div>
-                          <div className="bg-slate-900/80 p-2 rounded-xl border border-white/5">
-                            <span className="text-[10px] text-slate-400 block">Pie / Mano Hábil</span>
+                          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-white/5">
+                            <span className="text-[10px] text-slate-400 block uppercase">Pie / Mano Hábil</span>
                             <span className="text-cyan-300 font-bold">{activeCard.footOrHand}</span>
                           </div>
                         </div>
@@ -553,12 +616,14 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
                         {/* Código QR Verificable y Token CIG */}
                         <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
                           <div className="space-y-0.5">
-                            <span className="text-[9px] font-mono text-slate-400 block">TOKEN CRIPTOGRÁFICO</span>
-                            <span className="text-[11px] font-mono font-bold text-white">{activeCard.qrCode}</span>
+                            <span className="text-[9px] font-mono text-slate-400 block uppercase">Token Criptográfico CIG</span>
+                            <span className="text-[11px] font-mono font-bold text-cyan-300 flex items-center gap-1">
+                              <Shield className="w-3 h-3 text-cyan-400" /> {activeCard.qrCode}
+                            </span>
                           </div>
                           <button
                             onClick={() => handleShareCarnet(activeCard)}
-                            className="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors cursor-pointer"
+                            className="p-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 transition-colors cursor-pointer shadow-sm"
                             title="Compartir o Copiar Ficha"
                           >
                             <Share2 className="w-4 h-4" />

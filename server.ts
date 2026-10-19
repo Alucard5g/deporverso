@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
+import { execSync } from "child_process";
 import { GoogleGenAI, Type } from "@google/genai";
 import { deporversoRouter } from "./server/routes/deporversoRoutes.ts";
 import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes.ts";
@@ -24,19 +24,11 @@ async function startServer() {
   // Detección de puerto universal (Google Cloud Run vs Entorno Local/AI Studio):
   // 1. Argumento CLI explícito (--port 3000)
   // 2. En producción (Google Cloud Run), process.env.PORT asignado dinámicamente (ej. 8080)
-  // 3. En desarrollo (AI Studio), SIEMPRE puerto 3000 para cumplir con el runtime proxy
+  // 3. Fallback a 3000 para desarrollo local y proxy de AI Studio
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const isProd = process.env.NODE_ENV === "production";
-
-  let PORT = 3000;
-  if (cliPort) {
-    PORT = cliPort;
-  } else if (isProd && process.env.PORT) {
-    PORT = parseInt(process.env.PORT, 10);
-  } else {
-    PORT = 3000;
-  }
+  const envPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  const PORT = cliPort || envPort || 3000;
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -522,8 +514,9 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
     app.use(express.static(publicPath));
   }
 
-  // Vite middleware setup
+  // Vite middleware setup (Solo en desarrollo)
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
@@ -591,7 +584,7 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
   process.once('SIGINT', () => handleGracefulShutdown('SIGINT'));
   process.once('SIGUSR2', () => handleGracefulShutdown('SIGUSR2'));
 
-  const listenWithRetry = (portToTry: number, retriesLeft = 10, delayMs = 500) => {
+  const listenWithRetry = (portToTry: number, retriesLeft = 15, delayMs = 400) => {
     const mainServer = app.listen(portToTry, "0.0.0.0", () => {
       activeServer = mainServer;
       // Optimizar timeouts de keep-alive para evitar sockets zombis en reinicios rápidos
@@ -602,7 +595,7 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
 
     mainServer.on("error", (err: any) => {
       if (err.code === 'EADDRINUSE') {
-        // Cerrar explícitamente el servidor para liberar descriptores y evitar fugas
+        // Cerrar explícitamente el descriptor del intento actual
         try {
           if (typeof mainServer.closeAllConnections === 'function') {
             mainServer.closeAllConnections();
@@ -612,10 +605,31 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
           // Ignorar errores al cerrar descriptor no asignado
         }
 
+        // En desarrollo/sandbox, auto-sanación de sockets huérfanos
+        if (process.env.NODE_ENV !== 'production') {
+          try {
+            const ssOutput = execSync(`ss -tlpn sport = :${portToTry} 2>/dev/null || true`, { encoding: 'utf-8' });
+            const matches = [...ssOutput.matchAll(/pid=(\d+)/g)];
+            for (const match of matches) {
+              const orphanPid = parseInt(match[1], 10);
+              if (orphanPid && orphanPid !== process.pid) {
+                console.warn(`[DeporVerso Server] Liberando puerto ${portToTry} retenido por proceso PID ${orphanPid}...`);
+                try {
+                  process.kill(orphanPid, 'SIGKILL');
+                } catch {
+                  // Proceso ya cerrado
+                }
+              }
+            }
+          } catch {
+            // Ignorar fallo de comando si ss no está disponible
+          }
+        }
+
         if (retriesLeft > 0) {
           console.warn(`[DeporVerso Server] Puerto ${portToTry} ocupado temporalmente. Reintentando en ${delayMs}ms (${retriesLeft} intentos restantes)...`);
           setTimeout(() => {
-            listenWithRetry(portToTry, retriesLeft - 1, Math.min(delayMs + 300, 2000));
+            listenWithRetry(portToTry, retriesLeft - 1, Math.min(delayMs + 200, 1500));
           }, delayMs);
         } else {
           console.error(`[DeporVerso Server] Error crítico: El puerto ${portToTry} no se liberó tras múltiples reintentos. Exiting...`);

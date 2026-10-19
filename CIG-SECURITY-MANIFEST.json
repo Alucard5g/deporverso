@@ -2,20 +2,50 @@
   "entity": "CORPORACIÓN E INNOVACIÓN GUERRA (CIG)",
   "project": "DeporVerso Global Multi-Sport SaaS Platform",
   "security_division": "CIG Information Security & Industrial IP Division",
-  "timestamp_utc": "2026-10-10T21:14:02.501Z",
-  "epoch_timestamp_ms": 1791666842501,
+  "timestamp_utc": "2026-10-17T01:14:11.992Z",
+  "epoch_timestamp_ms": 1792199651992,
   "cryptographic_standard": "SHA-256 (NIST FIPS 180-4)",
   "asymmetric_algorithm": "Ed25519 (RFC 8032)",
   "public_key_fingerprint": "778ff94867bf0a69",
-  "merkle_master_root_hash": "b91ad867ca4a31b64cc7cc10de6db779605d745de09513dc66b1ac07e255f732",
-  "signature_base64": "YFbqWkNzIIj4UYakHZF+n6i7Dpu9U1OmPZ1EHKrowER6nZPuBWXrtRURPE/CPNuIIh04PU6fkOt6yp4rpGXrBA==",
+  "merkle_master_root_hash": "479718ece63c0918386095c37296d6c1c7feb288b9aafc0b84153048c91c0f44",
+  "signature_base64": "ab2ev847RU+Cp6RjvB2bNXOCoSzZjgb8SnLSfGoOmFEj/rYJ3W6fk5US6jQrFq0esCxh8mbwJenOLa6KY2T3AA==",
   "opentimestamps": {
     "provider": "alice.btc.calendar.opentimestamps.org",
     "proof_file": "CIG-SECURITY-MANIFEST.ots"
   },
-  "total_audited_files": 190,
+  "total_audited_files": 280,
   "legal_declaration": "Este manifiesto certifica de forma inmutable la anterioridad de desarrollo, creación de código fuente y secreto industrial de CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Toda reproducción no autorizada queda perseguida bajo las leyes de propiedad intelectual y soberanía tecnológica.",
   "files": [
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/deporverso_acquisition_email_template.md",
+      "sizeBytes": 2196,
+      "sha256": "20e7a24ae926608f640d12b9bff31eeac9904c789bb970e484ef194019129fdf"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/deporverso_acquisition_email_template.md.metadata.json",
+      "sizeBytes": 236,
+      "sha256": "c8fc3ec8b20677ba2c29a2182bcd8fab06688034e97708774ec116846e0d9054"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/deporverso_pitch_deck.md",
+      "sizeBytes": 2561,
+      "sha256": "9a1482108fe5218fc7c17dda79509f56bb39ea4cae4daa68789660663c1e7eb7"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/deporverso_pitch_deck.md.metadata.json",
+      "sizeBytes": 218,
+      "sha256": "a1ee602fad05c00e7bcb10e1cbd7e5a9bf67f0d1f4a31051e1812f6608d7e34b"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/implementation_plan.md",
+      "sizeBytes": 1455,
+      "sha256": "b52cc1867a722975bc3e7abd61475a8952ebee51da76e3a897c734c9b0568402"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/cdb26ee0-a237-495a-b10b-bedb98d213de/implementation_plan.md.metadata.json",
+      "sizeBytes": 275,
+      "sha256": "c98ee13abc3981ab6863d400cd641387154307a9ed2fa430eb1b7dc88b203f09"
+    },
     {
       "path": ".dockerignore",
       "sizeBytes": 100,
@@ -43,13 +73,13 @@
     },
     {
       "path": "cloudbuild.yaml",
-      "sizeBytes": 1608,
-      "sha256": "5a3b873c64491e248711d65dad6301898416fd5a98fdd0fdd0f021be2cd64c32"
+      "sizeBytes": 1521,
+      "sha256": "1eaa124c8a36abae892b343ab757f63b96ba8d0a2c218bc5257182c5022db50d"
     },
     {
       "path": "deploy.sh",
-      "sizeBytes": 2142,
-      "sha256": "3b25462df2011168cf6aeae70e29e7bd2b58d6e4b45168cf22ae51c859b580a4"
+      "sizeBytes": 2067,
+      "sha256": "269bb3c6cd1ef654f4e34babfceed5f1220ea5bb513730f8cb09d958736c2465"
     },
     {
       "path": "DEPLOYMENT.md",
@@ -58,8 +88,8 @@
     },
     {
       "path": "Dockerfile",
-      "sizeBytes": 3079,
-      "sha256": "2817630ebfcfc0ebae49411df59b23dfd0e5d465799cb272fab7478240c92d4c"
+      "sizeBytes": 3049,
+      "sha256": "e588489e6e92691a2e44ff0d9c9cf339ac1a507c5fed611517c68770d9367554"
     },
     {
       "path": "Dockerfile.worker",
@@ -68,8 +98,8 @@
     },
     {
       "path": "firebase-applet-config.json",
-      "sizeBytes": 531,
-      "sha256": "21ce73bba3bc8dab9760e4c6cbd36497dfd83085e5c92fcabb72cfc8e4dbdf9c"
+      "sizeBytes": 439,
+      "sha256": "3b5e8ba93aa03cd7a99ea97b1b7f11d418ae5967ce57f47750a1c88ece9672e9"
     },
     {
       "path": "firebase-blueprint.json",
@@ -123,13 +153,13 @@
     },
     {
       "path": "public/sports/artes_marciales.webp",
-      "sizeBytes": 32686,
-      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
+      "sizeBytes": 69271,
+      "sha256": "72fb9989c7484e4195f896b4dea182fabbcaba8a723a5f1e2da4c4edc1e38ae7"
     },
     {
       "path": "public/sports/atletismo.webp",
-      "sizeBytes": 16138,
-      "sha256": "db4a339faebd19d486dab9fdd085b44ef7294ed0a3ac95450730fb9e0adb7270"
+      "sizeBytes": 79321,
+      "sha256": "326311005ac0a11dc9daf18389f041dbd0068f53b4f4c385b2d006de1b20d50a"
     },
     {
       "path": "public/sports/badminton.webp",
@@ -137,44 +167,59 @@
       "sha256": "6d2f6c93819429a2ea04a54fc826583bb4225b9d8b9b633bd7a429af85a7c563"
     },
     {
+      "path": "public/sports/baloncesto.webp",
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
+    },
+    {
       "path": "public/sports/balonmano.webp",
-      "sizeBytes": 17760,
-      "sha256": "68c389cc1bf6af7633e1c82f2d887d758deaaa54fd5bc60991ee7a527aa4a0cb"
+      "sizeBytes": 178825,
+      "sha256": "70d7c25a067e05e5f5747d9da22860e29d1899bbe65e592aa0233f5d75a6306a"
     },
     {
       "path": "public/sports/basquetbol.webp",
-      "sizeBytes": 27936,
-      "sha256": "e1adb40f3a75afda83c22180d0a76176aa89cd37c231ab65e41169dc7eecd092"
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
     },
     {
       "path": "public/sports/beisbol.webp",
-      "sizeBytes": 26474,
-      "sha256": "5cb05b111ff31007b35a25b85dfcea9e3b7749f9bd45ad538ff43b1092d6f2d8"
+      "sizeBytes": 145787,
+      "sha256": "3ad41bec9743e5b9cad854727bc18ae9a853be8c42057528ec1c0f1a359a7d44"
     },
     {
       "path": "public/sports/boxeo.webp",
-      "sizeBytes": 16228,
-      "sha256": "d8aa93b45c127b904d677ec66abe7ef9e82992908bc3af07b31436d541430968"
+      "sizeBytes": 105401,
+      "sha256": "d0f37daca2e2feb8c87744269262968f98ab7fff20c8030fe37a499da9626f6e"
     },
     {
       "path": "public/sports/ciclismo.webp",
-      "sizeBytes": 16050,
-      "sha256": "33c879e78a8d344ef3e9146e8907633fb9e974d0cd8f500650bf7d1578527be8"
+      "sizeBytes": 143290,
+      "sha256": "39840bd03405a73db25d65b65703b5a36f665b23d75acdcbae4ae33dd20cd47c"
     },
     {
       "path": "public/sports/cig_game.webp",
-      "sizeBytes": 7378,
-      "sha256": "960ffb8684f6e096ee06c0c52d1c49eef062173413c1a1e8fdcf43bb78d478e0"
+      "sizeBytes": 146895,
+      "sha256": "45af7eb3c41e04a53a753d3705cfc0f1601c189ec5f5f1d80195fe80993bc3de"
     },
     {
       "path": "public/sports/crossfit.webp",
-      "sizeBytes": 23478,
-      "sha256": "b996366650f57a1b203833bab18038a2c205912ace8d6afc5991b9111f836be0"
+      "sizeBytes": 136831,
+      "sha256": "22867d60a06448afc9b28020d51761a570a28be1b30cffa96c4b4245e157a57d"
+    },
+    {
+      "path": "public/sports/drive/artes_marciales_drive.jpg",
+      "sizeBytes": 69271,
+      "sha256": "72fb9989c7484e4195f896b4dea182fabbcaba8a723a5f1e2da4c4edc1e38ae7"
+    },
+    {
+      "path": "public/sports/drive/artes_marciales_original.jpg",
+      "sizeBytes": 69271,
+      "sha256": "72fb9989c7484e4195f896b4dea182fabbcaba8a723a5f1e2da4c4edc1e38ae7"
     },
     {
       "path": "public/sports/drive/artes_marciales_sq.webp",
-      "sizeBytes": 32686,
-      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
+      "sizeBytes": 69271,
+      "sha256": "72fb9989c7484e4195f896b4dea182fabbcaba8a723a5f1e2da4c4edc1e38ae7"
     },
     {
       "path": "public/sports/drive/artes_marciales.webp",
@@ -182,14 +227,34 @@
       "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
     },
     {
+      "path": "public/sports/drive/atletismo_drive.jpg",
+      "sizeBytes": 79321,
+      "sha256": "326311005ac0a11dc9daf18389f041dbd0068f53b4f4c385b2d006de1b20d50a"
+    },
+    {
+      "path": "public/sports/drive/atletismo_original.jpg",
+      "sizeBytes": 79321,
+      "sha256": "326311005ac0a11dc9daf18389f041dbd0068f53b4f4c385b2d006de1b20d50a"
+    },
+    {
+      "path": "public/sports/drive/atletismo_sq.webp",
+      "sizeBytes": 79321,
+      "sha256": "326311005ac0a11dc9daf18389f041dbd0068f53b4f4c385b2d006de1b20d50a"
+    },
+    {
+      "path": "public/sports/drive/baloncesto_drive.jpg",
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
+    },
+    {
       "path": "public/sports/drive/baloncesto_original.jpg",
-      "sizeBytes": 532634,
-      "sha256": "707076ea5399d4a08b06726f42fc28202f4835b8af1797fd15dde824164032b9"
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
     },
     {
       "path": "public/sports/drive/baloncesto_sq.webp",
-      "sizeBytes": 27936,
-      "sha256": "e1adb40f3a75afda83c22180d0a76176aa89cd37c231ab65e41169dc7eecd092"
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
     },
     {
       "path": "public/sports/drive/baloncesto.webp",
@@ -197,14 +262,154 @@
       "sha256": "1ed2ce8f3accf8312e3a03eb245e5b7e6945c8e47c76d81c4a20994ce6a06118"
     },
     {
+      "path": "public/sports/drive/balonmano_drive.jpg",
+      "sizeBytes": 178825,
+      "sha256": "70d7c25a067e05e5f5747d9da22860e29d1899bbe65e592aa0233f5d75a6306a"
+    },
+    {
+      "path": "public/sports/drive/balonmano_original.jpg",
+      "sizeBytes": 178825,
+      "sha256": "70d7c25a067e05e5f5747d9da22860e29d1899bbe65e592aa0233f5d75a6306a"
+    },
+    {
+      "path": "public/sports/drive/balonmano_sq.webp",
+      "sizeBytes": 178825,
+      "sha256": "70d7c25a067e05e5f5747d9da22860e29d1899bbe65e592aa0233f5d75a6306a"
+    },
+    {
+      "path": "public/sports/drive/basquetbol_drive.jpg",
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
+    },
+    {
+      "path": "public/sports/drive/basquetbol_original.jpg",
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
+    },
+    {
+      "path": "public/sports/drive/basquetbol_sq.webp",
+      "sizeBytes": 60925,
+      "sha256": "6075f10839a1f61211144da2d5732f71c2f7285ac4a6bdf133e0ce9c014c6587"
+    },
+    {
+      "path": "public/sports/drive/beisbol_drive.jpg",
+      "sizeBytes": 145787,
+      "sha256": "3ad41bec9743e5b9cad854727bc18ae9a853be8c42057528ec1c0f1a359a7d44"
+    },
+    {
+      "path": "public/sports/drive/beisbol_original.jpg",
+      "sizeBytes": 145787,
+      "sha256": "3ad41bec9743e5b9cad854727bc18ae9a853be8c42057528ec1c0f1a359a7d44"
+    },
+    {
+      "path": "public/sports/drive/beisbol_sq.webp",
+      "sizeBytes": 145787,
+      "sha256": "3ad41bec9743e5b9cad854727bc18ae9a853be8c42057528ec1c0f1a359a7d44"
+    },
+    {
+      "path": "public/sports/drive/boxeo_drive.jpg",
+      "sizeBytes": 105401,
+      "sha256": "d0f37daca2e2feb8c87744269262968f98ab7fff20c8030fe37a499da9626f6e"
+    },
+    {
+      "path": "public/sports/drive/boxeo_original.jpg",
+      "sizeBytes": 105401,
+      "sha256": "d0f37daca2e2feb8c87744269262968f98ab7fff20c8030fe37a499da9626f6e"
+    },
+    {
+      "path": "public/sports/drive/boxeo_sq.webp",
+      "sizeBytes": 105401,
+      "sha256": "d0f37daca2e2feb8c87744269262968f98ab7fff20c8030fe37a499da9626f6e"
+    },
+    {
+      "path": "public/sports/drive/ciclismo_drive.jpg",
+      "sizeBytes": 143290,
+      "sha256": "39840bd03405a73db25d65b65703b5a36f665b23d75acdcbae4ae33dd20cd47c"
+    },
+    {
+      "path": "public/sports/drive/ciclismo_original.jpg",
+      "sizeBytes": 143290,
+      "sha256": "39840bd03405a73db25d65b65703b5a36f665b23d75acdcbae4ae33dd20cd47c"
+    },
+    {
+      "path": "public/sports/drive/ciclismo_sq.webp",
+      "sizeBytes": 143290,
+      "sha256": "39840bd03405a73db25d65b65703b5a36f665b23d75acdcbae4ae33dd20cd47c"
+    },
+    {
+      "path": "public/sports/drive/cig_game_drive.jpg",
+      "sizeBytes": 146895,
+      "sha256": "45af7eb3c41e04a53a753d3705cfc0f1601c189ec5f5f1d80195fe80993bc3de"
+    },
+    {
+      "path": "public/sports/drive/cig_game_original.jpg",
+      "sizeBytes": 146895,
+      "sha256": "45af7eb3c41e04a53a753d3705cfc0f1601c189ec5f5f1d80195fe80993bc3de"
+    },
+    {
+      "path": "public/sports/drive/cig_game_sq.webp",
+      "sizeBytes": 146895,
+      "sha256": "45af7eb3c41e04a53a753d3705cfc0f1601c189ec5f5f1d80195fe80993bc3de"
+    },
+    {
+      "path": "public/sports/drive/crossfit_drive.jpg",
+      "sizeBytes": 136831,
+      "sha256": "22867d60a06448afc9b28020d51761a570a28be1b30cffa96c4b4245e157a57d"
+    },
+    {
+      "path": "public/sports/drive/crossfit_original.jpg",
+      "sizeBytes": 136831,
+      "sha256": "22867d60a06448afc9b28020d51761a570a28be1b30cffa96c4b4245e157a57d"
+    },
+    {
+      "path": "public/sports/drive/crossfit_sq.webp",
+      "sizeBytes": 136831,
+      "sha256": "22867d60a06448afc9b28020d51761a570a28be1b30cffa96c4b4245e157a57d"
+    },
+    {
+      "path": "public/sports/drive/esgrima_drive.jpg",
+      "sizeBytes": 130867,
+      "sha256": "7c97449dae631fd1aedd6486a59b8c1632e22ac7dacb5acb8d9c5991c15f54ee"
+    },
+    {
+      "path": "public/sports/drive/esgrima_original.jpg",
+      "sizeBytes": 130867,
+      "sha256": "7c97449dae631fd1aedd6486a59b8c1632e22ac7dacb5acb8d9c5991c15f54ee"
+    },
+    {
+      "path": "public/sports/drive/esgrima_sq.webp",
+      "sizeBytes": 130867,
+      "sha256": "7c97449dae631fd1aedd6486a59b8c1632e22ac7dacb5acb8d9c5991c15f54ee"
+    },
+    {
+      "path": "public/sports/drive/futbol_americano_drive.jpg",
+      "sizeBytes": 135069,
+      "sha256": "7cf854b7efa0fed811c4c5a094dda4d4fa0ea9177eab86c5f3b5c8da826c6606"
+    },
+    {
+      "path": "public/sports/drive/futbol_americano_original.jpg",
+      "sizeBytes": 135069,
+      "sha256": "7cf854b7efa0fed811c4c5a094dda4d4fa0ea9177eab86c5f3b5c8da826c6606"
+    },
+    {
+      "path": "public/sports/drive/futbol_americano_sq.webp",
+      "sizeBytes": 135069,
+      "sha256": "7cf854b7efa0fed811c4c5a094dda4d4fa0ea9177eab86c5f3b5c8da826c6606"
+    },
+    {
+      "path": "public/sports/drive/futbol_drive.jpg",
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
+    },
+    {
       "path": "public/sports/drive/futbol_original.jpg",
-      "sizeBytes": 464936,
-      "sha256": "c42ca05f828b5ebf01e7642ca5dd39f2f13add090c632ecb936d4019d2480feb"
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
     },
     {
       "path": "public/sports/drive/futbol_sq.webp",
-      "sizeBytes": 23174,
-      "sha256": "789758d0dc9effdf7c2cc32e59d35c457ecbad1b039b8cb09ddeaefa6108b0ac"
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
     },
     {
       "path": "public/sports/drive/futbol.webp",
@@ -212,14 +417,184 @@
       "sha256": "2557451225a15f1ea899633d8be5f587edd42d4d284ad0400639129456c1065a"
     },
     {
+      "path": "public/sports/drive/futsal_drive.jpg",
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
+    },
+    {
+      "path": "public/sports/drive/futsal_original.jpg",
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
+    },
+    {
+      "path": "public/sports/drive/futsal_sq.webp",
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
+    },
+    {
+      "path": "public/sports/drive/gimnasia_drive.jpg",
+      "sizeBytes": 184593,
+      "sha256": "e5e4000a21bab2c2e452ab4636b788ea27806f6b45e14586045108a1c491119b"
+    },
+    {
+      "path": "public/sports/drive/gimnasia_original.jpg",
+      "sizeBytes": 184593,
+      "sha256": "e5e4000a21bab2c2e452ab4636b788ea27806f6b45e14586045108a1c491119b"
+    },
+    {
+      "path": "public/sports/drive/gimnasia_sq.webp",
+      "sizeBytes": 184593,
+      "sha256": "e5e4000a21bab2c2e452ab4636b788ea27806f6b45e14586045108a1c491119b"
+    },
+    {
+      "path": "public/sports/drive/halterofilia_drive.jpg",
+      "sizeBytes": 151291,
+      "sha256": "4b35644be00c35c191e7d039fbc12f5edaac58e87fc07f94743eaf552a591ad4"
+    },
+    {
+      "path": "public/sports/drive/halterofilia_original.jpg",
+      "sizeBytes": 151291,
+      "sha256": "4b35644be00c35c191e7d039fbc12f5edaac58e87fc07f94743eaf552a591ad4"
+    },
+    {
+      "path": "public/sports/drive/halterofilia_sq.webp",
+      "sizeBytes": 151291,
+      "sha256": "4b35644be00c35c191e7d039fbc12f5edaac58e87fc07f94743eaf552a591ad4"
+    },
+    {
+      "path": "public/sports/drive/hockey_drive.jpg",
+      "sizeBytes": 161674,
+      "sha256": "7f679408ef63eb048e68d7247fb086e1bbfeed76a2f01b1c5a13610a6f7e9e1a"
+    },
+    {
+      "path": "public/sports/drive/hockey_original.jpg",
+      "sizeBytes": 161674,
+      "sha256": "7f679408ef63eb048e68d7247fb086e1bbfeed76a2f01b1c5a13610a6f7e9e1a"
+    },
+    {
+      "path": "public/sports/drive/hockey_sq.webp",
+      "sizeBytes": 161674,
+      "sha256": "7f679408ef63eb048e68d7247fb086e1bbfeed76a2f01b1c5a13610a6f7e9e1a"
+    },
+    {
+      "path": "public/sports/drive/natacion_drive.jpg",
+      "sizeBytes": 175492,
+      "sha256": "da186213124dd7b0ad2b950e1d6e68b6be1caf1061161f24c4266583c1e76c3f"
+    },
+    {
+      "path": "public/sports/drive/natacion_original.jpg",
+      "sizeBytes": 175492,
+      "sha256": "da186213124dd7b0ad2b950e1d6e68b6be1caf1061161f24c4266583c1e76c3f"
+    },
+    {
+      "path": "public/sports/drive/natacion_sq.webp",
+      "sizeBytes": 175492,
+      "sha256": "da186213124dd7b0ad2b950e1d6e68b6be1caf1061161f24c4266583c1e76c3f"
+    },
+    {
+      "path": "public/sports/drive/padel_drive.jpg",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/padel_original.jpg",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/padel_sq.webp",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/rugby_drive.jpg",
+      "sizeBytes": 136948,
+      "sha256": "ff115f65b027752e8cc540f7b34033ced25349370d17540e706a838f1f914e10"
+    },
+    {
+      "path": "public/sports/drive/rugby_original.jpg",
+      "sizeBytes": 136948,
+      "sha256": "ff115f65b027752e8cc540f7b34033ced25349370d17540e706a838f1f914e10"
+    },
+    {
+      "path": "public/sports/drive/rugby_sq.webp",
+      "sizeBytes": 136948,
+      "sha256": "ff115f65b027752e8cc540f7b34033ced25349370d17540e706a838f1f914e10"
+    },
+    {
+      "path": "public/sports/drive/skateboarding_drive.jpg",
+      "sizeBytes": 111754,
+      "sha256": "42dc3e9bb51efb65b9f83461c350028ff14b3168f4dc7100916d23cdf298eefc"
+    },
+    {
+      "path": "public/sports/drive/skateboarding_original.jpg",
+      "sizeBytes": 111754,
+      "sha256": "42dc3e9bb51efb65b9f83461c350028ff14b3168f4dc7100916d23cdf298eefc"
+    },
+    {
+      "path": "public/sports/drive/skateboarding_sq.webp",
+      "sizeBytes": 111754,
+      "sha256": "42dc3e9bb51efb65b9f83461c350028ff14b3168f4dc7100916d23cdf298eefc"
+    },
+    {
+      "path": "public/sports/drive/taekwondo_drive.jpg",
+      "sizeBytes": 160948,
+      "sha256": "9660bf81e6643d3d8e3944b5890e0ea93f638b5f56eb9893eee9ddca29c8bb2d"
+    },
+    {
+      "path": "public/sports/drive/taekwondo_original.jpg",
+      "sizeBytes": 160948,
+      "sha256": "9660bf81e6643d3d8e3944b5890e0ea93f638b5f56eb9893eee9ddca29c8bb2d"
+    },
+    {
+      "path": "public/sports/drive/taekwondo_sq.webp",
+      "sizeBytes": 160948,
+      "sha256": "9660bf81e6643d3d8e3944b5890e0ea93f638b5f56eb9893eee9ddca29c8bb2d"
+    },
+    {
+      "path": "public/sports/drive/tenis_drive.jpg",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/tenis_mesa_drive.jpg",
+      "sizeBytes": 142488,
+      "sha256": "9c3de655a00623cc05f540393e3ae2b6d17c46d076a3bd5f23e57d58179e6a2a"
+    },
+    {
+      "path": "public/sports/drive/tenis_mesa_original.jpg",
+      "sizeBytes": 142488,
+      "sha256": "9c3de655a00623cc05f540393e3ae2b6d17c46d076a3bd5f23e57d58179e6a2a"
+    },
+    {
+      "path": "public/sports/drive/tenis_mesa_sq.webp",
+      "sizeBytes": 142488,
+      "sha256": "9c3de655a00623cc05f540393e3ae2b6d17c46d076a3bd5f23e57d58179e6a2a"
+    },
+    {
+      "path": "public/sports/drive/tenis_original.jpg",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/tenis_sq.webp",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/drive/tennis_drive.jpg",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
       "path": "public/sports/drive/tennis_original.jpg",
-      "sizeBytes": 448145,
-      "sha256": "b16d51d7a56d6d8ae5596af3738b6e4b3da20225f9f6113837d89bc66abfe317"
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
     },
     {
       "path": "public/sports/drive/tennis_sq.webp",
-      "sizeBytes": 40994,
-      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
     },
     {
       "path": "public/sports/drive/tennis.webp",
@@ -227,9 +602,54 @@
       "sha256": "974ff83fb275777ce1d02a1e2e06eee78bd1ef7f7210020eebe6048245a67df6"
     },
     {
+      "path": "public/sports/drive/tiro_arco_drive.jpg",
+      "sizeBytes": 203742,
+      "sha256": "5070a27df595d9607cfb0287cd01738aafac9abd9636cf2513dc528c8f9ee3c4"
+    },
+    {
+      "path": "public/sports/drive/tiro_arco_original.jpg",
+      "sizeBytes": 203742,
+      "sha256": "5070a27df595d9607cfb0287cd01738aafac9abd9636cf2513dc528c8f9ee3c4"
+    },
+    {
+      "path": "public/sports/drive/tiro_arco_sq.webp",
+      "sizeBytes": 203742,
+      "sha256": "5070a27df595d9607cfb0287cd01738aafac9abd9636cf2513dc528c8f9ee3c4"
+    },
+    {
+      "path": "public/sports/drive/voleibol_drive.jpg",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
+      "path": "public/sports/drive/voleibol_original.jpg",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
+      "path": "public/sports/drive/voleibol_playa_drive.jpg",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
+      "path": "public/sports/drive/voleibol_playa_original.jpg",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
+      "path": "public/sports/drive/voleibol_playa_sq.webp",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
+      "path": "public/sports/drive/voleibol_sq.webp",
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
+    },
+    {
       "path": "public/sports/esgrima.webp",
-      "sizeBytes": 26390,
-      "sha256": "0522e0b5c5353b28bed12c3dc151096266c604808ac4da6ccd329cf15216e181"
+      "sizeBytes": 130867,
+      "sha256": "7c97449dae631fd1aedd6486a59b8c1632e22ac7dacb5acb8d9c5991c15f54ee"
     },
     {
       "path": "public/sports/esports.webp",
@@ -237,44 +657,49 @@
       "sha256": "960ffb8684f6e096ee06c0c52d1c49eef062173413c1a1e8fdcf43bb78d478e0"
     },
     {
+      "path": "public/sports/futbol_americano.webp",
+      "sizeBytes": 135069,
+      "sha256": "7cf854b7efa0fed811c4c5a094dda4d4fa0ea9177eab86c5f3b5c8da826c6606"
+    },
+    {
       "path": "public/sports/futbol.webp",
-      "sizeBytes": 23174,
-      "sha256": "789758d0dc9effdf7c2cc32e59d35c457ecbad1b039b8cb09ddeaefa6108b0ac"
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
     },
     {
       "path": "public/sports/futsal.webp",
-      "sizeBytes": 25456,
-      "sha256": "5990af4266e9fe4bf40e5d1107dd7fbc31f5a3f73e260df34a135f1b79cefc2a"
+      "sizeBytes": 51220,
+      "sha256": "2782ff831dcdc28a9860bbefa0ca0be15475370cc638f5288c6685cff13ea082"
     },
     {
       "path": "public/sports/gimnasia.webp",
-      "sizeBytes": 16604,
-      "sha256": "b6955b17655558903c21949a41ce1ef03874fc378fe00b408fed2dfb18899160"
+      "sizeBytes": 184593,
+      "sha256": "e5e4000a21bab2c2e452ab4636b788ea27806f6b45e14586045108a1c491119b"
     },
     {
       "path": "public/sports/halterofilia.webp",
-      "sizeBytes": 15882,
-      "sha256": "51d067a6c7039cf6fc7979ab8b7efa8e4696ae08f06c5a0d0f2f2147d856870c"
+      "sizeBytes": 151291,
+      "sha256": "4b35644be00c35c191e7d039fbc12f5edaac58e87fc07f94743eaf552a591ad4"
     },
     {
       "path": "public/sports/hockey.webp",
-      "sizeBytes": 27908,
-      "sha256": "56dd0a42e6956a735b9b0e4377c7f3bf69045387211b72dd26832bc5c13e889e"
+      "sizeBytes": 161674,
+      "sha256": "7f679408ef63eb048e68d7247fb086e1bbfeed76a2f01b1c5a13610a6f7e9e1a"
     },
     {
       "path": "public/sports/manifest.json",
-      "sizeBytes": 2645,
-      "sha256": "7bb4b057c4e81fdc63da7ec48c608eb5c66c2746e9827b616df9f1850f600c50"
+      "sizeBytes": 3059,
+      "sha256": "a5aa62705779110bfebe9c570501b765eaba4976dd8ce1ef737721952fee2a75"
     },
     {
       "path": "public/sports/natacion.webp",
-      "sizeBytes": 18326,
-      "sha256": "9798d81c8fe192d121afc400d3d66efaf711f87f065063739ba7b0a8be3a12f2"
+      "sizeBytes": 175492,
+      "sha256": "da186213124dd7b0ad2b950e1d6e68b6be1caf1061161f24c4266583c1e76c3f"
     },
     {
       "path": "public/sports/padel.webp",
-      "sizeBytes": 40994,
-      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
     },
     {
       "path": "public/sports/pichincha_portada.jpg",
@@ -283,43 +708,48 @@
     },
     {
       "path": "public/sports/rugby.webp",
-      "sizeBytes": 26764,
-      "sha256": "bc9c398f864a93fa9e8754911b41dee1645b47b8f9d603dbf74e860cfddf012d"
+      "sizeBytes": 136948,
+      "sha256": "ff115f65b027752e8cc540f7b34033ced25349370d17540e706a838f1f914e10"
     },
     {
       "path": "public/sports/skateboarding.webp",
-      "sizeBytes": 15872,
-      "sha256": "3d51aca1dca858e098f7c54774ae41feae62dbcd1cd165c92772cfd9f2a7e33d"
+      "sizeBytes": 111754,
+      "sha256": "42dc3e9bb51efb65b9f83461c350028ff14b3168f4dc7100916d23cdf298eefc"
     },
     {
       "path": "public/sports/taekwondo.webp",
-      "sizeBytes": 32686,
-      "sha256": "6b5ee7de4bc8fad20d49046a5b7be9114e239bb1df08314b42cd893230d30ddb"
+      "sizeBytes": 160948,
+      "sha256": "9660bf81e6643d3d8e3944b5890e0ea93f638b5f56eb9893eee9ddca29c8bb2d"
     },
     {
       "path": "public/sports/tenis_mesa.webp",
-      "sizeBytes": 26838,
-      "sha256": "4f67c6ea1879dcd7dc5d80ab5f3629835b5e6fda01491dd61ef22b0005004a1c"
+      "sizeBytes": 142488,
+      "sha256": "9c3de655a00623cc05f540393e3ae2b6d17c46d076a3bd5f23e57d58179e6a2a"
     },
     {
       "path": "public/sports/tenis.webp",
-      "sizeBytes": 40994,
-      "sha256": "af77ca76bfc893e47a0ff07a26503f43d9872f25fe3d865212cb5d23bcb4bc08"
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
+    },
+    {
+      "path": "public/sports/tennis.webp",
+      "sizeBytes": 76490,
+      "sha256": "c391eb54a786b58c79bc87e0c93a48dccb9e774d3830996885ecf73da147f1bb"
     },
     {
       "path": "public/sports/tiro_arco.webp",
-      "sizeBytes": 16816,
-      "sha256": "d7a78404a248f90c2408efe85f9a17d8fb27b351e53329027cce4125a40ea133"
+      "sizeBytes": 203742,
+      "sha256": "5070a27df595d9607cfb0287cd01738aafac9abd9636cf2513dc528c8f9ee3c4"
     },
     {
       "path": "public/sports/voleibol_playa.webp",
-      "sizeBytes": 18842,
-      "sha256": "4c6dc25d2d1c5f104c7e927f86342f170499e7ed2105107551fb5752c412ccc5"
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
     },
     {
       "path": "public/sports/voleibol.webp",
-      "sizeBytes": 18028,
-      "sha256": "6a39bc7f78ad8a92a14583a937f30ad66d4ccd2cd30bdc0bf58c0dc01ea17c8e"
+      "sizeBytes": 163667,
+      "sha256": "06b06b5f8de16d8b27f2b10524dd196c5ba4d1bca810a5bb5b30f392e910ac16"
     },
     {
       "path": "public/videos/comercial_deporverso_720p.mp4",
@@ -378,8 +808,8 @@
     },
     {
       "path": "server.ts",
-      "sizeBytes": 17419,
-      "sha256": "ad84aab5103e429a3571b649fb7691b19744f33124fe8d51ee9fa5baac2dc4bf"
+      "sizeBytes": 25037,
+      "sha256": "b4f66458357df6731f7435efcf3713d1e942c311d3f6b30d439a95d5fbbff5d5"
     },
     {
       "path": "server/config/database.ts",
@@ -502,6 +932,11 @@
       "sha256": "5f98219ab6528ad02936317ed9f75e6a77d0fad2ef80c5bcb3c03e1db3a64257"
     },
     {
+      "path": "src/assets/images/club_cover_premium_1791927254176.jpg",
+      "sizeBytes": 1069388,
+      "sha256": "fe9963ddf850c539b6f1ce3f056440a71b0b67cfb91eb7ee6d724109e8ab707a"
+    },
+    {
       "path": "src/assets/images/deporverso_club_logo_1791029063761.jpg",
       "sizeBytes": 779418,
       "sha256": "56ad625ecc72794b42df8d8162625edb0440537054d53d4231f7905f7c1ec71d"
@@ -515,6 +950,16 @@
       "path": "src/assets/images/deporverso_dark_bg_1789426720628.jpg",
       "sizeBytes": 694391,
       "sha256": "da8964ead3a9268761eb11c958ec01466e1e968e5b63917745f089d399f448e5"
+    },
+    {
+      "path": "src/assets/images/league_cover_premium_1791927270491.jpg",
+      "sizeBytes": 886195,
+      "sha256": "515b69d24caac4c722efc2c1c8cef00e2b155a66066f51a81b700a48c746409d"
+    },
+    {
+      "path": "src/assets/images/liga_barrial_pichincha_hero_1791927900990.jpg",
+      "sizeBytes": 998526,
+      "sha256": "26abf30143d8808770acf84dcaad01f4ae0faacb305b39196889f3e2f2d9a91a"
     },
     {
       "path": "src/assets/images/pichincha_portada_1791304548998.jpg",
@@ -543,8 +988,8 @@
     },
     {
       "path": "src/components/acts/Act01Origin.tsx",
-      "sizeBytes": 7635,
-      "sha256": "4a45eac93e171175456553610724b1099bf04f37c78f5694979ea52be5c6ea1c"
+      "sizeBytes": 7008,
+      "sha256": "7199f2660f4af3344e79a6111cd9a662fdc56ada7df6ff48973fe095e6878feb"
     },
     {
       "path": "src/components/acts/Act02DigitalAwakening.tsx",
@@ -568,8 +1013,8 @@
     },
     {
       "path": "src/components/Auth/LoginGate.tsx",
-      "sizeBytes": 17817,
-      "sha256": "e746019c76796f264db50a00a6f0d707962d304e197b2ff455baa4e3b7858de1"
+      "sizeBytes": 19762,
+      "sha256": "d8150147c50dbcc4928e5a843feeb8f5cb651ea116a61bf78c48306b723e8f55"
     },
     {
       "path": "src/components/Calendar/MultiSportCalendar.tsx",
@@ -663,13 +1108,13 @@
     },
     {
       "path": "src/components/Landing/CyberSportEcosystemStage.tsx",
-      "sizeBytes": 58941,
-      "sha256": "f21fdab038b5ce0a484767d260bfa313ae71bd80a2c4ffd2f160db0c2de5e9fc"
+      "sizeBytes": 68959,
+      "sha256": "99ea707c723787544654478627b8652dac9492ee5d2ca0e4fc242b38c4f63c66"
     },
     {
       "path": "src/components/Landing/FuturisticLanding.tsx",
-      "sizeBytes": 33393,
-      "sha256": "899b35d2f38b8a3f2386d332afbb3a8f984a163b1a3447b6eb2004237cfc8760"
+      "sizeBytes": 33402,
+      "sha256": "c81ce4e1dfb89967f0ecf918dd3c6b66b947d1c10553e3a1af264adfa8524522"
     },
     {
       "path": "src/components/Landing/ThematicSportsGallery.tsx",
@@ -678,8 +1123,8 @@
     },
     {
       "path": "src/components/Landing/UnifiedDeporversoExperience.tsx",
-      "sizeBytes": 31732,
-      "sha256": "243f09fefbb23dbe90352e9838ac7bf4b6fdd119fee87ce9a797ae990f09b7bd"
+      "sizeBytes": 31740,
+      "sha256": "23350cc750994bfad68c885ab3d760a68a609e3fdbb1c561ca6e37a1bee425d9"
     },
     {
       "path": "src/components/Landing/WelcomePage.tsx",
@@ -703,8 +1148,8 @@
     },
     {
       "path": "src/components/LeaguePortal/LeagueDashboard.tsx",
-      "sizeBytes": 80377,
-      "sha256": "8444c0548c7ba92f9d6d0135d3963913d2d46ef1615285d47eaf9e64f0f7c0d3"
+      "sizeBytes": 80379,
+      "sha256": "7329d67915d7609f2ed8d866e20d1b8cc794234b15408fccfbd896304a1ad21a"
     },
     {
       "path": "src/components/LeaguePortal/LeagueFixtureTable.tsx",
@@ -788,8 +1233,8 @@
     },
     {
       "path": "src/components/Navbar.tsx",
-      "sizeBytes": 24067,
-      "sha256": "70d1e9cd62a40e167a3c7695ddadd62c8506d811c60b5d05161ff83a6ed760b4"
+      "sizeBytes": 24151,
+      "sha256": "8f4d3004a506a6b887422ccee7f9d8b62acf3d4ea85e5ef0572623e5bd028e22"
     },
     {
       "path": "src/components/Scouting/ScoutingHub.tsx",
@@ -848,8 +1293,8 @@
     },
     {
       "path": "src/data/deporversoClubData.ts",
-      "sizeBytes": 21916,
-      "sha256": "a4cc0d3ce2374b11a721fda5a8833959822ebc8afcbb59929189d02d89683bf7"
+      "sizeBytes": 21911,
+      "sha256": "cc1857e2c34fa909463932c8cf29d55729a589637d1eb4f06aef8670e4d8e873"
     },
     {
       "path": "src/data/mockCrmData.ts",
@@ -873,8 +1318,8 @@
     },
     {
       "path": "src/data/sportsWebp.ts",
-      "sizeBytes": 3734,
-      "sha256": "d0f74aa9243b64710f67ed7125a950107afd554c07baf1f4f1b695a78bfc46c1"
+      "sizeBytes": 4057,
+      "sha256": "18f2a26b12bee0390e8bf1395f1413d56755a27011411a5892e9968570dfdb22"
     },
     {
       "path": "src/data/sportTemplates.ts",
@@ -883,8 +1328,8 @@
     },
     {
       "path": "src/data/sportThemesData.ts",
-      "sizeBytes": 21041,
-      "sha256": "4837706905169671aa19c05c7f76c1bfb470668cbbea44433ae6bdb3de262565"
+      "sizeBytes": 20813,
+      "sha256": "a32763567c4d245677ce7a0e7a265c32d830be682e035644ed8b263d8001c03a"
     },
     {
       "path": "src/data/sqlScript.ts",
@@ -930,6 +1375,11 @@
       "path": "src/services/authService.ts",
       "sizeBytes": 8327,
       "sha256": "d9796f85fa3d3ae76f666932d8c7473e9c1405d2974b4a00df69f8f168bfe198"
+    },
+    {
+      "path": "src/services/firebaseAuth.ts",
+      "sizeBytes": 2464,
+      "sha256": "a8b4408ab83578c2732e1e152ed4f3117a46e4f0d9495d7355b0b34a83d96471"
     },
     {
       "path": "src/services/firebaseService.ts",

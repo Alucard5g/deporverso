@@ -45,8 +45,6 @@ gcloud run deploy "$SERVICE_NAME" \
   --cpu-boost \
   --min-instances 0 \
   --max-instances 10 \
-  --startup-probe-path=/api/health \
-  --liveness-probe-path=/api/health \
   --set-env-vars NODE_ENV=production,PORT=8080,FIREBASE_PROJECT_ID=thin-aloe-bbndl
 
 # 4. Obtener y mostrar la URL del servicio

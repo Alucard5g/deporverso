@@ -4,7 +4,8 @@ import {
   Heart, Sparkles, MessageCircle, Search, Filter, Award, Flame, 
   AlertTriangle, Check, ArrowRight, Eye, Star, Zap, Clock, MapPin, 
   ChevronRight, ExternalLink, Download, FileText, Activity, ChevronDown,
-  Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft, Tv
+  Globe, Radio, Play, RefreshCw, Send, ThumbsUp, X, ArrowRightLeft, Tv,
+  ShieldCheck, Video, Tag, DollarSign
 } from 'lucide-react';
 import { Tenant, Match, Team, Player, Sport, AiChronicle, MatchEvent } from '../../types';
 import { FanAuthModal } from '../Fan/FanAuthModal';
@@ -18,9 +19,11 @@ import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
 import { InscriptionsAndStreaming } from './InscriptionsAndStreaming';
 import { LiveStreamingPanel } from './LiveStreamingPanel';
 import pichinchaPortadaImg from '../../assets/images/pichincha_portada.jpg';
+import ligaBarrialPichinchaHero from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
 import heroBannerImg from '../../assets/images/league_cover_premium_1791927270491.jpg';
 import basketballHeroImg from '../../assets/images/basketball_hero_bg_1785854264293.jpg';
 import volleyballHeroImg from '../../assets/images/volleyball_hero_bg_1785854282070.jpg';
+import { PichinchaExecutiveDemo } from './PichinchaExecutiveDemo';
 
 interface LeagueDashboardProps {
   tenant: Tenant;
@@ -98,7 +101,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
     return '/sports/drive/futbol_sq.webp';
   }, [tenant.sport_code, sport?.name]);
 
-  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'analytics' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium'>('inicio');
+  const [activeTab, setActiveTab] = useState<'inicio' | 'standings' | 'matches' | 'teams' | 'analytics' | 'transfers' | 'blog' | 'online' | 'rules' | '3d-stadium' | 'dossier-directorio'>('inicio');
   const [streamingMode, setStreamingMode] = useState<'vocalia' | 'var' | 'tv'>('vocalia');
   const [playerForTransfer, setPlayerForTransfer] = useState<Player | null>(null);
   const [standingsSubTab, setStandingsSubTab] = useState<'table' | 'scorers' | 'fairplay'>('table');
@@ -543,6 +546,17 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('dossier-directorio')}
+            className={`whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'dossier-directorio' 
+                ? 'deporverso-tab-pill-active font-semibold text-cyan-300' 
+                : 'deporverso-tab-pill-inactive text-amber-300/90 hover:text-amber-300'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-cyan-400" /> Dossier Directorio & ROI
+          </button>
+
+          <button
             onClick={() => setActiveTab('standings')}
             className={`whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'standings' 
@@ -644,7 +658,134 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
 
         {/* SECTION: INICIO (SUMMARY OVERVIEW) */}
         {activeTab === 'inicio' && (
-          <div className="space-y-8">
+          <div className="space-y-8 animate-in fade-in duration-300">
+            {/* ================================================================ */}
+            {/* PORTADA OFICIAL CINEMATOGRÁFICA DE LA LIGA BARRIAL PICHINCHA      */}
+            {/* ================================================================ */}
+            <div className="relative rounded-3xl overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,229,255,0.15)] bg-[#040816]">
+              {/* Imagen de Portada de la Liga Pichincha con estadio lleno y cordillera de los Andes al atardecer */}
+              <div className="relative h-72 sm:h-96 md:h-[420px] w-full overflow-hidden">
+                <img 
+                  src={ligaBarrialPichinchaHero} 
+                  alt="Portada Oficial de la Liga Barrial Pichincha" 
+                  className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-110 transform hover:scale-105 transition-transform duration-700"
+                />
+                {/* Gradientes cinematográficos de alta fidelidad */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#040816]/95 via-[#040816]/40 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-[#040816]/80 to-transparent pointer-events-none" />
+
+                {/* Badges de Certificación y Temporada en la parte superior */}
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2">
+                  <div className="bg-black/80 backdrop-blur-md border border-cyan-400/50 text-cyan-300 px-3.5 py-1.5 rounded-full text-xs font-mono font-black flex items-center gap-2 shadow-xl">
+                    <Shield className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    <span>LIGA DEPORTIVA BARRIAL PICHINCHA</span>
+                  </div>
+                  <div className="bg-amber-400/90 text-slate-950 font-black px-3 py-1.5 rounded-full text-xs font-mono tracking-wide shadow-lg">
+                    SERIE A & SERIE B · QUITO 2026
+                  </div>
+                </div>
+
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 hidden sm:flex items-center gap-2">
+                  <div className="bg-emerald-500/20 backdrop-blur-md border border-emerald-400/40 text-emerald-300 px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 shadow-lg">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Vocalía Digital Activa</span>
+                  </div>
+                </div>
+
+                {/* Contenido Principal sobre la Portada */}
+                <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 z-10 space-y-4">
+                  <div className="space-y-2 max-w-3xl">
+                    <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
+                      <span>PORTAL DEMO OFICIAL PARA DIRIGENTES & CLUBES</span>
+                      <span className="text-white/30">/</span>
+                      <span className="text-amber-300 font-bold">24 CLUBES FEDERADOS</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none drop-shadow-md">
+                      El Deporte Barrial de Pichincha en el Multiverso Digital
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-200 line-clamp-2 sm:line-clamp-none max-w-2xl leading-relaxed drop-shadow">
+                      DeporVerso automatiza por $35 por club: la Liga cobra su inscripción habitual (ej. $50 a $100) y gana $15 netos por club. Reduce la garantía al 50% mínimo por el streaming y VAR (provistos por la app), y comisiona el 2% por indumentaria en heroesdeldeporte.com.
+                    </p>
+                  </div>
+
+                  {/* Botones de Acción Inmediata para Vender la Demo */}
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={() => setActiveTab('dossier-directorio')}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-300 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/30 flex items-center gap-2 cursor-pointer transition-all transform hover:scale-[1.02] active:scale-95"
+                    >
+                      <DollarSign className="w-4 h-4 text-slate-950" />
+                      <span>Ver Modelo de Monetización & Cierre Financiero</span>
+                    </button>
+
+                    {onNavigateTab && (
+                      <button
+                        onClick={() => onNavigateTab('club-deporverso')}
+                        className="px-4 py-2.5 rounded-xl bg-black/60 hover:bg-black/90 backdrop-blur-md border border-cyan-400/40 text-cyan-300 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md hover:border-cyan-400"
+                      >
+                        <Star className="w-4 h-4 text-cyan-400" />
+                        <span>Ver Demo Club Deporverso</span>
+                      </button>
+                    )}
+
+                    {onOpenStepTour && (
+                      <button
+                        onClick={() => onOpenStepTour(0)}
+                        className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-medium text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        <span>Iniciar Tour Guiado</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Franja Inferior de Métricas de Alto Impacto para Vender la Demo */}
+              <div className="bg-[#060b18] border-t border-white/10 px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Margen Inscripción Liga</span>
+                    <span className="font-black text-emerald-400 text-sm">+$15 a $65 / Club</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Garantía Clubes</span>
+                    <span className="font-black text-amber-300 text-sm">-50% Reducción Riesgo</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                    <Tag className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Tienda Oficial (2% Liga)</span>
+                    <span className="font-black text-cyan-300 text-sm">heroesdeldeporte.com</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                    <Video className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">VAR & Streaming</span>
+                    <span className="font-black text-purple-300 text-sm">100% Provisto por App</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Minimalist Glass Stat Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 p-5 rounded-2xl space-y-2 transition-all group">
@@ -1180,6 +1321,27 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                 initialMode="STADIUM"
               />
             </div>
+          </div>
+        )}
+
+        {/* SECTION: DOSSIER EJECUTIVO PARA DIRECTORIO & PRESIDENTES */}
+        {activeTab === 'dossier-directorio' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <PichinchaExecutiveDemo
+              tenant={tenant}
+              sport={sport}
+              matches={matches}
+              teams={teams}
+              players={players}
+              onLaunchTour={onOpenStepTour ? () => onOpenStepTour(0) : undefined}
+              onNavigateSubTab={(tab) => {
+                if (tab === 'standings') setActiveTab('standings');
+                else if (tab === 'matches') setActiveTab('matches');
+                else if (tab === 'teams') setActiveTab('teams');
+                else if (tab === 'var') { setActiveTab('online'); setStreamingMode('var'); }
+                else if (tab === 'vocalia') { setActiveTab('online'); setStreamingMode('vocalia'); }
+              }}
+            />
           </div>
         )}
 
