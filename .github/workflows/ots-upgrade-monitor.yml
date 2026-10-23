@@ -1,0 +1,80 @@
+name: ⛓️ CIG OpenTimestamps Bitcoin Block Confirmation Monitor
+
+# ==============================================================================
+# CORPORACIÓN E INNOVACIÓN GUERRA (CIG)
+# CRON JOB AUTOMÁTICO DE MONITOREO Y CONSOLIDACIÓN DE SELLADO EN BITCOIN
+# ==============================================================================
+# Se ejecuta cada 24 horas para:
+# 1. Comprobar si el bloque de Bitcoin que incluye el Master Hash ya fue confirmado.
+# 2. Ejecutar `ots upgrade` para consolidar el recibo OTS con la prueba del bloque de Bitcoin.
+# 3. Sincronizar automáticamente en public/.well-known/master-hash.txt.ots.
+# 4. Hacer commit y push automático de la prueba pericial definitiva.
+# ==============================================================================
+
+on:
+  schedule:
+    # Se ejecuta todos los días a las 04:00 UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade-bitcoin-stamp:
+    name: "CIG OTS Upgrade: Consolidar Bloque Bitcoin"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 1. Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 2. Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 3. Instalar OpenTimestamps Client
+        run: |
+          python -m pip install --upgrade pip
+          pip install opentimestamps-client
+
+      - name: 🔍 4. Verificar existencia de master-hash.txt.ots
+        run: |
+          if [ ! -f "master-hash.txt.ots" ]; then
+            echo "Aviso: master-hash.txt.ots no existe aún en la raíz. Nada que actualizar."
+            exit 0
+          fi
+          echo "Estado actual del recibo OTS:"
+          ots info master-hash.txt.ots || true
+
+      - name: 🚀 5. Ejecutar ots upgrade (Consolidación con la Blockchain)
+        run: |
+          if [ -f "master-hash.txt.ots" ]; then
+            echo "Consultando calendarios de Bitcoin para consolidación..."
+            ots upgrade master-hash.txt.ots || echo "Aviso: Calendario aún en proceso de confirmación de bloque."
+            ots info master-hash.txt.ots || true
+          fi
+
+      - name: 🌐 6. Sincronizar evidencias públicas
+        run: |
+          if [ -f "master-hash.txt.ots" ]; then
+            mkdir -p public/.well-known/
+            cp -f master-hash.txt.ots public/.well-known/
+          fi
+
+      - name: 📤 7. Commit & Push de Recibo Consolidado
+        run: |
+          git config --global user.name "CIG Security Bot [OTS Monitor]"
+          git config --global user.email "security@cig-corporacion.com"
+          
+          git add master-hash.txt.ots public/.well-known/master-hash.txt.ots
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore(security): [skip ci] CIG OTS Bitcoin Block Confirmation Upgraded $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push origin ${{ github.ref_name }}
+            echo "✅ master-hash.txt.ots consolidado en el repositorio."
+          else
+            echo "ℹ️ No hay nuevas confirmaciones de bloque pendientes de sincronizar."
+          fi

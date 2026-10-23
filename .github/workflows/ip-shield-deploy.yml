@@ -1,0 +1,148 @@
+name: 🛡️ CIG Intellectual Property Shield & Automated Deploy (OpenTimestamps + Bitcoin)
+
+# ==============================================================================
+# CORPORACIÓN E INNOVACIÓN GUERRA (CIG)
+# PIPELINE DEVSECOPS DE BLINDAJE DE PROPIEDAD INTELECTUAL SIN SENADI
+# ==============================================================================
+# En cada push/merge a main o master:
+# 1. Audita el árbol de archivos y genera manifest.sha256 + master-hash.txt.
+# 2. Sella inalterablemente el Master Hash con OpenTimestamps (ots stamp)
+#    anclándolo a la blockchain de Bitcoin.
+# 3. Publica las evidencias en public/.well-known/ para verificación pública HTTPS.
+# 4. Hace commit y push de las evidencias al repositorio con [skip ci].
+# 5. Dispara el despliegue automatizado hacia Render o Google Cloud Run.
+# ==============================================================================
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.ots'
+      - 'manifest.sha256'
+      - 'master-hash.txt'
+      - 'public/.well-known/**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: ip-shield-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ip-shield-stamp-and-deploy:
+    name: "CIG IP Shield: SHA-256 + OpenTimestamps + Deploy"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 1. Checkout del código fuente
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🟢 2. Configurar Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 🐍 3. Configurar Python y Entorno OpenTimestamps
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 4. Instalar CLI Oficial de OpenTimestamps y Dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install opentimestamps-client
+          npm ci || npm install
+
+      - name: 🔐 5. Ejecutar Generador de Manifiesto CIG y Master Hash
+        run: |
+          node scripts/generate-intellectual-shield.js
+          echo "Verificando archivos generados:"
+          ls -lh manifest.sha256 master-hash.txt public/.well-known/
+          cat master-hash.txt
+
+      - name: ⛓️ 6. Sellar Master Hash en Bitcoin Calendar con OpenTimestamps (ots stamp)
+        run: |
+          echo "Sellando master-hash.txt con OpenTimestamps..."
+          # Realiza el timestamping contra los calendarios públicos de OpenTimestamps (Alice, Bob, Finney, Catena)
+          ots stamp master-hash.txt
+          
+          # Verificar que se generó master-hash.txt.ots
+          if [ -f "master-hash.txt.ots" ]; then
+            echo "✅ master-hash.txt.ots generado exitosamente."
+            ots info master-hash.txt.ots
+          else
+            echo "❌ Error: master-hash.txt.ots no fue generado."
+            exit 1
+          fi
+
+      - name: 🌐 7. Sincronizar Evidencias Públicas en public/.well-known/
+        run: |
+          mkdir -p public/.well-known/
+          cp -f manifest.sha256 public/.well-known/
+          cp -f master-hash.txt public/.well-known/
+          cp -f master-hash.txt.ots public/.well-known/
+          ls -lh public/.well-known/
+
+      - name: 📤 8. Commit & Push de Evidencias Criptográficas Inmutables
+        run: |
+          git config --global user.name "CIG Security Bot [DevSecOps]"
+          git config --global user.email "security@cig-corporacion.com"
+          
+          git add manifest.sha256 master-hash.txt master-hash.txt.ots public/.well-known/
+          
+          # Realizar commit solo si hay cambios en las evidencias
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore(security): [skip ci] CIG IP Shield SHA-256 + OpenTimestamps Evidence $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push origin ${{ github.ref_name }}
+            echo "✅ Evidencias de propiedad intelectual sincronizadas en el repositorio."
+          else
+            echo "ℹ️ No se detectaron cambios en el Master Hash, el commit no es necesario."
+          fi
+
+      - name: 🚀 9. Despliegue Automatizado a Render (Webhook Trigger)
+        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Disparando Webhook de despliegue en Render..."
+          curl -f -X POST "$RENDER_DEPLOY_HOOK_URL" || echo "Aviso: Webhook de Render no respondió 200, verificar URL."
+
+      - name: ☁️ 10. Despliegue Automatizado a Google Cloud Run (Opcional si configurado)
+        if: ${{ env.GCP_PROJECT_ID != '' && env.GCP_SA_KEY != '' }}
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          echo "Credenciales de Google Cloud Run detectadas. Iniciando despliegue de contenedor..."
+          echo "$GCP_SA_KEY" > /tmp/gcp-key.json
+          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+          gcloud config set project "$GCP_PROJECT_ID"
+          gcloud builds submit --tag "gcr.io/$GCP_PROJECT_ID/deporverso-app:${{ github.sha }}" .
+          gcloud run deploy deporverso-platform \
+            --image "gcr.io/$GCP_PROJECT_ID/deporverso-app:${{ github.sha }}" \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated || echo "Aviso: Cloud Run deploy finalizado con código no cero."
+          rm -f /tmp/gcp-key.json
+
+      - name: 📜 11. Resumen de Ejecución y Prueba Pericial
+        run: |
+          echo "===================================================================="
+          echo " [CIG DEVSECOPS] BLINDAJE DE PROPIEDAD INTELECTUAL CONCLUIDO"
+          echo "===================================================================="
+          echo " Master Hash: $(cat master-hash.txt)"
+          echo " Archivo OTS: master-hash.txt.ots"
+          echo " URL Pública de Hash: https://deporverso.com/.well-known/master-hash.txt"
+          echo " URL Pública de OTS:  https://deporverso.com/.well-known/master-hash.txt.ots"
+          echo " Validación local:    ots verify master-hash.txt.ots"
+          echo "===================================================================="

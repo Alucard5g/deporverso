@@ -1,0 +1,15 @@
+{
+  "entity": "Corporación e Innovación Guerra (CIG)",
+  "legal_entity": "Rolando Guerra (CIG)",
+  "project": "DeporVerso Platform",
+  "timestamp_utc": "2026-10-23T02:12:44.201Z",
+  "total_files_audited": 276,
+  "algorithm": "SHA-256 (NIST FIPS 180-4)",
+  "timestamping_protocol": "OpenTimestamps (Bitcoin Blockchain Calendar)",
+  "timestamp_provider": "alice.btc.calendar.opentimestamps.org",
+  "master_hash": "cedc7eb9ff3dedf79628543ef93a9139587080be3eeefe377b221c2fc639b7d6",
+  "manifest_url": "/.well-known/manifest.sha256",
+  "master_hash_url": "/.well-known/master-hash.txt",
+  "ots_receipt_url": "/.well-known/master-hash.txt.ots",
+  "legal_framework": "Convenio de Berna Art. 5.2 / Ley de Comercio Electrónico y Firmas Digitales / Presunción de Autoría Criptográfica"
+}

@@ -27,6 +27,7 @@ import { CampaignBannersGenerator } from './components/Marketing/CampaignBanners
 import { ExclusiveOfferCheckoutModal } from './components/Marketing/ExclusiveOfferCheckoutModal';
 import { ClubDeporversoShowcase } from './components/ClubShowcase/ClubDeporversoShowcase';
 import { MultiversoStepTourModal } from './components/Demo/MultiversoStepTourModal';
+import { IpShieldBadge } from './components/IpShieldBadge';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -835,6 +836,13 @@ export default function App() {
             </pre>
           </div>
         )}
+        {/* FOOTER GLOBAL CON BLINDAJE DE PROPIEDAD INTELECTUAL CIG */}
+        <footer className="mt-12 pt-6 pb-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
+          <div className="flex items-center gap-2">
+            <span>© 2026 DeporVerso · Corporación e Innovación Guerra (CIG)</span>
+          </div>
+          <IpShieldBadge />
+        </footer>
       </main>
 
       {/* MODAL OFICIAL DE AFILIACIÓN DE LIGAS */}

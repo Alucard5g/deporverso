@@ -55,6 +55,21 @@ async function startServer() {
   const reportsStaticDir = path.join(process.cwd(), 'public', 'generated-reports');
   app.use('/generated-reports', express.static(reportsStaticDir));
 
+  // Servir estáticamente evidencias públicas de propiedad intelectual CIG (OpenTimestamps / Master Hash)
+  const wellKnownDir = path.join(process.cwd(), 'public', '.well-known');
+  app.use('/.well-known', express.static(wellKnownDir, {
+    dotfiles: 'allow',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.ots')) {
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', 'attachment; filename="master-hash.txt.ots"');
+      } else {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      }
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+  }));
+
   // Initialize Gemini AI Client (Server Side)
   const getGenAIClient = () => {
     const apiKey = process.env.GEMINI_API_KEY;

@@ -117,3 +117,71 @@ cigSecurityRouter.post('/dispatch-notification', async (req: Request, res: Respo
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+/**
+ * 4. Generar Dictamen Pericial Notariado CIG en PDF (Tarea 1)
+ * Exclusivo para Rolando Guerra y defensa legal de CIG
+ */
+cigSecurityRouter.post('/generate-legal-certificate-pdf', async (req: Request, res: Response) => {
+  try {
+    const { generateLegalIpCertificatePdf } = await import('../../scripts/export-legal-ip-certificate.js');
+    const result = await generateLegalIpCertificatePdf();
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * 5. Consultar Estado de Anclaje de Bitcoin y OpenTimestamps (Tarea 2)
+ */
+cigSecurityRouter.get('/ots-status', (req: Request, res: Response) => {
+  try {
+    const masterHashPath = path.join(ROOT_DIR, 'master-hash.txt');
+    const otsPath = path.join(ROOT_DIR, 'master-hash.txt.ots');
+    const manifestShaPath = path.join(ROOT_DIR, 'manifest.sha256');
+
+    const hasMasterHash = fs.existsSync(masterHashPath);
+    const hasOts = fs.existsSync(otsPath);
+    const hasManifest = fs.existsSync(manifestShaPath);
+
+    let masterHash = '';
+    if (hasMasterHash) {
+      masterHash = fs.readFileSync(masterHashPath, 'utf-8').trim();
+    }
+
+    let otsSizeBytes = 0;
+    if (hasOts) {
+      otsSizeBytes = fs.statSync(otsPath).size;
+    }
+
+    res.json({
+      success: true,
+      masterHash,
+      hasOtsReceipt: hasOts,
+      otsSizeBytes,
+      hasManifest,
+      blockchain: 'Bitcoin',
+      standard: 'OpenTimestamps (RFC compliance / SHA-256)',
+      owner: 'Rolando Guerra (Corporación e Innovación Guerra - CIG)',
+      lastAuditedUtc: hasMasterHash ? fs.statSync(masterHashPath).mtime.toISOString() : null
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * 6. Descarga Privada del Manifiesto de Código (manifest.sha256)
+ * Oculto al público general; exclusivo para el Administrador
+ */
+cigSecurityRouter.get('/download-manifest', (req: Request, res: Response) => {
+  const manifestPath = path.join(ROOT_DIR, 'manifest.sha256');
+  if (!fs.existsSync(manifestPath)) {
+    return res.status(404).send('Manifiesto no encontrado. Ejecute primero npm run ip:shield.');
+  }
+
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="manifest.sha256"');
+  res.sendFile(manifestPath);
+});

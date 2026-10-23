@@ -1,5 +1,6 @@
 import React from 'react';
 import { Globe, ExternalLink, Shield, Heart } from 'lucide-react';
+import { IpShieldBadge } from '../IpShieldBadge';
 
 interface FooterProps {
   onNavigateAct: (actNumber: 1 | 2 | 3 | 4) => void;
@@ -131,10 +132,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateAct, onEnterPlatform }
           </div>
         </div>
 
+        {/* CIG Intellectual Property Shield row */}
+        <div className="py-6 border-b border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-slate-400 text-xs">
+            <span className="text-white font-bold font-mono">Blindaje CIG:</span> Propiedad intelectual protegida criptográficamente con SHA-256 y sellado OpenTimestamps en Bitcoin.
+          </div>
+          <IpShieldBadge />
+        </div>
+
         {/* Bottom copyright row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © 2026 <strong>DeporVerso</strong> (deporverso.com). Todos los derechos reservados.
+            © 2026 <strong>DeporVerso</strong> (deporverso.com). Corporación e Innovación Guerra (CIG). Todos los derechos reservados.
           </div>
           <div className="flex items-center gap-4">
             <span>Privacidad</span>
