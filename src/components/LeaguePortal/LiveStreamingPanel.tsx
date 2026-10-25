@@ -34,7 +34,8 @@ import {
   Megaphone,
   Film,
   Cloud,
-  Bot
+  Bot,
+  X
 } from 'lucide-react';
 import { Tenant, Sport, Match, Team, Player } from '../../types';
 import { RtmpQrModal } from './streaming/RtmpQrModal';
@@ -112,6 +113,86 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [activeCameraAngle, setActiveCameraAngle] = useState<'cam1' | 'cam2' | 'cam3'>('cam1');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [showFullscreenControls, setShowFullscreenControls] = useState<boolean>(true);
+  const hideControlsTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-ocultar botones de reproducción tras 3.5 segundos en pantalla completa
+  const resetFullscreenControlsTimer = useCallback(() => {
+    setShowFullscreenControls(true);
+    if (hideControlsTimerRef.current) {
+      clearTimeout(hideControlsTimerRef.current);
+    }
+    hideControlsTimerRef.current = setTimeout(() => {
+      setShowFullscreenControls(false);
+    }, 3500);
+  }, []);
+
+  // Manejador Universal de Pantalla Completa (iOS Safari, Android Chrome, WebViews y Desktop)
+  const handleToggleFullscreen = useCallback(() => {
+    setIsFullscreen((prev) => {
+      const next = !prev;
+      if (next) {
+        document.body.style.overflow = 'hidden';
+        resetFullscreenControlsTimer();
+
+        // Intento defensivo con Fullscreen API nativo (Android / Chrome / Desktop)
+        try {
+          const el = playerContainerRef.current;
+          if (el && el.requestFullscreen) {
+            el.requestFullscreen().catch(() => {});
+          } else if (el && (el as any).webkitRequestFullscreen) {
+            (el as any).webkitRequestFullscreen();
+          }
+        } catch (e) {
+          // El modo Full-Window Overlay en CSS garantiza el 100% de cobertura en iOS y Android
+        }
+      } else {
+        document.body.style.overflow = '';
+        if (hideControlsTimerRef.current) {
+          clearTimeout(hideControlsTimerRef.current);
+        }
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if ((document as any).webkitFullscreenElement && (document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+          }
+        } catch (e) {}
+      }
+      return next;
+    });
+  }, [resetFullscreenControlsTimer]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isNativeFs = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      if (!isNativeFs && isFullscreen) {
+        setIsFullscreen(false);
+        document.body.style.overflow = '';
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        handleToggleFullscreen();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+      }
+    };
+  }, [isFullscreen, handleToggleFullscreen]);
 
   // VAR & Replay Simulation State
   const [varPlaybackRate, setVarPlaybackRate] = useState<number>(1.0);
@@ -863,19 +944,26 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </button>
 
               <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="p-1.5 bg-white/5 hover:bg-white/10 text-white rounded-xl cursor-pointer"
-                title="Pantalla Completa"
+                onClick={handleToggleFullscreen}
+                className="p-1.5 bg-white/5 hover:bg-white/10 text-white border border-cyan-500/40 hover:border-cyan-400 rounded-xl cursor-pointer shadow-md transition-all active:scale-95"
+                title="Pantalla Completa (iOS y Android)"
               >
-                {isFullscreen ? <Minimize2 className="w-4 h-4 text-slate-300" /> : <Maximize2 className="w-4 h-4 text-slate-300" />}
+                {isFullscreen ? <Minimize2 className="w-4 h-4 text-cyan-400" /> : <Maximize2 className="w-4 h-4 text-cyan-400" />}
               </button>
             </div>
           </div>
 
-          {/* CONTENEDOR DEL REPRODUCTOR EN VIVO REAL */}
+          {/* CONTENEDOR DEL REPRODUCTOR EN VIVO REAL (COMPATIBLE IOS & ANDROID PANTALLA COMPLETA) */}
           <div 
-            className={`relative aspect-video w-full rounded-3xl overflow-hidden border-2 shadow-2xl bg-black transition-all ${
-              streamMode === 'vocalia' ? 'border-emerald-500/30 shadow-emerald-500/10' : 'border-cyan-500/30 shadow-cyan-500/10'
+            ref={playerContainerRef}
+            onClick={resetFullscreenControlsTimer}
+            onTouchStart={resetFullscreenControlsTimer}
+            className={`transition-all duration-300 ${
+              isFullscreen 
+                ? 'fixed inset-0 z-[99999] w-screen h-[100dvh] bg-black flex flex-col justify-center items-center rounded-none border-0 shadow-none m-0 p-0 overflow-hidden select-none' 
+                : `relative aspect-video w-full rounded-3xl overflow-hidden border-2 shadow-2xl bg-black ${
+                    streamMode === 'vocalia' ? 'border-emerald-500/30 shadow-emerald-500/10' : 'border-cyan-500/30 shadow-cyan-500/10'
+                  }`
             }`}
           >
             {/* NOTIFICACIÓN EN TIEMPO REAL: JUGADA CORTADA & GUARDADA EN VAR */}
@@ -894,7 +982,9 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                   autoPlay
                   playsInline
                   muted={true}
-                  className="w-full h-full object-cover select-none pointer-events-none"
+                  className={`w-full h-full select-none pointer-events-none transition-all ${
+                    isFullscreen ? 'object-contain max-h-[100dvh] max-w-full' : 'object-cover'
+                  }`}
                   style={{
                     transform: 'translateZ(0)',
                     willChange: 'transform',
@@ -902,19 +992,21 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                   }}
                 />
 
-                {/* Live indicators */}
-                <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
-                  <div className="bg-black/80 backdrop-blur-md px-3 py-1 rounded-xl border border-rose-500/40 text-[11px] font-mono text-rose-400 flex items-center gap-1.5 shadow-lg">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                    <span>WEBRTC EN CANCHA ({cameraFacingMode === 'environment' ? 'CAM TRASERA' : 'CAM FRONTAL'})</span>
-                  </div>
-                  {isRecordingLive && (
-                    <div className="bg-red-900/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-red-500/50 text-[10px] font-mono text-white flex items-center gap-1.5 shadow-lg">
-                      <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
-                      <span>BUFFER VAR ACTIVO</span>
+                {/* Live indicators en modo normal */}
+                {!isFullscreen && (
+                  <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                    <div className="bg-black/80 backdrop-blur-md px-3 py-1 rounded-xl border border-rose-500/40 text-[11px] font-mono text-rose-400 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                      <span>WEBRTC EN CANCHA ({cameraFacingMode === 'environment' ? 'CAM TRASERA' : 'CAM FRONTAL'})</span>
                     </div>
-                  )}
-                </div>
+                    {isRecordingLive && (
+                      <div className="bg-red-900/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-red-500/50 text-[10px] font-mono text-white flex items-center gap-1.5 shadow-lg">
+                        <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+                        <span>BUFFER VAR ACTIVO</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Error Banner with clear recovery actions */}
                 {cameraError && (
@@ -950,22 +1042,170 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               <div className="w-full h-full relative">
                 <iframe
                   title="Transmisión en Vivo del Partido"
-                  src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=${isMuted ? '1' : '0'}&controls=1&modestbranding=1&rel=0`}
-                  className="w-full h-full object-cover border-0"
+                  src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=${isMuted ? '1' : '0'}&controls=1&modestbranding=1&rel=0&playsinline=1`}
+                  className={`w-full h-full border-0 transition-all ${
+                    isFullscreen ? 'object-contain max-h-[100dvh] max-w-full' : 'object-cover'
+                  }`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 ></iframe>
               </div>
             )}
 
-            {/* AUSPICIANTE Y PUBLICIDAD DINÁMICA ROTATIVA (TAREA 3) */}
-            <SponsorOverlayBanner
-              isVisible={showSponsorOverlay}
-              onToggleVisibility={() => setShowSponsorOverlay(!showSponsorOverlay)}
-            />
+            {/* ========================================================================= */}
+            {/* MODO PANTALLA COMPLETA LIMPIO: SOLO BOTONES DE REPRODUCCIÓN (IOS/ANDROID) */}
+            {/* ========================================================================= */}
+            {isFullscreen && (
+              <>
+                {/* BARRA SUPERIOR FLOTANTE DE PANTALLA COMPLETA (AUTO-HIDE) */}
+                <div 
+                  className={`absolute top-0 inset-x-0 p-3 sm:p-5 z-50 flex items-center justify-between bg-gradient-to-b from-black/95 via-black/60 to-transparent transition-opacity duration-300 ${
+                    showFullscreenControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                  }`}
+                >
+                  {/* Marcador TV compacto en barra superior */}
+                  {showScoreOverlay && (
+                    <div className="flex items-center gap-2 text-white font-mono text-xs sm:text-sm bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 shadow-xl">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                      <span className="font-black text-rose-400 text-[10px] tracking-wider uppercase">LIVE</span>
+                      <span className="text-white/40">|</span>
+                      <span className="font-bold text-white truncate max-w-[120px] sm:max-w-none">{homeTeam.name}</span>
+                      <span className="text-amber-400 font-bold bg-white/10 px-1.5 py-0.5 rounded">{homeScore}</span>
+                      <span className="text-white/40">-</span>
+                      <span className="text-amber-400 font-bold bg-white/10 px-1.5 py-0.5 rounded">{awayScore}</span>
+                      <span className="font-bold text-white truncate max-w-[120px] sm:max-w-none">{awayTeam.name}</span>
+                      <span className="text-cyan-300 font-mono text-[11px] ml-1 font-bold">({matchMinutes}:{matchSeconds.toString().padStart(2, '0')})</span>
+                    </div>
+                  )}
 
-            {/* MARCADOR GRÁFICO SUPERPUESTO (LIVE BROADCAST TV OVERLAY) */}
-            {showScoreOverlay && (
+                  {!showScoreOverlay && (
+                    <div className="flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-xs font-mono text-white">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                      <span className="font-bold text-rose-400">EN VIVO · PANTALLA COMPLETA</span>
+                    </div>
+                  )}
+
+                  {/* Botones de acción superior en pantalla completa */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    {/* Botón Silenciar / Sonido */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); resetFullscreenControlsTimer(); }}
+                      className="p-2.5 rounded-xl bg-black/85 hover:bg-black text-white border border-white/20 backdrop-blur-md shadow-lg transition-all cursor-pointer active:scale-95"
+                      title={isMuted ? 'Activar Sonido' : 'Silenciar'}
+                    >
+                      {isMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-cyan-400" />}
+                    </button>
+
+                    {/* Botón Switch Cámara (WebRTC) */}
+                    {videoSourceType === 'webcam' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const nextMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+                          setCameraFacingMode(nextMode);
+                          startCamera(nextMode);
+                          resetFullscreenControlsTimer();
+                        }}
+                        className="p-2.5 rounded-xl bg-black/85 hover:bg-black text-cyan-300 border border-cyan-500/40 backdrop-blur-md shadow-lg transition-all cursor-pointer active:scale-95"
+                        title="Cambiar Cámara (Frontal / Trasera)"
+                      >
+                        <SwitchCamera className="w-5 h-5" />
+                      </button>
+                    )}
+
+                    {/* BOTÓN SALIR DE PANTALLA COMPLETA (Icono exacto Minimize2 con borde cian) */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleFullscreen(); }}
+                      className="p-2.5 rounded-xl bg-black/90 hover:bg-black text-cyan-400 border border-cyan-400 backdrop-blur-md shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all cursor-pointer hover:scale-105 active:scale-95"
+                      title="Salir de Pantalla Completa"
+                    >
+                      <Minimize2 className="w-5 h-5 text-cyan-400" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* BARRA INFERIOR FLOTANTE DE REPRODUCCIÓN (AUTO-HIDE) */}
+                <div 
+                  className={`absolute bottom-0 inset-x-0 p-3 sm:p-5 z-50 flex flex-col gap-2.5 bg-gradient-to-t from-black/95 via-black/70 to-transparent transition-opacity duration-300 ${
+                    showFullscreenControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    {/* Botones de control de reproducción */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMuted(!isMuted);
+                          resetFullscreenControlsTimer();
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-mono text-xs font-bold flex items-center gap-2 backdrop-blur-md cursor-pointer transition-all active:scale-95"
+                      >
+                        {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+                        <span>{isMuted ? 'Activar Audio' : 'Audio ON'}</span>
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowScoreOverlay(!showScoreOverlay);
+                          resetFullscreenControlsTimer();
+                        }}
+                        className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-all active:scale-95 ${
+                          showScoreOverlay 
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
+                            : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'
+                        }`}
+                        title="Mostrar/Ocultar Marcador TV"
+                      >
+                        <Tv className="w-4 h-4" />
+                        <span className="hidden sm:inline">Marcador TV</span>
+                      </button>
+
+                      {videoSourceType === 'youtube' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setVideoSourceType('youtube');
+                            resetFullscreenControlsTimer();
+                          }}
+                          className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-mono text-xs font-bold flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-all active:scale-95"
+                          title="Recargar Transmisión"
+                        >
+                          <RotateCcw className="w-4 h-4 text-slate-300" />
+                          <span className="hidden sm:inline">Recargar</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Botón derecho Salir */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono text-slate-400 hidden md:inline">
+                        Toca la pantalla para ocultar/mostrar controles
+                      </span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleFullscreen(); }}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-300 text-slate-950 font-black text-xs font-mono flex items-center gap-2 shadow-lg shadow-cyan-500/30 hover:brightness-110 cursor-pointer transition-all active:scale-95"
+                      >
+                        <Minimize2 className="w-4 h-4 text-slate-950" />
+                        <span>Salir Fullscreen</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* AUSPICIANTE Y PUBLICIDAD DINÁMICA ROTATIVA (Solo en modo normal) */}
+            {!isFullscreen && (
+              <SponsorOverlayBanner
+                isVisible={showSponsorOverlay}
+                onToggleVisibility={() => setShowSponsorOverlay(!showSponsorOverlay)}
+              />
+            )}
+
+            {/* MARCADOR GRÁFICO SUPERPUESTO (LIVE BROADCAST TV OVERLAY - Solo en modo normal) */}
+            {!isFullscreen && showScoreOverlay && (
               <div className="absolute top-4 left-4 right-4 pointer-events-none flex flex-col gap-2 z-20">
                 {/* Marcador Principal */}
                 <div className="self-start flex items-center bg-black/90 backdrop-blur-md rounded-2xl border border-white/20 p-2 shadow-2xl">
@@ -1012,21 +1252,24 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </div>
             )}
 
-            {/* REACCIONES FLOTANTES DE AFICIONADOS */}
-            <div className="absolute bottom-16 right-4 flex flex-col gap-2 pointer-events-none z-20">
-              {fanReactions.map(r => (
-                <div 
-                  key={r.id} 
-                  className="animate-in fade-in slide-in-from-bottom-5 duration-300 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-xs font-bold text-white flex items-center gap-1.5 shadow-lg"
-                >
-                  <span className="text-base">{r.emoji}</span>
-                  <span>{r.text}</span>
-                </div>
-              ))}
-            </div>
+            {/* REACCIONES FLOTANTES DE AFICIONADOS (Solo en modo normal) */}
+            {!isFullscreen && (
+              <div className="absolute bottom-16 right-4 flex flex-col gap-2 pointer-events-none z-20">
+                {fanReactions.map(r => (
+                  <div 
+                    key={r.id} 
+                    className="animate-in fade-in slide-in-from-bottom-5 duration-300 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-xs font-bold text-white flex items-center gap-1.5 shadow-lg"
+                  >
+                    <span className="text-base">{r.emoji}</span>
+                    <span>{r.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
-            {/* CONTROLES INFERIORES SUPERPUESTOS */}
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-auto z-20">
+            {/* CONTROLES INFERIORES SUPERPUESTOS (Solo en modo normal) */}
+            {!isFullscreen && (
+              <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-auto z-20">
               {/* Botones de Reacción Rápida para la Hinchada */}
               <div className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2 py-1 rounded-xl border border-white/10">
                 <button
@@ -1071,6 +1314,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                 <span className="text-amber-400">SRS RTMP</span>
               </div>
             </div>
+            )}
           </div>
 
           {/* ============================================================ */}

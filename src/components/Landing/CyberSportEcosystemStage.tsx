@@ -614,17 +614,47 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
   };
 
   const handleToggleFullscreen = () => {
-    if (!videoContainerRef.current) return;
-    if (!document.fullscreenElement) {
-      videoContainerRef.current.requestFullscreen().catch(() => {
-        setIsFullscreen(!isFullscreen);
-      });
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
-    }
+    setIsFullscreen((prev) => {
+      const next = !prev;
+      if (next) {
+        document.body.style.overflow = 'hidden';
+        try {
+          const el = videoContainerRef.current;
+          if (el && el.requestFullscreen) {
+            el.requestFullscreen().catch(() => {});
+          } else if (el && (el as any).webkitRequestFullscreen) {
+            (el as any).webkitRequestFullscreen();
+          }
+        } catch (e) {}
+      } else {
+        document.body.style.overflow = '';
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if ((document as any).webkitFullscreenElement && (document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+          }
+        } catch (e) {}
+      }
+      return next;
+    });
   };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isNativeFs = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      if (!isNativeFs && isFullscreen) {
+        setIsFullscreen(false);
+        document.body.style.overflow = '';
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [isFullscreen]);
 
   const handleActivateFromModal = (module: SportEcosystemModule) => {
     if (onSelectSport) {
@@ -675,87 +705,97 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
       {/* ======================================================== */}
       <div 
         ref={videoContainerRef}
-        className={`relative w-full rounded-3xl overflow-hidden border border-cyan-500/30 bg-[#030712] shadow-[0_0_60px_rgba(0,102,255,0.25)] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 transition-all ${
-          isFullscreen ? 'p-0 h-screen rounded-none' : ''
+        className={`transition-all duration-300 ${
+          isFullscreen 
+            ? 'fixed inset-0 z-[99999] w-screen h-[100dvh] bg-black flex flex-col justify-center items-center rounded-none border-0 shadow-none m-0 p-0 overflow-hidden select-none' 
+            : 'relative w-full rounded-3xl overflow-hidden border border-cyan-500/30 bg-[#030712] shadow-[0_0_60px_rgba(0,102,255,0.25)] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8'
         }`}
       >
         {/* Fondo ambient lighting estático (sin animaciones bruscas) */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_40%,rgba(0,102,255,0.22),transparent_75%)] pointer-events-none" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#00F0FF08_1px,transparent_1px),linear-gradient(to_bottom,#00F0FF08_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none" />
 
-        {/* CONTENEDOR MAESTRO DEL VIDEO - COMPLETAMENTE CENTRADO */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center">
+        {/* CONTENEDOR MAESTRO DEL VIDEO */}
+        <div className={`relative z-10 w-full flex flex-col items-center transition-all ${
+          isFullscreen ? 'h-full max-h-[100dvh] justify-between p-2 sm:p-4' : 'max-w-4xl mx-auto'
+        }`}>
           
-          {/* BARRA DE SELECCIÓN MULTI-CÁMARA SINCRONIZADA CON COLORES DEPORVERSO */}
-          <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#050B1A] border border-[#00F0FF]/30 shadow-lg backdrop-blur-md">
-              <button
-                type="button"
-                onClick={() => handleSwitchCamera('CAM_MAIN')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                  activeCamera === 'CAM_MAIN'
-                    ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
-                    : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
-                }`}
-              >
-                <Camera className="w-3.5 h-3.5" />
-                <span>CAM 01: Principal 4K</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSwitchCamera('CAM_GOAL')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                  activeCamera === 'CAM_GOAL'
-                    ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
-                    : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
-                }`}
-              >
-                <Crosshair className="w-3.5 h-3.5" />
-                <span>CAM 02: Arco & Gol</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSwitchCamera('CAM_VAR')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                  activeCamera === 'CAM_VAR'
-                    ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
-                    : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
-                }`}
-              >
-                <Shield className="w-3.5 h-3.5" />
-                <span>CAM 03: Cabina VAR</span>
-              </button>
-            </div>
-
-            {/* Selector de Slow Motion y Capacitación Arbitral */}
-            <div className="flex items-center gap-2">
-              {activeCamera === 'CAM_VAR' && (
+          {/* BARRA DE SELECCIÓN MULTI-CÁMARA (Visible en modo normal y adaptada) */}
+          {!isFullscreen && (
+            <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#050B1A] border border-[#00F0FF]/30 shadow-lg backdrop-blur-md">
                 <button
                   type="button"
-                  onClick={() => setIsSlowMo(!isSlowMo)}
-                  className={`px-2.5 py-1.5 rounded-lg font-mono text-[10px] font-black border transition-all cursor-pointer ${
-                    isSlowMo 
-                      ? 'bg-cyan-500/20 text-[#00F0FF] border-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.4)]'
-                      : 'bg-[#050B1A] text-slate-400 border-[#00F0FF]/30 hover:text-white'
+                  onClick={() => handleSwitchCamera('CAM_MAIN')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_MAIN'
+                      ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
+                      : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
                   }`}
                 >
-                  {isSlowMo ? 'SLOW-MO 0.5X ACTIVO' : 'VELOCIDAD NORMAL 1.0X'}
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>CAM 01: Principal 4K</span>
                 </button>
-              )}
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchCamera('CAM_GOAL')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_GOAL'
+                      ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
+                      : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
+                  }`}
+                >
+                  <Crosshair className="w-3.5 h-3.5" />
+                  <span>CAM 02: Arco & Gol</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchCamera('CAM_VAR')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_VAR'
+                      ? 'bg-gradient-to-r from-[#0066FF] to-[#00F0FF] text-slate-950 font-black shadow-[0_0_15px_rgba(0,240,255,0.6)]'
+                      : 'text-slate-400 hover:text-cyan-300 hover:bg-white/5'
+                  }`}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>CAM 03: Cabina VAR</span>
+                </button>
+              </div>
+
+              {/* Selector de Slow Motion y Capacitación Arbitral */}
+              <div className="flex items-center gap-2">
+                {activeCamera === 'CAM_VAR' && (
+                  <button
+                    type="button"
+                    onClick={() => setIsSlowMo(!isSlowMo)}
+                    className={`px-2.5 py-1.5 rounded-lg font-mono text-[10px] font-black border transition-all cursor-pointer ${
+                      isSlowMo 
+                        ? 'bg-cyan-500/20 text-[#00F0FF] border-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.4)]'
+                        : 'bg-[#050B1A] text-slate-400 border-[#00F0FF]/30 hover:text-white'
+                    }`}
+                  >
+                    {isSlowMo ? 'SLOW-MO 0.5X ACTIVO' : 'VELOCIDAD NORMAL 1.0X'}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* CHASIS ULTRA MODERNO DEL REPRODUCTOR */}
-          <div className={`relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-black border-2 shadow-[0_0_50px_rgba(0,240,255,0.35)] group transition-all duration-200 ${
+          <div className={`relative w-full overflow-hidden bg-black border-2 shadow-[0_0_50px_rgba(0,240,255,0.35)] group transition-all duration-200 ${
+            isFullscreen 
+              ? 'flex-1 max-h-[calc(100dvh-5.5rem)] rounded-none border-0 aspect-auto flex items-center justify-center' 
+              : 'aspect-video rounded-2xl sm:rounded-3xl'
+          } ${
             cameraTransitioning ? 'opacity-40 scale-[0.99] filter brightness-150' : 'opacity-100 scale-100'
           } ${
             activeCamera === 'CAM_MAIN' ? 'border-cyan-400/50' : activeCamera === 'CAM_GOAL' ? 'border-amber-400/50' : 'border-emerald-400/50'
           }`}>
             
-            {/* Barra superior HUD del reproductor */}
-            <div className="absolute top-0 inset-x-0 z-30 p-3 sm:p-4 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-auto">
+            {/* Barra superior HUD del reproductor (SOLO CONTROLES DE REPRODUCCIÓN) */}
+            <div className="absolute top-0 inset-x-0 z-30 p-3 sm:p-4 bg-gradient-to-b from-black/95 via-black/50 to-transparent flex items-center justify-between pointer-events-auto">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/90 text-white font-mono text-[10px] font-black uppercase tracking-wider shadow">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -770,7 +810,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                 }`}>
                   {activeCamera === 'CAM_MAIN' && 'CAM 01 • TRANSMISIÓN PRINCIPAL 4K'}
                   {activeCamera === 'CAM_GOAL' && 'CAM 02 • ÁNGULO DE ARCO Y LÍNEA DE GOL'}
-                  {activeCamera === 'CAM_VAR' && 'CAM 03 • CABINA DE REVISIÓN VAR & FUERA DE JUEGO'}
+                  {activeCamera === 'CAM_VAR' && 'CAM 03 • CABINA DE REVISIÓN VAR'}
                 </span>
               </div>
 
@@ -778,17 +818,18 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleReloadVideo}
-                  className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-slate-300 hover:text-cyan-300 border border-white/10 hover:border-cyan-400/50 transition-all cursor-pointer"
+                  className="p-1.5 sm:p-2 rounded-xl bg-black/80 hover:bg-black text-slate-300 hover:text-cyan-300 border border-white/20 hover:border-cyan-400/50 transition-all cursor-pointer shadow-md active:scale-95"
                   title="Recargar transmisión"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RotateCcw className="w-4 h-4" />
                 </button>
+                {/* BOTÓN PANTALLA COMPLETA CON ESTILO EXACTO DEL ATTACHMENT */}
                 <button
                   onClick={handleToggleFullscreen}
-                  className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-slate-300 hover:text-cyan-300 border border-white/10 hover:border-cyan-400/50 transition-all cursor-pointer"
-                  title="Pantalla completa"
+                  className="p-1.5 sm:p-2 rounded-xl bg-black/90 hover:bg-black text-cyan-400 border border-cyan-400 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.5)] transition-all cursor-pointer active:scale-95 hover:scale-105"
+                  title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa (iOS y Android)'}
                 >
-                  {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                  {isFullscreen ? <Minimize2 className="w-4 h-4 text-cyan-400" /> : <Maximize2 className="w-4 h-4 text-cyan-400" />}
                 </button>
               </div>
             </div>
@@ -974,42 +1015,108 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
 
           </div>
 
-          {/* TELEMETRÍA Y CONTROLES DEL BROADCAST INFERIOR */}
-          <div className="w-full mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-center">
-            <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest">Resolución</span>
-              <span className="text-xs sm:text-sm font-black text-cyan-300 mt-0.5">4K Ultra HD</span>
+          {/* BARRA INFERIOR DE PANTALLA COMPLETA LIMPIA (SOLO CONTROLES DE REPRODUCCIÓN) */}
+          {isFullscreen && (
+            <div className="w-full mt-2 p-2 sm:p-3 bg-black/90 backdrop-blur-md rounded-2xl border border-cyan-500/30 flex flex-wrap items-center justify-between gap-2 z-50">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchCamera('CAM_MAIN')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_MAIN'
+                      ? 'bg-cyan-500 text-black font-black'
+                      : 'bg-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>CAM 01</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchCamera('CAM_GOAL')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_GOAL'
+                      ? 'bg-amber-400 text-black font-black'
+                      : 'bg-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Crosshair className="w-3.5 h-3.5" />
+                  <span>CAM 02</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchCamera('CAM_VAR')}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    activeCamera === 'CAM_VAR'
+                      ? 'bg-emerald-400 text-black font-black'
+                      : 'bg-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>CAM 03 VAR</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleReloadVideo}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="Recargar señal"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Recargar</span>
+                </button>
+                <button
+                  onClick={handleToggleFullscreen}
+                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-300 text-slate-950 font-black font-mono text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/30 hover:brightness-110 transition-all cursor-pointer active:scale-95"
+                >
+                  <Minimize2 className="w-3.5 h-3.5 text-slate-950" />
+                  <span>Salir Pantalla Completa</span>
+                </button>
+              </div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest">Cuadros/Seg</span>
-              <span className="text-xs sm:text-sm font-black text-white mt-0.5">60 FPS Fluido</span>
+          )}
+
+          {/* TELEMETRÍA Y CONTROLES DEL BROADCAST INFERIOR (Ocultos en pantalla completa) */}
+          {!isFullscreen && (
+            <div className="w-full mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-center">
+              <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest">Resolución</span>
+                <span className="text-xs sm:text-sm font-black text-cyan-300 mt-0.5">4K Ultra HD</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest">Cuadros/Seg</span>
+                <span className="text-xs sm:text-sm font-black text-white mt-0.5">60 FPS Fluido</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest">Latencia VAR</span>
+                <span className="text-xs sm:text-sm font-black text-emerald-400 mt-0.5">0.4 seg CIG</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest">Procesador</span>
+                <span className="text-xs sm:text-sm font-black text-amber-300 mt-0.5">CIG Neural Core</span>
+              </div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest">Latencia VAR</span>
-              <span className="text-xs sm:text-sm font-black text-emerald-400 mt-0.5">0.4 seg CIG</span>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest">Procesador</span>
-              <span className="text-xs sm:text-sm font-black text-amber-300 mt-0.5">CIG Neural Core</span>
-            </div>
-          </div>
+          )}
 
         </div>
 
-        {/* BADGE CENTRAL INFERIOR DEPORVERSO CORE V2.4 */}
-        <div className="mt-6 flex items-center justify-center">
-          <div className="px-5 py-2 rounded-full bg-[#080F24]/90 backdrop-blur-2xl border border-[#00F0FF]/40 shadow-[0_0_30px_rgba(0,240,255,0.35)] flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00F0FF] animate-pulse" />
-            <span className="font-mono text-[11px] uppercase tracking-widest text-white font-extrabold flex items-center gap-1.5">
-              <span>DEPORVERSO CORE V2.4</span>
-            </span>
-            <span className="text-slate-600">|</span>
-            <span className="text-[11px] text-[#00F0FF] font-mono font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-              <span>99.99% Uptime</span>
-            </span>
+        {/* BADGE CENTRAL INFERIOR DEPORVERSO CORE V2.4 (Oculto en pantalla completa) */}
+        {!isFullscreen && (
+          <div className="mt-6 flex items-center justify-center">
+            <div className="px-5 py-2 rounded-full bg-[#080F24]/90 backdrop-blur-2xl border border-[#00F0FF]/40 shadow-[0_0_30px_rgba(0,240,255,0.35)] flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00F0FF] animate-pulse" />
+              <span className="font-mono text-[11px] uppercase tracking-widest text-white font-extrabold flex items-center gap-1.5">
+                <span>DEPORVERSO CORE V2.4</span>
+              </span>
+              <span className="text-slate-600">|</span>
+              <span className="text-[11px] text-[#00F0FF] font-mono font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                <span>99.99% Uptime</span>
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
 
