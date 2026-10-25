@@ -32,10 +32,22 @@ import {
   Sparkles, 
   ShieldCheck, 
   Smartphone, 
-  ExternalLink 
+  ExternalLink,
+  Wifi,
+  WifiOff,
+  Gauge,
+  Eye,
+  Clock,
+  ShieldAlert,
+  Award,
+  RefreshCw
 } from 'lucide-react';
 import { Match, Team, Tenant } from '../../../types';
 import { createVirtualPitchStream, VirtualStreamHandle } from '../../../utils/virtualCameraStream';
+import { syncVarIncidentToFirebase, syncMatchToFirebase } from '../../../services/firebaseService';
+import { offlineSyncQueue } from '../../../services/offlineSyncQueue';
+
+export type CompressionMode = 'auto' | 'ultra_saver' | 'balanced' | 'pro_hd';
 
 export interface TerminalCameraBroadcasterModalProps {
   isOpen: boolean;
@@ -93,9 +105,39 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   const [liveHomeScore, setLiveHomeScore] = useState<number>(match.home_score || 0);
   const [liveAwayScore, setLiveAwayScore] = useState<number>(match.away_score || 0);
 
-  // Telemetry simulation
+  // Telemetry simulation & Adaptive Bitrate Compression
   const [currentFps, setCurrentFps] = useState<number>(60);
   const [currentBitrate, setCurrentBitrate] = useState<string>('4.5 Mbps');
+  const [compressionMode, setCompressionMode] = useState<CompressionMode>('auto');
+  const [effectiveBitrateMode, setEffectiveBitrateMode] = useState<'ultra_saver' | 'balanced' | 'pro_hd'>('balanced');
+  const [networkQuality, setNetworkQuality] = useState<{
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  }>({
+    effectiveType: '4g',
+    downlink: 8.5,
+    rtt: 40,
+    saveData: false
+  });
+  const [totalDataSentBytes, setTotalDataSentBytes] = useState<number>(0);
+  const [dataSavingsBytes, setDataSavingsBytes] = useState<number>(0);
+
+  // VAR Smart Rolling Buffer (30-second Circular Memory Ring)
+  const rollingVarBufferRef = useRef<{ blob: Blob; timestamp: number }[]>([]);
+  const rollingRecorderRef = useRef<MediaRecorder | null>(null);
+  const [isVarReviewOpen, setIsVarReviewOpen] = useState<boolean>(false);
+  const [varClipUrl, setVarClipUrl] = useState<string | null>(null);
+  const [varClipBlob, setVarClipBlob] = useState<Blob | null>(null);
+  const [varPlaybackSpeed, setVarPlaybackSpeed] = useState<number>(0.25);
+  const [varDefenderLine, setVarDefenderLine] = useState<number>(45);
+  const [varAttackerLine, setVarAttackerLine] = useState<number>(48);
+  const [varRulingCategory, setVarRulingCategory] = useState<'OFFSIDE' | 'GOAL' | 'PENALTY' | 'FOUL'>('OFFSIDE');
+  const [varIncidentSending, setVarIncidentSending] = useState<boolean>(false);
+  const [varIncidentSentOk, setVarIncidentSentOk] = useState<boolean>(false);
+  const [isVarPlaying, setIsVarPlaying] = useState<boolean>(true);
+  const varVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // DOM and WebRTC References
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
@@ -209,6 +251,263 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
     setAudioLevel(0);
   };
 
+  // Helper de configuración de tasas de bits adaptativas
+  const getBitrateConfig = useCallback((mode: 'ultra_saver' | 'balanced' | 'pro_hd') => {
+    switch (mode) {
+      case 'ultra_saver':
+        return { videoBitsPerSecond: 700000, audioBitsPerSecond: 64000, label: '700 kbps (Ultra Ahorro -65%)' };
+      case 'balanced':
+        return { videoBitsPerSecond: 1800000, audioBitsPerSecond: 128000, label: '1.8 Mbps (Equilibrado)' };
+      case 'pro_hd':
+      default:
+        return { videoBitsPerSecond: 4500000, audioBitsPerSecond: 128000, label: '4.5 Mbps (HD Pro)' };
+    }
+  }, []);
+
+  // Monitor continuo de calidad de red (Network Information API) y Auto-Adaptación
+  useEffect(() => {
+    const updateNetwork = () => {
+      const conn = (navigator as any).connection;
+      if (conn) {
+        const info = {
+          effectiveType: conn.effectiveType || '4g',
+          downlink: typeof conn.downlink === 'number' ? conn.downlink : 8.5,
+          rtt: typeof conn.rtt === 'number' ? conn.rtt : 40,
+          saveData: !!conn.saveData
+        };
+        setNetworkQuality(info);
+
+        if (compressionMode === 'auto') {
+          if (info.effectiveType === '2g' || info.effectiveType === 'slow-2g' || info.downlink < 1.2) {
+            setEffectiveBitrateMode('ultra_saver');
+            setCurrentBitrate('700 kbps (Ultra Ahorro)');
+            setCurrentFps(24);
+          } else if (info.effectiveType === '3g' || info.downlink < 3.5) {
+            setEffectiveBitrateMode('balanced');
+            setCurrentBitrate('1.8 Mbps (Equilibrado)');
+            setCurrentFps(30);
+          } else {
+            setEffectiveBitrateMode('pro_hd');
+            setCurrentBitrate('4.5 Mbps (HD Pro)');
+            setCurrentFps(60);
+          }
+        }
+      }
+    };
+
+    updateNetwork();
+    const conn = (navigator as any).connection;
+    if (conn && conn.addEventListener) {
+      conn.addEventListener('change', updateNetwork);
+      return () => conn.removeEventListener('change', updateNetwork);
+    }
+  }, [compressionMode]);
+
+  // Selección manual de modo de compresión
+  const handleSelectCompressionMode = (mode: CompressionMode) => {
+    setCompressionMode(mode);
+    if (mode === 'ultra_saver') {
+      setEffectiveBitrateMode('ultra_saver');
+      setCurrentBitrate('700 kbps (Ultra Ahorro)');
+      setCurrentFps(24);
+      triggerToast('📶 Perfil Ultra Ahorro activado: Ahorro de datos del 65%');
+    } else if (mode === 'balanced') {
+      setEffectiveBitrateMode('balanced');
+      setCurrentBitrate('1.8 Mbps (Equilibrado)');
+      setCurrentFps(30);
+      triggerToast('⚖ Perfil Balanceado activado (1.8 Mbps)');
+    } else if (mode === 'pro_hd') {
+      setEffectiveBitrateMode('pro_hd');
+      setCurrentBitrate('4.5 Mbps (HD Pro)');
+      setCurrentFps(60);
+      triggerToast('💎 Perfil Alta Fidelidad activado (4.5 Mbps 60fps)');
+    } else {
+      triggerToast('🤖 Modo Adaptativo Inteligente activado (según señal celular)');
+    }
+  };
+
+  // Motor del Buffer Circular Continuo de VAR (30 Segundos en Memoria RAM)
+  const stopRollingVarBuffer = useCallback(() => {
+    if (rollingRecorderRef.current && rollingRecorderRef.current.state !== 'inactive') {
+      try { rollingRecorderRef.current.stop(); } catch (e) {}
+      rollingRecorderRef.current = null;
+    }
+  }, []);
+
+  const startRollingVarBuffer = useCallback((stream: MediaStream) => {
+    try {
+      stopRollingVarBuffer();
+      rollingVarBufferRef.current = [];
+
+      const mimeTypes = [
+        'video/webm;codecs=vp8,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm',
+        'video/mp4'
+      ];
+      const selectedMime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || '';
+      const bitrates = getBitrateConfig(effectiveBitrateMode);
+
+      const recorder = new MediaRecorder(stream, {
+        ...(selectedMime ? { mimeType: selectedMime } : {}),
+        videoBitsPerSecond: bitrates.videoBitsPerSecond,
+        audioBitsPerSecond: bitrates.audioBitsPerSecond
+      });
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          rollingVarBufferRef.current.push({ blob: event.data, timestamp: Date.now() });
+          // Límite estricto circular a los últimos 30 segundos (máx 30 trozos de 1s, ~6 a 12 MB)
+          if (rollingVarBufferRef.current.length > 30) {
+            rollingVarBufferRef.current.shift();
+          }
+
+          // Medición de telemetría de datos transmitidos y ahorro acumulado vs 4.5 Mbps baseline
+          const dataChunkSize = event.data.size;
+          setTotalDataSentBytes(prev => prev + dataChunkSize);
+          const baselineChunk = 562500; // ~4.5 Mbps en bytes/seg
+          if (dataChunkSize < baselineChunk) {
+            setDataSavingsBytes(prev => prev + (baselineChunk - dataChunkSize));
+          }
+        }
+      };
+
+      recorder.start(1000); // Tiempos de 1 segundo
+      rollingRecorderRef.current = recorder;
+    } catch (err) {
+      console.warn('Buffer circular de VAR inicializado en modo simulado:', err);
+    }
+  }, [effectiveBitrateMode, getBitrateConfig, stopRollingVarBuffer]);
+
+  // Disparo del VAR Instantáneo (Captura de los 30s previos al silbato o incidente)
+  const handleTriggerInstantVar = useCallback((reason: string = 'Jugada Polémica') => {
+    if (rollingVarBufferRef.current.length === 0) {
+      triggerToast('Buffer circular en preparación... Espera 2 segundos');
+      return;
+    }
+
+    const chunks = rollingVarBufferRef.current.map(c => c.blob);
+    const mime = chunks[0]?.type || 'video/webm';
+    const fullBlob = new Blob(chunks, { type: mime });
+    const url = URL.createObjectURL(fullBlob);
+
+    setVarClipBlob(fullBlob);
+    setVarClipUrl(url);
+    setIsVarReviewOpen(true);
+    setVarIncidentSentOk(false);
+    setVarPlaybackSpeed(0.25); // Super cámara lenta por defecto para peritaje de VAR
+    setIsVarPlaying(true);
+    triggerToast('🚨 ¡VAR INSTANTÁNEO ACTIVADO! Reproduciendo últimos 30 segundos');
+
+    if (onClipCaptured) {
+      onClipCaptured({
+        id: `var-clip-${Date.now()}`,
+        url,
+        time: `${Math.floor(recordedSeconds / 60)}:${String(recordedSeconds % 60).padStart(2, '0')}`,
+        title: `Incidencia VAR: ${reason}`,
+        type: 'var'
+      });
+    }
+  }, [recordedSeconds, onClipCaptured, triggerToast]);
+
+  // Enviar Dictamen Forense de VAR a la Cabina Arbitral y Tribunal de Penas
+  const handleSendVarDecision = async () => {
+    if (!varClipUrl) return;
+    setVarIncidentSending(true);
+
+    const deltaCm = Math.round((varAttackerLine - varDefenderLine) * 8.5);
+    const rulingText = varRulingCategory === 'OFFSIDE'
+      ? `FUERA DE JUEGO (+${deltaCm} cm) — Confirmado en peritaje de cámara terminal`
+      : varRulingCategory === 'GOAL'
+      ? `GOL VÁLIDO (Posición legal del atacante -${Math.abs(deltaCm)} cm)`
+      : varRulingCategory === 'PENALTY'
+      ? 'PENALTI RATIFICADO'
+      : 'INFRACCIÓN SANCIONADA';
+
+    try {
+      await syncVarIncidentToFirebase({
+        id: `var-term-${Date.now()}`,
+        matchId: match.id,
+        tenantId: tenant.id,
+        homeTeam: homeTeam.name,
+        awayTeam: awayTeam.name,
+        timestampSeconds: recordedSeconds,
+        ruling: rulingText,
+        category: varRulingCategory,
+        defenderLineX: varDefenderLine,
+        attackerLineX: varAttackerLine,
+        reviewedBy: 'Cámara Operador CIG',
+        notes: `Revisión en super cámara lenta (${varPlaybackSpeed}x) con calibración interactiva de líneas tácticas.`,
+        createdAt: new Date().toISOString()
+      });
+
+      setVarIncidentSentOk(true);
+      triggerToast('✓ Incidencia VAR enviada a Cabina Arbitral y Tribunal de Penas');
+    } catch (err: any) {
+      triggerToast(`Incidencia respaldada en cola offline local: ${err.message}`);
+    } finally {
+      setVarIncidentSending(false);
+    }
+  };
+
+  // Descarga directa del clip forense de 30 segundos
+  const handleDownloadVarClip = () => {
+    if (!varClipBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(varClipBlob);
+    a.download = `deporverso_var_30s_${match.id}_${Date.now()}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    triggerToast('✓ Clip forense de VAR (30s) guardado en el dispositivo');
+  };
+
+  // Actualizar marcador de partido con respaldo garantizado en cola offline
+  const handleUpdateLiveScore = (homeDelta: number, awayDelta: number) => {
+    const nextHome = Math.max(0, liveHomeScore + homeDelta);
+    const nextAway = Math.max(0, liveAwayScore + awayDelta);
+    setLiveHomeScore(nextHome);
+    setLiveAwayScore(nextAway);
+
+    syncMatchToFirebase({
+      ...match,
+      home_score: nextHome,
+      away_score: nextAway,
+      status: 'IN_PROGRESS'
+    });
+
+    triggerToast(`Marcador actualizado: ${homeTeam.name} ${nextHome} - ${nextAway} ${awayTeam.name}`);
+  };
+
+  // Atajos de teclado en el terminal (Tecla 'V' = VAR Instantáneo 30s, Tecla 'R' = Grabar)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignorar si el usuario está escribiendo en un input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as any)?.tagName)) return;
+
+      if (e.key === 'v' || e.key === 'V') {
+        e.preventDefault();
+        handleTriggerInstantVar('Tecla de Pánico Camarógrafo');
+      } else if (e.key === ' ') {
+        if (isVarReviewOpen && varVideoRef.current) {
+          e.preventDefault();
+          if (varVideoRef.current.paused) {
+            varVideoRef.current.play();
+            setIsVarPlaying(true);
+          } else {
+            varVideoRef.current.pause();
+            setIsVarPlaying(false);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isVarReviewOpen, handleTriggerInstantVar]);
+
   // Resolution constraint helper
   const getConstraintsForProfile = (profile: ResolutionProfile) => {
     switch (profile) {
@@ -258,11 +557,12 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
       }
 
       setupAudioMonitoring(vHandle.stream);
+      startRollingVarBuffer(vHandle.stream);
       triggerToast('⚽ Feed Virtual de Cancha activo (Modo Demostración Táctica)');
     } catch (e) {
       console.warn('Virtual feed notice:', e);
     }
-  }, [homeTeam.name, awayTeam.name, liveHomeScore, liveAwayScore, tenant.name, triggerToast]);
+  }, [homeTeam.name, awayTeam.name, liveHomeScore, liveAwayScore, tenant.name, triggerToast, startRollingVarBuffer]);
 
   // Connect to the camera of ANY device / terminal with fallback matrix
   const connectTerminalCamera = async (
@@ -374,6 +674,9 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
       // Re-enumerate devices now that permissions have been explicitly granted
       refreshConnectedDevices();
 
+      // Start the 30-second continuous circular VAR rolling buffer
+      startRollingVarBuffer(stream);
+
       triggerToast('✓ Cámara y micrófono del terminal conectados con éxito');
     } catch (err: any) {
       console.warn('Aviso al conectar la cámara del terminal:', err?.message || err);
@@ -460,8 +763,12 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
         'video/mp4'
       ];
       const selectedMime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || '';
-
-      const recorder = new MediaRecorder(streamRef.current, selectedMime ? { mimeType: selectedMime } : undefined);
+      const bitrates = getBitrateConfig(effectiveBitrateMode);
+      const recorder = new MediaRecorder(streamRef.current, {
+        ...(selectedMime ? { mimeType: selectedMime } : {}),
+        videoBitsPerSecond: bitrates.videoBitsPerSecond,
+        audioBitsPerSecond: bitrates.audioBitsPerSecond
+      });
 
       recorder.ondataavailable = (event) => {
         if (event.data && event.data.size > 0) {
@@ -621,6 +928,8 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
     } else {
       // Clean up when modal closes
       stopAudioMonitoring();
+      stopRollingVarBuffer();
+      rollingVarBufferRef.current = [];
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         try { mediaRecorderRef.current.stop(); } catch (e) {}
@@ -760,7 +1069,7 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                 </div>
 
                 {/* HUD SUPERIOR: ESTADO EN VIVO Y MARCADOR DE TELEVISIÓN */}
-                <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-30 pointer-events-auto">
+                <div className="absolute top-3 inset-x-3 flex flex-wrap items-center justify-between gap-2 z-30 pointer-events-auto">
                   {/* Marcador Oficial Superpuesto */}
                   {showOverlayScore ? (
                     <div className="flex items-center gap-2 bg-black/85 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20 text-xs sm:text-sm font-mono shadow-2xl">
@@ -781,9 +1090,70 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                     </div>
                   )}
 
-                  {/* Telemetría Técnica Flotante */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="bg-black/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[10px] sm:text-xs font-mono text-slate-200 flex items-center gap-2 shadow-lg">
+                  {/* Telemetría Técnica y Compresión Adaptativa de Video */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {/* Badge de Red Móvil */}
+                    <div className={`px-2.5 py-1 rounded-xl backdrop-blur-md border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-lg ${
+                      networkQuality.effectiveType === '2g'
+                        ? 'bg-rose-950/80 text-rose-300 border-rose-500/50 animate-pulse'
+                        : networkQuality.effectiveType === '3g'
+                        ? 'bg-amber-950/80 text-amber-300 border-amber-500/50'
+                        : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+                    }`}>
+                      <Wifi className="w-3 h-3" />
+                      <span>{networkQuality.effectiveType.toUpperCase()} • {networkQuality.downlink} Mbps • {networkQuality.rtt}ms</span>
+                    </div>
+
+                    {/* Selector de Perfil de Compresión de Video */}
+                    <div className="bg-black/90 backdrop-blur-md p-1 rounded-xl border border-cyan-500/40 flex items-center gap-1 text-[10px] font-mono shadow-xl">
+                      <button
+                        onClick={() => handleSelectCompressionMode('auto')}
+                        className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          compressionMode === 'auto'
+                            ? 'bg-cyan-500 text-black'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Ajuste automático inteligente según señal de red"
+                      >
+                        AUTO
+                      </button>
+                      <button
+                        onClick={() => handleSelectCompressionMode('ultra_saver')}
+                        className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          compressionMode === 'ultra_saver'
+                            ? 'bg-amber-400 text-black'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Ultra Ahorro 700 kbps (Ahorro del 65% de datos móviles)"
+                      >
+                        700k
+                      </button>
+                      <button
+                        onClick={() => handleSelectCompressionMode('balanced')}
+                        className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          compressionMode === 'balanced'
+                            ? 'bg-cyan-500 text-black'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Equilibrado 1.8 Mbps"
+                      >
+                        1.8M
+                      </button>
+                      <button
+                        onClick={() => handleSelectCompressionMode('pro_hd')}
+                        className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          compressionMode === 'pro_hd'
+                            ? 'bg-emerald-400 text-black'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Alta Fidelidad 4.5 Mbps"
+                      >
+                        HD
+                      </button>
+                    </div>
+
+                    {/* Telemetría de FPS & Bitrate Actual */}
+                    <div className="bg-black/85 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 text-[10px] font-mono text-slate-200 flex items-center gap-1.5 shadow-lg hidden sm:flex">
                       <span className="text-cyan-400 font-bold">{resolutionProfile.toUpperCase()}</span>
                       <span>•</span>
                       <span className="text-emerald-400 font-bold">{currentFps} FPS</span>
@@ -791,14 +1161,22 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                       <span className="text-amber-400 font-bold">{currentBitrate}</span>
                     </div>
 
+                    {/* Contador de Ahorro de Datos Móviles */}
+                    {totalDataSentBytes > 0 && (
+                      <div className="bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-emerald-500/40 text-[10px] font-mono text-emerald-300 hidden lg:flex items-center gap-1 shadow-lg">
+                        <Gauge className="w-3 h-3 text-emerald-400" />
+                        <span>Ahorro: {(dataSavingsBytes / (1024 * 1024)).toFixed(1)} MB</span>
+                      </div>
+                    )}
+
                     <button
                       onClick={() => setShowOverlayScore(!showOverlayScore)}
-                      className={`p-2 rounded-xl border backdrop-blur-md transition-all cursor-pointer ${
+                      className={`p-1.5 rounded-xl border backdrop-blur-md transition-all cursor-pointer ${
                         showOverlayScore ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' : 'bg-black/80 text-slate-400 border-white/20'
                       }`}
                       title="Alternar Marcador de TV"
                     >
-                      <Tv className="w-4 h-4" />
+                      <Tv className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1017,37 +1395,278 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                   )}
                 </div>
 
-                {/* Botón de Marcación Rápida de VAR en Cancha */}
-                <div className="flex items-center gap-2">
+                {/* Botón de Disparo de VAR Instantáneo (30 Segundos) & Marcador con Cola Offline */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Botón Prominente de VAR Instantáneo / Pánico de Árbitro */}
                   <button
-                    onClick={() => handleCaptureInstantVarSlice('Jugada Polémica en Cancha')}
-                    className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-rose-500/20 hover:from-amber-500/30 hover:to-rose-500/30 text-amber-300 border border-amber-500/40 font-mono text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
-                    title="Marca los últimos 25 segundos y los envía a la sala de VAR"
+                    onClick={() => handleTriggerInstantVar('Pánico de Árbitro / Jugada Crítica')}
+                    className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-950 font-black font-mono text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-rose-600/30 transition-all active:scale-95 animate-pulse"
+                    title="Rescata los últimos 30 segundos grabados en memoria circular y abre el peritaje a cámara lenta (Atajo: Tecla V)"
                   >
-                    <Flame className="w-4 h-4 text-amber-400" />
-                    <span>⚡ Marcar VAR (25s)</span>
+                    <Flame className="w-4 h-4 text-slate-950" />
+                    <span>🚨 VAR INSTANTÁNEO (30s)</span>
+                    <span className="hidden sm:inline bg-black/30 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">[V]</span>
                   </button>
 
-                  {/* Marcador Táctico Rápido para el Camarógrafo */}
+                  {/* Marcador Táctico Rápido con sincronización en cola offline */}
                   <div className="flex items-center gap-1 bg-black/60 p-1 rounded-2xl border border-white/10 text-xs font-mono">
                     <span className="text-slate-400 px-1 text-[10px]">GOL:</span>
                     <button
-                      onClick={() => { setLiveHomeScore(s => s + 1); triggerToast(`¡Gol de ${homeTeam.name}!`); }}
-                      className="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 font-bold cursor-pointer"
-                      title={`Sumar gol a ${homeTeam.name}`}
+                      onClick={() => handleUpdateLiveScore(1, 0)}
+                      className="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 font-bold cursor-pointer transition-all active:scale-95"
+                      title={`Sumar gol a ${homeTeam.name} y sincronizar en Firestore`}
                     >
                       +1 {homeTeam.name.slice(0, 3)}
                     </button>
                     <button
-                      onClick={() => { setLiveAwayScore(s => s + 1); triggerToast(`¡Gol de ${awayTeam.name}!`); }}
-                      className="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 font-bold cursor-pointer"
-                      title={`Sumar gol a ${awayTeam.name}`}
+                      onClick={() => handleUpdateLiveScore(0, 1)}
+                      className="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 font-bold cursor-pointer transition-all active:scale-95"
+                      title={`Sumar gol a ${awayTeam.name} y sincronizar en Firestore`}
                     >
                       +1 {awayTeam.name.slice(0, 3)}
                     </button>
                   </div>
                 </div>
               </div>
+
+              {/* ======================================================== */}
+              {/* MODAL / ESTUDIO FORENSE DE REPETICIÓN INSTANTÁNEA VAR (30s) */}
+              {/* ======================================================== */}
+              {isVarReviewOpen && varClipUrl && (
+                <div className="absolute inset-0 z-50 bg-[#020617]/95 backdrop-blur-2xl flex flex-col p-3 sm:p-5 overflow-hidden animate-in fade-in duration-200">
+                  {/* Encabezado del Laboratorio VAR */}
+                  <div className="flex items-center justify-between pb-3 border-b border-rose-500/30 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                        <Flame className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm sm:text-base font-black text-white font-mono tracking-wider">
+                            CABINA FORENSE DE VAR — REVISIÓN INSTANTÁNEA (30s)
+                          </h3>
+                          <span className="px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-[10px] font-mono font-bold text-rose-400">
+                            CÁMARA LENTA {varPlaybackSpeed}x
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          {tenant.name} • {homeTeam.name} vs {awayTeam.name} • Buffer circular recuperado de RAM
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsVarReviewOpen(false)}
+                      className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all cursor-pointer"
+                      title="Volver a la cámara en vivo"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Escenario de Video con Líneas Tácticas Calibrables */}
+                  <div className="flex-1 relative flex items-center justify-center overflow-hidden my-3 bg-black rounded-2xl border border-white/10">
+                    <video
+                      ref={varVideoRef}
+                      src={varClipUrl}
+                      autoPlay
+                      loop
+                      playsInline
+                      className="w-full h-full object-contain"
+                    />
+
+                    {/* Capa de Líneas Tácticas Interactivas */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {/* Línea Azul de Penúltimo Defensor */}
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-blue-500 shadow-[0_0_15px_#3b82f6] z-20 flex flex-col items-center pointer-events-auto cursor-ew-resize"
+                        style={{ left: `${varDefenderLine}%` }}
+                      >
+                        <div className="bg-blue-600 text-white font-black text-[9px] px-2 py-0.5 rounded-b shadow uppercase font-mono tracking-wider whitespace-nowrap">
+                          Defensor ({varDefenderLine}%)
+                        </div>
+                      </div>
+
+                      {/* Línea Roja de Atacante */}
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-rose-500 shadow-[0_0_15px_#f43f5e] z-20 flex flex-col items-center pointer-events-auto cursor-ew-resize"
+                        style={{ left: `${varAttackerLine}%` }}
+                      >
+                        <div className="bg-rose-600 text-white font-black text-[9px] px-2 py-0.5 rounded-b shadow uppercase font-mono tracking-wider whitespace-nowrap">
+                          Atacante ({varAttackerLine}%)
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Badge Indicador de Posición Adelantada vs Legal */}
+                    {(() => {
+                      const deltaCm = Math.round((varAttackerLine - varDefenderLine) * 8.5);
+                      const isOffside = deltaCm > 0;
+                      return (
+                        <div className="absolute top-3 left-3 z-30 pointer-events-auto">
+                          <div className={`px-3 py-1.5 rounded-xl border backdrop-blur-md shadow-2xl flex items-center gap-2 ${
+                            isOffside
+                              ? 'bg-rose-950/90 border-rose-500/70 text-rose-300'
+                              : 'bg-emerald-950/90 border-emerald-500/70 text-emerald-300'
+                          }`}>
+                            {isOffside ? <ShieldAlert className="w-4 h-4 text-rose-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                            <div>
+                              <div className="font-black text-xs font-mono">
+                                {isOffside ? `FUERA DE JUEGO (+${deltaCm} cm)` : `POSICIÓN LEGAL (-${Math.abs(deltaCm)} cm)`}
+                              </div>
+                              <div className="text-[9px] opacity-80">
+                                {isOffside ? 'Infracción: atacante adelantado al pase' : 'Habilitado por el penúltimo defensor'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Deslizadores de Calibración de Líneas */}
+                    <div className="absolute bottom-3 inset-x-3 z-30 bg-black/85 backdrop-blur-md p-2.5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <span className="text-blue-400 font-bold shrink-0">Línea Defensor:</span>
+                        <input
+                          type="range"
+                          min={10}
+                          max={90}
+                          value={varDefenderLine}
+                          onChange={(e) => setVarDefenderLine(Number(e.target.value))}
+                          className="w-full sm:w-36 accent-blue-500 cursor-pointer"
+                        />
+                        <span className="text-slate-400 w-8">{varDefenderLine}%</span>
+                      </div>
+
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <span className="text-rose-400 font-bold shrink-0">Línea Atacante:</span>
+                        <input
+                          type="range"
+                          min={10}
+                          max={90}
+                          value={varAttackerLine}
+                          onChange={(e) => setVarAttackerLine(Number(e.target.value))}
+                          className="w-full sm:w-36 accent-rose-500 cursor-pointer"
+                        />
+                        <span className="text-slate-400 w-8">{varAttackerLine}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Barra de Controles: Velocidad, Paso Cuadro a Cuadro, Dictamen y Exportar */}
+                  <div className="p-3 bg-[#050b1a] rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                    {/* Velocidades de Reproducción */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-slate-400 font-mono uppercase mr-1">Velocidad:</span>
+                      {[0.25, 0.5, 1.0].map((rate) => (
+                        <button
+                          key={rate}
+                          onClick={() => {
+                            setVarPlaybackSpeed(rate);
+                            if (varVideoRef.current) varVideoRef.current.playbackRate = rate;
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                            varPlaybackSpeed === rate
+                              ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                              : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                          }`}
+                        >
+                          {rate}x {rate === 0.25 ? 'Super Slow-Mo' : ''}
+                        </button>
+                      ))}
+
+                      {/* Jog wheel cuadro a cuadro */}
+                      <div className="flex items-center gap-1 ml-2 border-l border-white/10 pl-2">
+                        <button
+                          onClick={() => {
+                            if (varVideoRef.current) varVideoRef.current.currentTime = Math.max(0, varVideoRef.current.currentTime - 0.1);
+                          }}
+                          className="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-slate-300 text-xs font-mono cursor-pointer"
+                          title="Retroceder 1 fotograma (-0.1s)"
+                        >
+                          -0.1s
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (varVideoRef.current) {
+                              if (varVideoRef.current.paused) {
+                                varVideoRef.current.play();
+                                setIsVarPlaying(true);
+                              } else {
+                                varVideoRef.current.pause();
+                                setIsVarPlaying(false);
+                              }
+                            }
+                          }}
+                          className="p-1.5 bg-white/10 hover:bg-white/15 rounded text-white cursor-pointer"
+                        >
+                          {isVarPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (varVideoRef.current) varVideoRef.current.currentTime = Math.min(varVideoRef.current.duration || 30, varVideoRef.current.currentTime + 0.1);
+                          }}
+                          className="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-slate-300 text-xs font-mono cursor-pointer"
+                          title="Avanzar 1 fotograma (+0.1s)"
+                        >
+                          +0.1s
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Categorías de Dictamen Arbitral */}
+                    <div className="flex items-center gap-1.5">
+                      {[
+                        { id: 'OFFSIDE', label: 'Fuera de Juego' },
+                        { id: 'GOAL', label: 'Gol Válido' },
+                        { id: 'PENALTY', label: 'Penalti' },
+                        { id: 'FOUL', label: 'Falta Grave' }
+                      ].map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setVarRulingCategory(cat.id as any)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            varRulingCategory === cat.id
+                              ? 'bg-cyan-500 text-slate-950 font-bold'
+                              : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Acciones: Enviar a Firestore y Exportar Clip */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleDownloadVarClip}
+                        className="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-white rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 cursor-pointer transition-all"
+                        title="Descargar archivo WebM de la repetición de 30 segundos"
+                      >
+                        <Download className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Exportar Clip (30s)</span>
+                      </button>
+
+                      <button
+                        onClick={handleSendVarDecision}
+                        disabled={varIncidentSending || varIncidentSentOk}
+                        className="px-4 py-1.5 bg-gradient-to-r from-rose-600 to-amber-500 hover:brightness-110 disabled:opacity-50 text-white rounded-xl text-xs font-black font-mono flex items-center gap-1.5 cursor-pointer shadow-lg shadow-rose-600/30 transition-all"
+                      >
+                        {varIncidentSentOk ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-white" />
+                            <span>Enviado a Cabina</span>
+                          </>
+                        ) : (
+                          <>
+                            <Flame className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                            <span>{varIncidentSending ? 'Transmitiendo...' : 'Enviar a Cabina VAR'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

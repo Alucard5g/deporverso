@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
 import { SPORT_THEMES } from './Navbar';
+import { OfflineSyncStatusBadge } from './Common/OfflineSyncStatusBadge';
 
 interface TopHeaderProps {
   activeTab: string;
@@ -240,6 +241,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             )}
           </>
         )}
+
+        {/* MOTOR OFFLINE BATCH SYNC BADGE */}
+        <OfflineSyncStatusBadge />
 
         {/* INDICADOR Y BOTÓN DE SALIDA MODO ADMIN */}
         {isSuperAdminAuth ? (

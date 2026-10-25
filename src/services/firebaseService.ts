@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Match, MatchEvent, Tenant, Player, PlayerTransfer } from '../types';
+import { offlineSyncQueue } from './offlineSyncQueue';
 
 /**
  * SERVICIO DE PERSISTENCIA Y TIEMPO REAL CON FIREBASE FIRESTORE
@@ -19,56 +20,69 @@ import { Match, MatchEvent, Tenant, Player, PlayerTransfer } from '../types';
 
 // Sincronizar un partido completo (Marcador en vivo, actas, vocalía y firmas)
 export async function syncMatchToFirebase(match: Match): Promise<boolean> {
+  const payload = {
+    id: match.id,
+    tenantId: match.tenant_id,
+    sportId: match.sport_code,
+    homeTeam: match.home_team?.name || match.home_team_id,
+    awayTeam: match.away_team?.name || match.away_team_id,
+    homeScore: match.home_score ?? 0,
+    awayScore: match.away_score ?? 0,
+    status: match.status === 'IN_PROGRESS' ? 'LIVE' : (match.status || 'SCHEDULED'),
+    date: match.match_date || new Date().toISOString(),
+    time: match.match_data?.current_period || '1T',
+    field: match.field_location || 'Cancha Principal',
+    referee: match.match_data?.referee_name || 'Árbitro Oficial',
+    rawMatchData: match,
+    updatedAt: new Date().toISOString()
+  };
+
+  // Si no hay red, encolar en persistencia offline inmediatamente
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    offlineSyncQueue.enqueue('match', match.id, payload, 'upsert', match.tenant_id);
+    return true;
+  }
+
   try {
     const matchRef = doc(db, 'matches', match.id);
-    const payload = {
-      id: match.id,
-      tenantId: match.tenant_id,
-      sportId: match.sport_code,
-      homeTeam: match.home_team?.name || match.home_team_id,
-      awayTeam: match.away_team?.name || match.away_team_id,
-      homeScore: match.home_score ?? 0,
-      awayScore: match.away_score ?? 0,
-      status: match.status === 'IN_PROGRESS' ? 'LIVE' : (match.status || 'SCHEDULED'),
-      date: match.match_date || new Date().toISOString(),
-      time: match.match_data?.current_period || '1T',
-      field: match.field_location || 'Cancha Principal',
-      referee: match.match_data?.referee_name || 'Árbitro Oficial',
-      rawMatchData: match,
-      updatedAt: new Date().toISOString()
-    };
-
     await setDoc(matchRef, payload, { merge: true });
     console.log(`[Firebase] Partido ${match.id} sincronizado exitosamente.`);
     return true;
   } catch (error) {
-    console.warn('[Firebase] Fallo al sincronizar partido en Firestore:', error);
+    console.warn('[Firebase] Fallo al sincronizar partido en Firestore, encolando en persistencia offline:', error);
+    offlineSyncQueue.enqueue('match', match.id, payload, 'upsert', match.tenant_id);
     return false;
   }
 }
 
 // Sincronizar un evento de vocalía digital (Gol, Tarjeta, Falta, Cambio)
 export async function syncEventToFirebase(event: MatchEvent): Promise<boolean> {
+  const payload = {
+    id: event.id,
+    matchId: event.match_id,
+    tenantId: event.tenant_id,
+    type: event.event_type,
+    minute: Math.floor(event.timestamp_seconds / 60),
+    team: event.team_name || event.team_id || '',
+    player: event.player_name || event.player_id || '',
+    details: JSON.stringify(event.details || {}),
+    rawEvent: event,
+    createdAt: event.created_at || new Date().toISOString()
+  };
+
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    offlineSyncQueue.enqueue('event', event.id, payload, 'upsert', event.tenant_id);
+    return true;
+  }
+
   try {
     const eventRef = doc(db, 'events', event.id);
-    const payload = {
-      id: event.id,
-      matchId: event.match_id,
-      tenantId: event.tenant_id,
-      type: event.event_type,
-      minute: Math.floor(event.timestamp_seconds / 60),
-      team: event.team_name || event.team_id || '',
-      player: event.player_name || event.player_id || '',
-      details: JSON.stringify(event.details || {}),
-      rawEvent: event,
-      createdAt: event.created_at || new Date().toISOString()
-    };
-
     await setDoc(eventRef, payload, { merge: true });
     console.log(`[Firebase] Evento ${event.id} sincronizado.`);
     return true;
   } catch (error) {
-    console.warn('[Firebase] Fallo al sincronizar evento:', error);
+    console.warn('[Firebase] Fallo al sincronizar evento, encolando en persistencia offline:', error);
+    offlineSyncQueue.enqueue('event', event.id, payload, 'upsert', event.tenant_id);
     return false;
   }
 }
@@ -416,17 +430,24 @@ export async function syncVarIncidentToFirebase(incident: {
   notes?: string;
   createdAt?: string;
 }): Promise<boolean> {
+  const payload = {
+    ...incident,
+    createdAt: incident.createdAt || new Date().toISOString()
+  };
+
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    offlineSyncQueue.enqueue('var_incident', incident.id, payload, 'upsert', incident.tenantId);
+    return true;
+  }
+
   try {
     const incidentRef = doc(db, 'var_incidents', incident.id);
-    const payload = {
-      ...incident,
-      createdAt: incident.createdAt || new Date().toISOString()
-    };
     await setDoc(incidentRef, payload, { merge: true });
     console.log(`[Firebase] Incidencia VAR ${incident.id} guardada en Firestore para Tribunal de Penas.`);
     return true;
   } catch (error) {
-    console.warn('[Firebase] Error al sincronizar incidencia VAR en Firestore:', error);
+    console.warn('[Firebase] Error al sincronizar incidencia VAR en Firestore, encolando en persistencia offline:', error);
+    offlineSyncQueue.enqueue('var_incident', incident.id, payload, 'upsert', incident.tenantId);
     return false;
   }
 }
@@ -445,4 +466,32 @@ export async function fetchVarIncidentsFromFirebase(matchId?: string): Promise<a
     return [];
   }
 }
+
+/**
+ * Función puente invocada por OfflineSyncEngine para despachar un elemento individual en lote
+ */
+export async function syncDirectToFirestore(item: {
+  entity: string;
+  entityId: string;
+  operation: string;
+  payload: any;
+}): Promise<boolean> {
+  try {
+    let collectionName = 'matches';
+    if (item.entity === 'event') collectionName = 'events';
+    else if (item.entity === 'var_incident') collectionName = 'var_incidents';
+    else if (item.entity === 'chronicle') collectionName = 'chronicles';
+    else if (item.entity === 'transfer') collectionName = 'transfers';
+    else if (item.entity === 'acta') collectionName = 'actas';
+
+    const itemRef = doc(db, collectionName, item.entityId);
+    await setDoc(itemRef, item.payload, { merge: true });
+    console.log(`[Firebase-SyncQueue] Lote sincronizado con éxito: ${collectionName}/${item.entityId}`);
+    return true;
+  } catch (err) {
+    console.warn(`[Firebase-SyncQueue] Fallo en reintento para ${item.entity}/${item.entityId}:`, err);
+    return false;
+  }
+}
+
 
