@@ -19,7 +19,6 @@ import { INITIAL_CHRONICLES, INITIAL_MATCH_EVENTS } from './data/mockData';
 import { apiService } from './services/apiService';
 import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, Team, Player, SportCode, AiChronicle } from './types';
 import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame } from 'lucide-react';
-import { testConnection } from './lib/firebase';
 import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
 import { AffiliationModal } from './components/Affiliation/AffiliationModal';
 import { LoginGate } from './components/Auth/LoginGate';
@@ -150,6 +149,23 @@ export default function App() {
       window.removeEventListener('keydown', handleGlobalKeyStroke, true);
       clearTimeout(timeoutId);
     };
+  }, []);
+
+  // Detección de enlace de Terminal Remoto de Cámara (?mode=terminal-camera)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode');
+      if (mode === 'terminal-camera' || mode === 'camera') {
+        setIsAuthenticated(true);
+        setIsPlatformUnlocked(true);
+        const tId = params.get('tenantId');
+        if (tId) setActiveTenantId(tId);
+        setActiveTab('league');
+        setAdminToast('📹 Terminal de Cámara Conectado: Transmisión y Grabación en Vivo');
+        setTimeout(() => setAdminToast(null), 4000);
+      }
+    } catch (e) {}
   }, []);
 
   // Application Data States

@@ -163,7 +163,9 @@ export const PlayerTransfersManager: React.FC<PlayerTransfersManagerProps> = ({
         ];
 
         setTransfers(seedTransfers);
-        seedTransfers.forEach(t => syncTransferToFirebase(t));
+        try {
+          localStorage.setItem('deporverso_transfers_v2', JSON.stringify(seedTransfers));
+        } catch (e) {}
       }
       setLoading(false);
     };

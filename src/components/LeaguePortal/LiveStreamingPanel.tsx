@@ -43,6 +43,8 @@ import { SponsorOverlayBanner } from './streaming/SponsorOverlayBanner';
 import { HighlightsMonetizationModal } from './streaming/HighlightsMonetizationModal';
 import { VarReplayStudio } from './streaming/VarReplayStudio';
 import { HighlightReelsGeneratorModal } from './streaming/HighlightReelsGeneratorModal';
+import { TerminalCameraBroadcasterModal } from './streaming/TerminalCameraBroadcasterModal';
+import { createVirtualPitchStream, VirtualStreamHandle } from '../../utils/virtualCameraStream';
 
 export interface LiveStreamingPanelProps {
   tenant: Tenant;
@@ -202,10 +204,12 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
 
   // Device Camera (WebRTC) Ingestion & Multi-Camera Facing
   const [cameraActive, setCameraActive] = useState<boolean>(false);
+  const [isVirtualFeedActive, setIsVirtualFeedActive] = useState<boolean>(false);
   const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user'>('environment');
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const virtualStreamRef = useRef<VirtualStreamHandle | null>(null);
 
   // Synchronized VAR Stream Buffer (MediaRecorder for real-time risk plays analysis)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -233,6 +237,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   const [showMonetizationModal, setShowMonetizationModal] = useState<boolean>(false);
   const [showHighlightReelsModal, setShowHighlightReelsModal] = useState<boolean>(false);
   const [showSponsorOverlay, setShowSponsorOverlay] = useState<boolean>(true);
+  const [showTerminalCameraModal, setShowTerminalCameraModal] = useState<boolean>(false);
 
   // Dynamic Match Timer & Scores
   const [matchMinutes, setMatchMinutes] = useState<number>(73);
@@ -362,13 +367,61 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
     }
   };
 
+  // Iniciar Feed Virtual de Cancha Oficial (Modo Demostración / Fallback sin hardware)
+  const startVirtualPitchFeed = useCallback(() => {
+    try {
+      setCameraError(null);
+      if (virtualStreamRef.current) {
+        virtualStreamRef.current.stop();
+        virtualStreamRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+
+      const vHandle = createVirtualPitchStream({
+        homeTeamName: homeTeam.name,
+        awayTeamName: awayTeam.name,
+        homeScore: homeScore,
+        awayScore: awayScore,
+        leagueName: tenant.name
+      });
+
+      virtualStreamRef.current = vHandle;
+      streamRef.current = vHandle.stream;
+      setIsVirtualFeedActive(true);
+      setCameraActive(true);
+      setVideoSourceType('webcam');
+
+      if (videoRef.current) {
+        if (videoRef.current.srcObject !== vHandle.stream) {
+          videoRef.current.srcObject = vHandle.stream;
+        }
+        videoRef.current.play().catch(() => {});
+      }
+
+      startMediaRecording(vHandle.stream);
+    } catch (e) {
+      console.warn('Aviso al iniciar feed virtual de cancha:', e);
+    }
+  }, [homeTeam.name, awayTeam.name, homeScore, awayScore, tenant.name]);
+
   // WebRTC Device Camera Handler with smooth anti-jitter hardware negotiation
   const startCamera = async (facing: 'environment' | 'user' = cameraFacingMode) => {
     try {
       setCameraError(null);
+      if (virtualStreamRef.current) {
+        virtualStreamRef.current.stop();
+        virtualStreamRef.current = null;
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Dispositivo multimedia no disponible en este entorno');
       }
 
       let mediaStream: MediaStream;
@@ -385,14 +438,12 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
           audio: false
         });
       } catch (err1) {
-        console.warn('Fallback 1: trying 720p with facingMode', err1);
         try {
           mediaStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } },
             audio: false
           });
         } catch (err2) {
-          console.warn('Fallback 2: trying any default camera', err2);
           mediaStream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: false
@@ -407,6 +458,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
       }
 
       streamRef.current = mediaStream;
+      setIsVirtualFeedActive(false);
       setCameraFacingMode(facing);
       setCameraActive(true);
       setVideoSourceType('webcam');
@@ -415,21 +467,33 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
         if (videoRef.current.srcObject !== mediaStream) {
           videoRef.current.srcObject = mediaStream;
         }
-        videoRef.current.play().catch(e => console.log('Autoplay error:', e));
+        videoRef.current.play().catch(e => console.log('Autoplay handled:', e));
       }
 
       // Automatically start continuous recording for synchronized VAR inspection
       startMediaRecording(mediaStream);
     } catch (err: any) {
-      console.error('Error al acceder a la cámara:', err);
+      console.warn('Aviso de permisos de cámara:', err?.message || err);
+      const isDenied = 
+        err?.name === 'NotAllowedError' || 
+        err?.name === 'PermissionDeniedError' || 
+        (err?.message && err.message.toLowerCase().includes('permission denied'));
+      
       setCameraError(
-        `No se pudo inicializar la cámara: ${err.message || 'Verifica permisos del navegador'}. Puedes usar la señal RTMP o YouTube de prueba.`
+        isDenied
+          ? 'Permiso de cámara física no concedido en el navegador o iframe. Se activó automáticamente el Feed Virtual de Cancha para que puedas continuar transmitiendo y revisando jugadas de VAR sin interrupciones.'
+          : `Cámara no disponible (${err?.message || 'hardware no detectado'}). Se activó el Feed Virtual de Demostración.`
       );
-      setCameraActive(false);
+      // Auto-fallback seguro al Feed Virtual de Cancha
+      startVirtualPitchFeed();
     }
   };
 
   const flipCamera = () => {
+    if (isVirtualFeedActive) {
+      startVirtualPitchFeed();
+      return;
+    }
     const nextFacing = cameraFacingMode === 'environment' ? 'user' : 'environment';
     startCamera(nextFacing);
   };
@@ -440,10 +504,15 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
         mediaRecorderRef.current.stop();
       } catch (e) {}
     }
+    if (virtualStreamRef.current) {
+      virtualStreamRef.current.stop();
+      virtualStreamRef.current = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
+    setIsVirtualFeedActive(false);
     setCameraActive(false);
     setIsRecordingLive(false);
     setVideoSourceType('youtube');
@@ -694,8 +763,18 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </button>
             </div>
 
-            {/* Quick Action Tools: Tarea 1 QR, Tarea 2 Monetization & Tarea 1 Reels */}
-            <div className="flex items-center gap-1.5">
+            {/* Quick Action Tools: Terminal Cámara, Tarea 1 QR, Tarea 2 Monetization & Tarea 1 Reels */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                onClick={() => setShowTerminalCameraModal(true)}
+                className="px-3 py-2 bg-gradient-to-r from-cyan-500/25 to-blue-500/25 hover:from-cyan-500/35 hover:to-blue-500/35 text-cyan-300 border border-cyan-400/50 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/10 transition-all transform hover:scale-[1.02]"
+                title="Conectar a la cámara de cualquier terminal para grabar y transmitir en vivo"
+              >
+                <Camera className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                <span className="hidden sm:inline">📹 Terminal Cámara (Grabar & Transmitir)</span>
+                <span className="sm:hidden">📹 Cámara Terminal</span>
+              </button>
+
               <button
                 onClick={() => setShowHighlightReelsModal(true)}
                 className="px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-pink-300 border border-pink-500/40 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
@@ -866,6 +945,15 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                 <span>{cameraActive ? '🔴 Detener Cámara Cancha' : '📹 Activar Cámara Celular/Webcam'}</span>
               </button>
 
+              <button
+                onClick={() => setShowTerminalCameraModal(true)}
+                className="px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-400/40 shadow-sm"
+                title="Abrir estudio del terminal de cámara con selector de dispositivos, grabación local y zoom"
+              >
+                <Camera className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                <span>Estudio Terminal de Cámara</span>
+              </button>
+
               {cameraActive && (
                 <>
                   <button
@@ -1009,32 +1097,49 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                 )}
 
                 {/* Error Banner with clear recovery actions */}
+                {/* Error Banner with clear recovery actions */}
                 {cameraError && (
-                  <div className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-3 z-30">
-                    <AlertCircle className="w-12 h-12 text-amber-400" />
-                    <h4 className="text-sm font-bold text-white">Aviso de Dispositivo de Cámara</h4>
-                    <p className="text-xs text-slate-300 max-w-md">{cameraError}</p>
-                    <div className="flex flex-wrap gap-2 pt-2">
+                  isVirtualFeedActive ? (
+                    <div className="absolute top-4 left-4 right-4 sm:right-auto z-30 bg-black/85 backdrop-blur-md border border-amber-500/50 text-amber-200 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-bold text-white block">Feed Virtual de Cancha Activo</span>
+                        <span className="text-slate-300 text-[11px]">Permiso de cámara física restringido. Disfruta de la simulación oficial y herramientas de VAR.</span>
+                      </div>
                       <button
-                        onClick={() => startCamera('environment')}
-                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                        onClick={() => setCameraError(null)}
+                        className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white ml-auto"
                       >
-                        Reintentar Cámara Trasera
-                      </button>
-                      <button
-                        onClick={() => startCamera('user')}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        Probar Cámara Frontal
-                      </button>
-                      <button
-                        onClick={() => setVideoSourceType('youtube')}
-                        className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        Ver Señal Demo YouTube
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-3 z-30">
+                      <AlertCircle className="w-12 h-12 text-amber-400" />
+                      <h4 className="text-sm font-bold text-white">Aviso de Dispositivo de Cámara</h4>
+                      <p className="text-xs text-slate-300 max-w-md">{cameraError}</p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <button
+                          onClick={startVirtualPitchFeed}
+                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:brightness-110 text-black rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-lg"
+                        >
+                          ⚽ Activar Feed Virtual de Cancha
+                        </button>
+                        <button
+                          onClick={() => startCamera('environment')}
+                          className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          Reintentar Cámara Trasera
+                        </button>
+                        <button
+                          onClick={() => setVideoSourceType('youtube')}
+                          className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          Ver Señal Demo YouTube
+                        </button>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             ) : (
@@ -1585,6 +1690,30 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
           homeScore={homeScore}
           awayScore={awayScore}
           capturedClips={capturedClips}
+        />
+      )}
+
+      {/* MODAL 4: TERMINAL DE CÁMARA UNIVERSAL (CUALQUIER TERMINAL: CELULAR, LAPTOP, USB, CAPTURADORA) */}
+      {showTerminalCameraModal && (
+        <TerminalCameraBroadcasterModal
+          isOpen={showTerminalCameraModal}
+          onClose={() => setShowTerminalCameraModal(false)}
+          match={activeMatch}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
+          tenant={tenant}
+          onClipCaptured={(newClip) => {
+            setCapturedClips(prev => [{
+              id: newClip.id,
+              minute: matchMinutes,
+              title: newClip.title,
+              type: 'var',
+              url: newClip.url,
+              timestamp: newClip.time
+            }, ...prev]);
+            setClipSavedToast(`⚡ Jugada de VAR guardada desde el terminal (${newClip.time})`);
+            setTimeout(() => setClipSavedToast(null), 4000);
+          }}
         />
       )}
     </div>
