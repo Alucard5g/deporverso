@@ -27,6 +27,7 @@ interface MasterAdminDashboardProps {
   initialAdminTab?: 'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security' | 'drive-assets';
   onChronicleGenerated?: (chronicle: AiChronicle) => void;
   onExitAdminMode?: () => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
@@ -43,7 +44,8 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   onAddTicket,
   initialAdminTab = 'overview',
   onChronicleGenerated,
-  onExitAdminMode
+  onExitAdminMode,
+  onNavigateTab
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
@@ -596,13 +598,174 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         </button>
       </div>
 
-      {/* TAB 1: TENANTS LIST */}
+      {/* TAB 1: TENANTS LIST & ADMIN OPERATION/GENERATION LAUNCHER */}
       {activeAdminTab === 'overview' && (
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Building className="w-5 h-5 text-emerald-400" />
-            Ligas y Torneos Registrados (Aislamiento Multi-Tenant RLS)
-          </h2>
+        <div className="space-y-6">
+          {/* Quick Launcher: Herramientas de Operación & Generación Exclusivas de Administrador */}
+          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-[#0c1524] rounded-2xl border border-amber-500/30 p-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4 mb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                    Control Maestro CIG
+                  </span>
+                  <span className="text-white/60 text-xs">Exclusivo para Administrador</span>
+                </div>
+                <h2 className="text-xl font-black text-white mt-1">
+                  Centro de Mando: VAR, Streaming, Vocalía & Generación
+                </h2>
+                <p className="text-xs text-slate-300">
+                  Todas estas herramientas operativas y de generación están protegidas y ocultas para los usuarios normales de la plataforma.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Card 1: VAR Oficial */}
+              <div className="bg-slate-950/70 border border-red-500/30 hover:border-red-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                      <Video className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded">ADMIN ONLY</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-red-300 transition-colors">Sistema VAR Oficial</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Revisión de jugadas con multicámara sincrónica, dictamen arbitral oficial y generación de actas A4 en PDF.
+                  </p>
+                </div>
+                {onNavigateTab && (
+                  <button
+                    onClick={() => onNavigateTab('var')}
+                    className="mt-4 w-full py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    Abrir Sala VAR <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Card 2: Vocalía Digital en Vivo */}
+              <div className="bg-slate-950/70 border border-amber-500/30 hover:border-amber-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">MESA OFICIAL</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-amber-300 transition-colors">Vocalía Digital en Vivo</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Control de mesa técnica, escáner continuo de carnets QR, cronómetro de periodos y actas con firmas de capitanes.
+                  </p>
+                </div>
+                {onNavigateTab && (
+                  <button
+                    onClick={() => onNavigateTab('vocalia')}
+                    className="mt-4 w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    Iniciar Vocalía <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Card 3: Cámaras, Streaming & Visión 9:16 */}
+              <div className="bg-slate-950/70 border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                      <Cpu className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded">VISION IA</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-cyan-300 transition-colors">Cámaras & Visión 9:16</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Tracking de jugadores en cancha con visión computacional y renderizado de clips verticales 9:16 para redes sociales.
+                  </p>
+                </div>
+                {onNavigateTab && (
+                  <button
+                    onClick={() => onNavigateTab('vision-ai')}
+                    className="mt-4 w-full py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    Abrir Cámaras & Visión <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Card 4: Generador de Crónicas IA */}
+              <div className="bg-slate-950/70 border border-purple-500/30 hover:border-purple-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded">PRENSA IA</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-purple-300 transition-colors">Crónicas & Prensa IA</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Redacción periodística automatizada con notas tácticas y publicación directa al Blog de Noticias de la Liga.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveAdminTab('chronicle')}
+                  className="mt-4 w-full py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  Generar Crónica <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Card 5: Ingesta Inteligente de Datos */}
+              <div className="bg-slate-950/70 border border-emerald-500/30 hover:border-emerald-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <Database className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">3 CAMINOS</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-emerald-300 transition-colors">Ingesta de Planillas</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Digitalización inteligente vía OCR/fotos de actas físicas, planillas Excel o scraping federativo para migrar ligas.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveAdminTab('ingestion')}
+                  className="mt-4 w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  Iniciar Ingesta <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Card 6: Generador de Banners Publicitarios */}
+              <div className="bg-slate-950/70 border border-indigo-500/30 hover:border-indigo-500/60 rounded-xl p-4 transition-all flex flex-col justify-between group">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                      <Image className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded">MARKETING</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white group-hover:text-indigo-300 transition-colors">Banners Publicitarios</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Diseño y exportación instantánea de banners en alta resolución para promocionar torneos, cupos y marcas.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveAdminTab('campaign-banners')}
+                  className="mt-4 w-full py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  Crear Banners <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <Building className="w-5 h-5 text-emerald-400" />
+              Ligas y Torneos Registrados (Aislamiento Multi-Tenant RLS)
+            </h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -685,6 +848,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             </table>
           </div>
         </div>
+      </div>
       )}
 
       {/* TAB: CRM LIGAS & VENTAS (CONFIDENCIAL) */}

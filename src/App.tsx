@@ -18,10 +18,11 @@ import { FULL_SUPABASE_SQL_SCRIPT } from './data/sqlScript';
 import { INITIAL_CHRONICLES, INITIAL_MATCH_EVENTS } from './data/mockData';
 import { apiService } from './services/apiService';
 import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, Team, Player, SportCode, AiChronicle } from './types';
-import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame } from 'lucide-react';
+import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame, KeyRound } from 'lucide-react';
 import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
 import { AffiliationModal } from './components/Affiliation/AffiliationModal';
 import { LoginGate } from './components/Auth/LoginGate';
+import { AdminAuthSecurityModal } from './components/Auth/AdminAuthSecurityModal';
 import { CampaignBannersGenerator } from './components/Marketing/CampaignBannersGenerator';
 import { ExclusiveOfferCheckoutModal } from './components/Marketing/ExclusiveOfferCheckoutModal';
 import { ClubDeporversoShowcase } from './components/ClubShowcase/ClubDeporversoShowcase';
@@ -51,6 +52,36 @@ export default function App() {
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
   const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
   const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
+
+  // Modal de Seguridad de Administrador para Streaming, VAR, Videos y Crónicas
+  const [showAdminSecurityModal, setShowAdminSecurityModal] = useState<boolean>(false);
+  const [adminSecurityTargetTab, setAdminSecurityTargetTab] = useState<string | null>(null);
+  const [adminSecurityTitle, setAdminSecurityTitle] = useState<string>('Acceso Oficial de Administrador');
+  const [adminSecurityDesc, setAdminSecurityDesc] = useState<string>('Streaming, VAR, clips de video y crónicas están restringidos únicamente a Administradores.');
+
+  const handleAdminSecurityAuthorized = () => {
+    setIsAuthenticated(true);
+    setIsSuperAdminAuth(true);
+    setUserRole('SUPER_ADMIN');
+    setIsPlatformUnlocked(true);
+    setCurrentUserEmail('roly3d.rg@gmail.com');
+    setShowAdminSecurityModal(false);
+
+    try {
+      localStorage.setItem('deporverso_auth_session', JSON.stringify({
+        authenticated: true,
+        role: 'SUPER_ADMIN',
+        email: 'roly3d.rg@gmail.com',
+        isSuperAdmin: true,
+        loginTimestamp: Date.now()
+      }));
+    } catch (e) {}
+
+    const target = adminSecurityTargetTab || 'master-admin';
+    setActiveTab(target);
+    setAdminToast('👑 Acceso Maestro Autorizado: Funciones de Administrador Desbloqueadas');
+    setTimeout(() => setAdminToast(null), 4500);
+  };
 
   const handleOpenStepTour = (initialIndex: number = 0) => {
     setStepTourInitialIndex(initialIndex);
@@ -363,13 +394,77 @@ export default function App() {
       return;
     }
     const resolvedTab = tab === 'demo-multiverso' ? 'league' : tab;
-    if ((resolvedTab === 'master-admin' || resolvedTab === 'master-admin-crm' || resolvedTab === 'sql-viewer' || resolvedTab === 'campaign-banners') && !isSuperAdminAuth) {
+
+    // Verificar si el usuario ya posee sesión activa de SuperAdmin
+    const isCurrentlyAdmin = isSuperAdminAuth || (() => {
+      try {
+        const s = localStorage.getItem('deporverso_auth_session');
+        if (s) {
+          const parsed = JSON.parse(s);
+          return Boolean(parsed?.authenticated && parsed?.isSuperAdmin);
+        }
+      } catch (e) {}
+      return false;
+    })();
+
+    if (isCurrentlyAdmin && !isSuperAdminAuth) {
+      setIsSuperAdminAuth(true);
+      setUserRole('SUPER_ADMIN');
+    }
+
+    // Regla de Seguridad: Streaming, VAR, Vocalía, Contenido de DEPORVERSO, Videos y Crónicas
+    // son de manejo exclusivo para Administrador (mediante Clave Maestra 1326 o Correo y Clave)
+    if (resolvedTab === 'var' && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab('var');
+      setAdminSecurityTitle('Sala VAR Oficial & Dictámenes Arbitrales');
+      setAdminSecurityDesc('El sistema VAR oficial, revisión de jugadas polémicas y actas periciales son de uso exclusivo del Administrador Oficial de la Liga. Ingresa con clave maestra (1326) o credenciales de administrador.');
+      setShowAdminSecurityModal(true);
+      return;
+    }
+
+    if (resolvedTab === 'vocalia' && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab('vocalia');
+      setAdminSecurityTitle('Vocalía Digital & Control de Mesa');
+      setAdminSecurityDesc('El control de mesa técnica, actas digitales de partido y cronómetro oficial son de uso exclusivo del Administrador y Vocales acreditados.');
+      setShowAdminSecurityModal(true);
+      return;
+    }
+
+    if (resolvedTab === 'vision-ai' && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab('vision-ai');
+      setAdminSecurityTitle('Cámaras en Cancha, Visión y Contenido 9:16');
+      setAdminSecurityDesc('El tracking automatizado de jugadores, visión computacional y producción de clips verticales 9:16 de DEPORVERSO requieren autorización de Administrador.');
+      setShowAdminSecurityModal(true);
+      return;
+    }
+
+    if (resolvedTab === 'chronicle' && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab('chronicle');
+      setAdminSecurityTitle('Generador de Crónicas Periodísticas IA');
+      setAdminSecurityDesc('La generación y redacción editorial de crónicas deportivas con IA de DEPORVERSO es de uso exclusivo del Administrador Maestro.');
+      setShowAdminSecurityModal(true);
+      return;
+    }
+
+    if (resolvedTab === 'ingestion' && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab('ingestion');
+      setAdminSecurityTitle('Ingesta Inteligente de Planillas & Datos');
+      setAdminSecurityDesc('La digitalización y generación de datos mediante planillas o plantillas es exclusiva del Administrador.');
+      setShowAdminSecurityModal(true);
+      return;
+    }
+
+    if ((resolvedTab === 'master-admin' || resolvedTab === 'master-admin-crm' || resolvedTab === 'sql-viewer' || resolvedTab === 'campaign-banners') && !isCurrentlyAdmin) {
+      setAdminSecurityTargetTab(resolvedTab);
+      setAdminSecurityTitle('Panel de Control Maestro CIG');
+      setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador para acceder a las herramientas maestras de la plataforma.');
+      setShowAdminSecurityModal(true);
       return;
     }
 
     // Regla 1: Un usuario no registrado (invitado) solo accede a Inicio ('welcome').
     // Si intenta acceder a la demo de Liga Pichincha o Club Deporverso, debe registrarse:
-    if (!isAuthenticated && !isSuperAdminAuth && resolvedTab !== 'exclusive-offer') {
+    if (!isAuthenticated && !isCurrentlyAdmin && resolvedTab !== 'exclusive-offer') {
       setAuthModalMode('register');
       setShowAuthModal(true);
       setAdminToast('👋 Regístrate gratis para acceder a la demo de la Liga Pichincha y el Club Deporverso.');
@@ -379,7 +474,7 @@ export default function App() {
 
     // Regla 2: El usuario registrado solo accede a la demo ('league' y 'club-deporverso').
     // Los usuarios que paguen la suscripción acceden al portal de Deporverso completo:
-    if (!hasPaidFullAccess && !isSuperAdminAuth && !DEMO_ALLOWED_TABS.includes(resolvedTab)) {
+    if (!hasPaidFullAccess && !isCurrentlyAdmin && !DEMO_ALLOWED_TABS.includes(resolvedTab)) {
       setShowCheckoutOfferModal(true);
       setAdminToast('🔒 Este usuario solo accede a la demo. Para desbloquear el portal de Deporverso completo, suscríbete ($35 por club y torneo).');
       setTimeout(() => setAdminToast(null), 5000);
@@ -652,6 +747,7 @@ export default function App() {
             onChronicleGenerated={handleAddChronicle}
             initialAdminTab={activeTab === 'master-admin-crm' ? 'crm' : 'overview'}
             onExitAdminMode={handleLogoutSuperAdmin}
+            onNavigateTab={handleTabChange}
           />
         )}
 
@@ -675,21 +771,67 @@ export default function App() {
         )}
 
         {activeTab === 'vocalia' && (
-          <VocaliaDigital
-            matches={tenantMatches}
-            tenant={activeTenant}
-            teams={teams}
-            sport={activeSportObj}
-            players={players}
-            events={events}
-            onAddEvent={handleAddMatchEvent}
-            onUpdateScore={handleUpdateMatchScore}
-            onSaveVocalia={handleSaveVocalia}
-          />
+          isSuperAdminAuth ? (
+            <VocaliaDigital
+              matches={tenantMatches}
+              tenant={activeTenant}
+              teams={teams}
+              sport={activeSportObj}
+              players={players}
+              events={events}
+              onAddEvent={handleAddMatchEvent}
+              onUpdateScore={handleUpdateMatchScore}
+              onSaveVocalia={handleSaveVocalia}
+            />
+          ) : (
+            <div className="bg-[#0a0a0a] border border-amber-500/30 rounded-3xl p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-2xl">
+              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-black text-white">Vocalía Digital en Vivo</h2>
+              <p className="text-xs text-white/60">
+                El control de mesa técnica, actas digitales y cronómetro oficial son de uso exclusivo del Administrador y Vocales autorizados.
+              </p>
+              <button
+                onClick={() => {
+                  setAdminSecurityTargetTab('vocalia');
+                  setAdminSecurityTitle('Vocalía Digital & Control de Mesa');
+                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setShowAdminSecurityModal(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
+              >
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+              </button>
+            </div>
+          )
         )}
 
         {activeTab === 'vision-ai' && (
-          <ComputerVisionEdge match={tenantMatches[0]} isSuperAdminAuth={isSuperAdminAuth} />
+          isSuperAdminAuth ? (
+            <ComputerVisionEdge match={tenantMatches[0]} isSuperAdminAuth={isSuperAdminAuth} />
+          ) : (
+            <div className="bg-[#0a0a0a] border border-cyan-500/30 rounded-3xl p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-2xl">
+              <div className="w-16 h-16 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl flex items-center justify-center mx-auto text-cyan-400">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-black text-white">Cámaras & Visión de Cancha</h2>
+              <p className="text-xs text-white/60">
+                El sistema de cámaras, visión computacional y clips 9:16 de DEPORVERSO son herramientas exclusivas para el Administrador de la Liga.
+              </p>
+              <button
+                onClick={() => {
+                  setAdminSecurityTargetTab('vision-ai');
+                  setAdminSecurityTitle('Cámaras en Cancha, Visión y Contenido 9:16');
+                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setShowAdminSecurityModal(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
+              >
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+              </button>
+            </div>
+          )
         )}
 
         {activeTab === 'ingestion' && (
@@ -707,6 +849,7 @@ export default function App() {
               onAddTicket={handleAddMigrationTicket}
               initialAdminTab="ingestion"
               onChronicleGenerated={handleAddChronicle}
+              onNavigateTab={handleTabChange}
             />
           ) : (
             <div className="bg-[#0a0a0a] border border-cyan-500/30 rounded-3xl p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-2xl">
@@ -717,18 +860,53 @@ export default function App() {
               <p className="text-xs text-white/60">
                 La ingesta inteligente de datos de ligas (3 Caminos) es una herramienta disponible únicamente en el Panel de Administración Maestro.
               </p>
+              <button
+                onClick={() => {
+                  setAdminSecurityTargetTab('ingestion');
+                  setAdminSecurityTitle('Ingesta Inteligente de Planillas & Datos');
+                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setShowAdminSecurityModal(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
+              >
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+              </button>
             </div>
           )
         )}
 
         {activeTab === 'var' && (
-          <VarModule
-            tenantId={activeTenantId}
-            matches={tenantMatches}
-            varRequests={varRequests}
-            onCreateVarRequest={handleCreateVarRequest}
-            onUpdateVarStatus={handleUpdateVarStatus}
-          />
+          isSuperAdminAuth ? (
+            <VarModule
+              tenantId={activeTenantId}
+              matches={tenantMatches}
+              varRequests={varRequests}
+              onCreateVarRequest={handleCreateVarRequest}
+              onUpdateVarStatus={handleUpdateVarStatus}
+              isSuperAdminAuth={isSuperAdminAuth}
+            />
+          ) : (
+            <div className="bg-[#0a0a0a] border border-red-500/30 rounded-3xl p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-2xl">
+              <div className="w-16 h-16 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto text-red-400">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-black text-white">Sistema VAR Oficial</h2>
+              <p className="text-xs text-white/60">
+                La sala de video arbitraje, repetición multicámara y dictámenes periciales son de uso exclusivo del Administrador Oficial de la Liga.
+              </p>
+              <button
+                onClick={() => {
+                  setAdminSecurityTargetTab('var');
+                  setAdminSecurityTitle('Sala VAR Oficial & Dictámenes Arbitrales');
+                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setShowAdminSecurityModal(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
+              >
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+              </button>
+            </div>
+          )
         )}
 
         {activeTab === 'chronicle' && (
@@ -755,16 +933,29 @@ export default function App() {
               <div>
                 <h2 className="text-xl font-black text-white">Generador Exclusivo de Administración</h2>
                 <p className="text-xs text-white/60 mt-1.5 leading-relaxed">
-                  El generador de Crónicas IA es una herramienta de uso exclusivo del Administrador Maestro. Todos los artículos y resúmenes generados están publicados y disponibles públicamente en el Blog Deportivo.
+                  El generador de Crónicas IA y contenido periodístico de DEPORVERSO es una herramienta de uso exclusivo del Administrador Maestro. Todos los artículos y resúmenes generados están publicados y disponibles públicamente en el Blog Deportivo.
                 </p>
               </div>
 
               <div className="flex flex-col gap-2.5 pt-2">
                 <button
-                  onClick={() => setActiveTab('league')}
-                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setAdminSecurityTargetTab('chronicle');
+                    setAdminSecurityTitle('Generador de Crónicas Periodísticas IA');
+                    setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para redactar y publicar crónicas.');
+                    setShowAdminSecurityModal(true);
+                  }}
+                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <FileText className="w-4 h-4" />
+                  <KeyRound className="w-4 h-4" />
+                  <span>Ingresar con Clave Maestra (1326) o Correo</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('league')}
+                  className="w-full py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 border border-white/10"
+                >
+                  <FileText className="w-4 h-4 text-cyan-400" />
                   <span>Ver Blog & Crónicas Publicadas</span>
                 </button>
               </div>
@@ -910,6 +1101,15 @@ export default function App() {
           />
         </div>
       )}
+
+      {/* MODAL DE SEGURIDAD EXCLUSIVO DE ADMINISTRADOR (CLAVE MAESTRA 1326 O CORREO/CLAVE) */}
+      <AdminAuthSecurityModal
+        isOpen={showAdminSecurityModal}
+        onClose={() => setShowAdminSecurityModal(false)}
+        onAuthorized={handleAdminSecurityAuthorized}
+        featureTitle={adminSecurityTitle}
+        featureDescription={adminSecurityDesc}
+      />
         </div>
       </div>
     </div>

@@ -11,12 +11,17 @@ import {
   Smartphone, 
   Download, 
   Film,
-  Terminal,
-  Share2,
-  FileText,
-  Check
+  Terminal, 
+  Share2, 
+  FileText, 
+  Check,
+  Lock,
+  KeyRound,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { Match, VarRequest } from '../../types';
+import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
 
 interface VarModuleProps {
   tenantId: string;
@@ -24,6 +29,7 @@ interface VarModuleProps {
   varRequests: VarRequest[];
   onCreateVarRequest: (req: Omit<VarRequest, 'id' | 'created_at'>) => void;
   onUpdateVarStatus: (varId: string, status: VarRequest['status'], notes?: string) => void;
+  isSuperAdminAuth?: boolean;
 }
 
 export const VarModule: React.FC<VarModuleProps> = ({
@@ -31,8 +37,50 @@ export const VarModule: React.FC<VarModuleProps> = ({
   matches,
   varRequests,
   onCreateVarRequest,
-  onUpdateVarStatus
+  onUpdateVarStatus,
+  isSuperAdminAuth = false
 }) => {
+  // Estado de autorización de administrador para VAR
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(() => {
+    if (isSuperAdminAuth) return true;
+    try {
+      const session = localStorage.getItem('deporverso_auth_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed?.authenticated && parsed?.isSuperAdmin;
+      }
+    } catch (e) {}
+    return false;
+  });
+
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [securityModalTitle, setSecurityModalTitle] = useState('Autorización Oficial Sala VAR');
+  const [securityModalDesc, setSecurityModalDesc] = useState('Para emitir dictámenes oficiales, exportar clips 9:16 y firmar actas arbitrales se requiere ingresar con clave maestra (1326) o correo de administrador.');
+  const [pendingAdminAction, setPendingAdminAction] = useState<(() => void) | null>(null);
+  const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
+
+  const requireAdminAction = (action: () => void, title?: string, desc?: string) => {
+    if (isAdminAuthorized || isSuperAdminAuth) {
+      action();
+    } else {
+      if (title) setSecurityModalTitle(title);
+      if (desc) setSecurityModalDesc(desc);
+      setPendingAdminAction(() => action);
+      setShowSecurityModal(true);
+    }
+  };
+
+  const handleAdminAuthorized = () => {
+    setIsAdminAuthorized(true);
+    setFeedbackToast('✓ Autorización concedida: Modo Administrador VAR Activo');
+    setTimeout(() => setFeedbackToast(null), 4000);
+    if (pendingAdminAction) {
+      const fn = pendingAdminAction;
+      setPendingAdminAction(null);
+      fn();
+    }
+  };
+
   const [selectedMatchId, setSelectedMatchId] = useState(matches[0]?.id || '');
   const [cameraAngle, setCameraAngle] = useState('Ángulo 1: Línea de Gol / Área Chica');
   const [activeVarView, setActiveVarView] = useState<VarRequest | null>(varRequests[0] || null);
@@ -49,44 +97,46 @@ export const VarModule: React.FC<VarModuleProps> = ({
     duration: number;
   } | null>(null);
 
-  const handleGenerateVarClip916 = async () => {
-    setIsProcessing916(true);
-    setStatus916('Generando extracción cinemática de la jugada en formato 9:16...');
-    try {
-      const res = await fetch('/api/media/generate-highlight-916', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inputVideoUrl: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          eventTimestampSec: Number(eventSec),
-          eventTitle: `Incidencia VAR 9:16 - ${actionType}`,
-          actionType: actionType,
-          preSec: 10.0,
-          postSec: 5.0
-        })
-      });
+  const handleGenerateVarClip916 = () => {
+    requireAdminAction(async () => {
+      setIsProcessing916(true);
+      setStatus916('Generando extracción cinemática de la jugada en formato 9:16...');
+      try {
+        const res = await fetch('/api/media/generate-highlight-916', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputVideoUrl: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+            eventTimestampSec: Number(eventSec),
+            eventTitle: `Incidencia VAR 9:16 - ${actionType}`,
+            actionType: actionType,
+            preSec: 10.0,
+            postSec: 5.0
+          })
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setGenerated916Clip({
-          url: data.clip?.url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          title: data.clip?.title || 'Clip VAR 9:16',
-          duration: data.clip?.durationSec || 15.0
-        });
-        setStatus916('✓ ¡Clip 9:16 generado con éxito (1080x1920)! Optimizado para dictamen y difusión.');
-      } else {
-        setGenerated916Clip({
-          url: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          title: 'Clip VAR 9:16',
-          duration: 15.0
-        });
-        setStatus916('✓ Clip vertical 9:16 preparado con éxito.');
+        if (res.ok) {
+          const data = await res.json();
+          setGenerated916Clip({
+            url: data.clip?.url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+            title: data.clip?.title || 'Clip VAR 9:16',
+            duration: data.clip?.durationSec || 15.0
+          });
+          setStatus916('✓ ¡Clip 9:16 generado con éxito (1080x1920)! Optimizado para dictamen y difusión.');
+        } else {
+          setGenerated916Clip({
+            url: activeVarView?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+            title: 'Clip VAR 9:16',
+            duration: 15.0
+          });
+          setStatus916('✓ Clip vertical 9:16 preparado con éxito.');
+        }
+      } catch (e: any) {
+        setStatus916(`Error: ${e.message}`);
+      } finally {
+        setIsProcessing916(false);
       }
-    } catch (e: any) {
-      setStatus916(`Error: ${e.message}`);
-    } finally {
-      setIsProcessing916(false);
-    }
+    }, 'Exportar Highlight 9:16 de VAR', 'La producción y exportación de video vertical de jugadas polémicas requiere credenciales de Administrador.');
   };
 
   // Acta Oficial VAR & Ficha Técnica PDF State
@@ -94,84 +144,127 @@ export const VarModule: React.FC<VarModuleProps> = ({
   const [varPdfUrl, setVarPdfUrl] = useState<string | null>(null);
   const [varPdfStatus, setVarPdfStatus] = useState<string | null>(null);
 
-  const handleGenerateVarPdf = async () => {
-    setIsGeneratingVarPdf(true);
-    setVarPdfStatus('Generando Acta Oficial VAR y Ficha Técnica oficial...');
-    try {
-      const selectedMatch = matches.find(m => m.id === selectedMatchId);
-      const res = await fetch('/api/reports/var-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          matchTitle: activeVarView?.match_title || `${selectedMatch?.home_team?.name || 'Local'} vs ${selectedMatch?.away_team?.name || 'Visitante'}`,
-          incidentType: actionType === 'GOL_POLEMICO' ? 'Revisión de Gol / Fuera de Juego' : actionType,
-          minuteOrTimestamp: `Segundo ${eventSec}s (Ángulo: ${cameraAngle})`,
-          verdict: refereeNotes || 'GOL VÁLIDO - Posición legal confirmada por calibración VAR',
-          refereeNotes: refereeNotes || 'Dictamen oficial emitido con asistencia de cámaras multiseñal y calibración pericial.',
-          playerData: {
-            name: 'Atleta Involucrado #10',
-            team: selectedMatch?.home_team?.name || 'Club Titular',
-            position: 'Extremo / Delantero',
-            age: 24,
-            dorsal: '10',
-            sportIaIndex: 9.2,
-            metrics: {
-              distanceKm: 9.8,
-              maxSpeedKmh: 33.1,
-              passAccuracy: 88.5,
-              recoveries: 6
+  const handleGenerateVarPdf = () => {
+    requireAdminAction(async () => {
+      setIsGeneratingVarPdf(true);
+      setVarPdfStatus('Generando Acta Oficial VAR y Ficha Técnica oficial...');
+      try {
+        const selectedMatch = matches.find(m => m.id === selectedMatchId);
+        const res = await fetch('/api/reports/var-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            matchTitle: activeVarView?.match_title || `${selectedMatch?.home_team?.name || 'Local'} vs ${selectedMatch?.away_team?.name || 'Visitante'}`,
+            incidentType: actionType === 'GOL_POLEMICO' ? 'Revisión de Gol / Fuera de Juego' : actionType,
+            minuteOrTimestamp: `Segundo ${eventSec}s (Ángulo: ${cameraAngle})`,
+            verdict: refereeNotes || 'GOL VÁLIDO - Posición legal confirmada por calibración VAR',
+            refereeNotes: refereeNotes || 'Dictamen oficial emitido con asistencia de cámaras multiseñal y calibración pericial.',
+            playerData: {
+              name: 'Atleta Involucrado #10',
+              team: selectedMatch?.home_team?.name || 'Club Titular',
+              position: 'Extremo / Delantero',
+              age: 24,
+              dorsal: '10',
+              sportIaIndex: 9.2,
+              metrics: {
+                distanceKm: 9.8,
+                maxSpeedKmh: 33.1,
+                passAccuracy: 88.5,
+                recoveries: 6
+              }
             }
-          }
-        })
-      });
+          })
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setVarPdfUrl(data.pdfUrl);
-        setVarPdfStatus('✓ Acta Oficial VAR & Ficha Técnica generada con éxito (A4 Oficial)');
-      } else {
-        setVarPdfStatus('Aviso: Error generando el documento.');
+        if (res.ok) {
+          const data = await res.json();
+          setVarPdfUrl(data.pdfUrl);
+          setVarPdfStatus('✓ Acta Oficial VAR & Ficha Técnica generada con éxito (A4 Oficial)');
+        } else {
+          setVarPdfStatus('Aviso: Error generando el documento.');
+        }
+      } catch (e: any) {
+        setVarPdfStatus(`Error: ${e.message}`);
+      } finally {
+        setIsGeneratingVarPdf(false);
       }
-    } catch (e: any) {
-      setVarPdfStatus(`Error: ${e.message}`);
-    } finally {
-      setIsGeneratingVarPdf(false);
-    }
+    }, 'Emitir Acta Oficial VAR en PDF', 'La certificación legal y firma pericial del acta arbitral requiere acceso de Administrador.');
+  };
+
+  const handleConfirmDecision = () => {
+    requireAdminAction(() => {
+      if (!activeVarView) return;
+      onUpdateVarStatus(activeVarView.id, 'COMPLETED', refereeNotes || 'Decisión Confirmada por VAR');
+      setFeedbackToast('✓ Dictamen VAR guardado e integrado al acta oficial del partido.');
+      setTimeout(() => setFeedbackToast(null), 4000);
+    }, 'Confirmar Dictamen Arbitral VAR', 'Solo los árbitros y administradores autorizados pueden asentar fallos disciplinarios oficiales.');
   };
 
   const handleRequestVar = (e: React.FormEvent) => {
     e.preventDefault();
-    const match = matches.find(m => m.id === selectedMatchId);
-    if (!match) return;
+    requireAdminAction(() => {
+      const match = matches.find(m => m.id === selectedMatchId);
+      if (!match) return;
 
-    onCreateVarRequest({
-      tenant_id: tenantId,
-      match_id: match.id,
-      fee_amount: 12.00,
-      status: 'APPROVED',
-      camera_angle: cameraAngle,
-      video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-      result_notes: 'Revisión VAR solicitada para jugada polémica.',
-      match_title: `${match.home_team?.name || 'Local'} vs ${match.away_team?.name || 'Visitante'}`
-    });
+      onCreateVarRequest({
+        tenant_id: tenantId,
+        match_id: match.id,
+        fee_amount: 12.00,
+        status: 'APPROVED',
+        camera_angle: cameraAngle,
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        result_notes: 'Revisión VAR solicitada para jugada polémica.',
+        match_title: `${match.home_team?.name || 'Local'} vs ${match.away_team?.name || 'Visitante'}`
+      });
 
-    alert('¡Servicio VAR A la Carta reservado ($12.00 USD)! Transmisión de baja latencia lista.');
+      setFeedbackToast('✓ ¡Servicio VAR A la Carta reservado ($12.00 USD)! Transmisión de baja latencia lista.');
+      setTimeout(() => setFeedbackToast(null), 4000);
+    }, 'Iniciar Sesión VAR A la Carta', 'Ingresa con clave maestra o credenciales de administrador para reservar el sistema VAR.');
   };
 
   return (
     <div className="space-y-6">
-      {/* Banner */}
+      {/* Toast Feedback */}
+      {feedbackToast && (
+        <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg animate-in fade-in duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{feedbackToast}</span>
+        </div>
+      )}
+
+      {/* Banner de Cabecera con Badge de Seguridad */}
       <div className="bg-[#080d1a]/80 backdrop-blur-xl p-6 sm:p-7 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               VAR A la Carta ($12.00 USD)
             </span>
             <span className="text-slate-400 text-xs font-mono font-medium">Ultra Baja Latencia (Cloudflare R2)</span>
+
+            {/* Admin Security Badge */}
+            {isAdminAuthorized ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                ADMIN AUTORIZADO
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setSecurityModalTitle('Desbloquear Control VAR Oficial');
+                  setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para dictaminar y gestionar el VAR.');
+                  setShowSecurityModal(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[10px] font-bold cursor-pointer transition-all shadow-sm animate-pulse"
+              >
+                <Lock className="w-3 h-3 text-amber-400" />
+                <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
+              </button>
+            )}
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Sistema VAR A la Carta e Involucramiento de Árbitros</h1>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Reserva de cámaras reglamentarias por partido o inclusión en suscripción Enterprise con repetición multi-ángulo.
+            Reserva de cámaras reglamentarias por partido, emisión de dictámenes periciales y clips verticales de jugadas polémicas.
           </p>
         </div>
 
@@ -217,7 +310,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
             </div>
           </div>
 
-          {/* Camera Angles Switcher (Segmented) */}
+          {/* Camera Angles Switcher */}
           <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto text-xs">
             {['Ángulo 1: Línea de Gol', 'Ángulo 2: Táctica Superior', 'Ángulo 3: Lateral Banda'].map((angle) => (
               <button
@@ -237,7 +330,14 @@ export const VarModule: React.FC<VarModuleProps> = ({
           {/* Referee Decision Log Form */}
           {activeVarView && (
             <div className="bg-white/[0.03] p-4 rounded-xl border border-white/[0.08] space-y-3 pt-3">
-              <h4 className="font-semibold text-white text-xs">Dictamen del Árbitro VAR:</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-white text-xs">Dictamen del Árbitro VAR:</h4>
+                {!isAdminAuthorized && (
+                  <span className="text-[10px] text-amber-400 flex items-center gap-1 font-mono">
+                    <Lock className="w-3 h-3" /> Requiere Admin
+                  </span>
+                )}
+              </div>
               <textarea
                 rows={2}
                 placeholder="Escribe la resolución de la jugada (Ej. Gol Valido / Fuera de Juego / Penalti Aprobado)..."
@@ -248,13 +348,11 @@ export const VarModule: React.FC<VarModuleProps> = ({
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    onUpdateVarStatus(activeVarView.id, 'COMPLETED', refereeNotes || 'Decisión Confirmada por VAR');
-                    alert('Dictamen VAR Guardado e integrado al acta oficial.');
-                  }}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-sm transition-all"
+                  onClick={handleConfirmDecision}
+                  className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
                 >
-                  Confirmar Decisión Arbitral
+                  {!isAdminAuthorized && <Lock className="w-3.5 h-3.5" />}
+                  <span>Confirmar Decisión Arbitral</span>
                 </button>
               </div>
             </div>
@@ -285,7 +383,11 @@ export const VarModule: React.FC<VarModuleProps> = ({
                 disabled={isProcessing916}
                 className="px-3.5 py-2 bg-gradient-to-r from-rose-500 to-amber-400 hover:opacity-95 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
               >
-                <Smartphone className={`w-3.5 h-3.5 ${isProcessing916 ? 'animate-bounce' : ''}`} />
+                {!isAdminAuthorized ? (
+                  <Lock className="w-3.5 h-3.5" />
+                ) : (
+                  <Smartphone className={`w-3.5 h-3.5 ${isProcessing916 ? 'animate-bounce' : ''}`} />
+                )}
                 <span>{isProcessing916 ? 'Recortando...' : 'Exportar Reel 9:16'}</span>
               </button>
             </div>
@@ -328,7 +430,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
               </div>
             )}
 
-            {/* PREVISUALIZADOR VERTICAL SI FUE GENERADO */}
+            {/* PREVISUALIZADOR VERTICAL */}
             {generated916Clip && (
               <div className="p-3 bg-black/60 rounded-xl border border-white/10 flex flex-col sm:flex-row items-center gap-3">
                 <div className="w-24 aspect-[9/16] rounded-lg overflow-hidden border border-white/20 bg-black shrink-0">
@@ -362,7 +464,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
             )}
           </div>
 
-          {/* ACTA OFICIAL VAR & SCOUTING PDF (PUPPETEER) */}
+          {/* ACTA OFICIAL VAR & SCOUTING PDF */}
           <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/30 via-slate-900 to-[#080d1a] border border-amber-500/30 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
@@ -387,7 +489,11 @@ export const VarModule: React.FC<VarModuleProps> = ({
                 disabled={isGeneratingVarPdf}
                 className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-95 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
               >
-                <FileText className={`w-3.5 h-3.5 ${isGeneratingVarPdf ? 'animate-spin' : ''}`} />
+                {!isAdminAuthorized ? (
+                  <Lock className="w-3.5 h-3.5" />
+                ) : (
+                  <FileText className={`w-3.5 h-3.5 ${isGeneratingVarPdf ? 'animate-spin' : ''}`} />
+                )}
                 <span>{isGeneratingVarPdf ? 'Generando PDF...' : 'Generar Acta PDF'}</span>
               </button>
             </div>
@@ -421,10 +527,17 @@ export const VarModule: React.FC<VarModuleProps> = ({
         {/* Request VAR Form & Active Log */}
         <div className="space-y-6">
           <div className="bg-[#080d1a]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-7 space-y-4 shadow-xl">
-            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-cyan-400" />
-              Reservar VAR A la Carta ($12)
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-cyan-400" />
+                Reservar VAR A la Carta ($12)
+              </h3>
+              {!isAdminAuthorized && (
+                <span className="text-[10px] text-amber-400 flex items-center gap-1 font-mono">
+                  <Lock className="w-3 h-3" /> Admin
+                </span>
+              )}
+            </div>
 
             <form onSubmit={handleRequestVar} className="space-y-3">
               <div>
@@ -444,9 +557,10 @@ export const VarModule: React.FC<VarModuleProps> = ({
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 text-slate-950 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
+                className="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 text-slate-950 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
               >
-                Pagar $12.00 USD & Iniciar VAR
+                {!isAdminAuthorized && <Lock className="w-3.5 h-3.5" />}
+                <span>Pagar $12.00 USD & Iniciar VAR</span>
               </button>
             </form>
           </div>
@@ -470,6 +584,15 @@ export const VarModule: React.FC<VarModuleProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Admin Security Modal */}
+      <AdminAuthSecurityModal
+        isOpen={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        onAuthorized={handleAdminAuthorized}
+        featureTitle={securityModalTitle}
+        featureDescription={securityModalDesc}
+      />
     </div>
   );
 };

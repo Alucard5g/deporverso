@@ -35,7 +35,10 @@ import {
   Film,
   Cloud,
   Bot,
-  X
+  X,
+  Lock,
+  Shield,
+  KeyRound
 } from 'lucide-react';
 import { Tenant, Sport, Match, Team, Player } from '../../types';
 import { RtmpQrModal } from './streaming/RtmpQrModal';
@@ -45,6 +48,7 @@ import { VarReplayStudio } from './streaming/VarReplayStudio';
 import { HighlightReelsGeneratorModal } from './streaming/HighlightReelsGeneratorModal';
 import { TerminalCameraBroadcasterModal } from './streaming/TerminalCameraBroadcasterModal';
 import { createVirtualPitchStream, VirtualStreamHandle } from '../../utils/virtualCameraStream';
+import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
 
 export interface LiveStreamingPanelProps {
   tenant: Tenant;
@@ -55,6 +59,7 @@ export interface LiveStreamingPanelProps {
   defaultMode?: 'vocalia' | 'var' | 'tv';
   selectedMatchId?: string;
   onClose?: () => void;
+  isSuperAdminAuth?: boolean;
 }
 
 // Preset real sports video IDs for reliable live demonstration
@@ -72,10 +77,39 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   players,
   defaultMode = 'vocalia',
   selectedMatchId: propSelectedMatchId,
-  onClose
+  onClose,
+  isSuperAdminAuth = false
 }) => {
   // Current active mode: 'vocalia' (Vocalía Digital Live), 'var' (Transmisión VAR Local), or 'tv' (Streaming TV Oficial)
   const [streamMode, setStreamMode] = useState<'vocalia' | 'var' | 'tv'>(defaultMode);
+
+  // Control de Acceso Exclusivo de Administrador
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(() => {
+    if (isSuperAdminAuth) return true;
+    try {
+      const session = localStorage.getItem('deporverso_auth_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.isSuperAdmin === true || parsed.role === 'SUPER_ADMIN';
+      }
+    } catch (e) {}
+    return false;
+  });
+  const [showAdminSecurityModal, setShowAdminSecurityModal] = useState<boolean>(false);
+  const [pendingAdminAction, setPendingAdminAction] = useState<(() => void) | null>(null);
+  const [adminSecurityFeatureTitle, setAdminSecurityFeatureTitle] = useState<string>('Control de Transmisión Oficial');
+  const [adminSecurityFeatureDesc, setAdminSecurityFeatureDesc] = useState<string>('');
+
+  const requireAdminAction = (action: () => void, title: string, desc: string) => {
+    if (isAdminAuthorized || isSuperAdminAuth) {
+      action();
+    } else {
+      setPendingAdminAction(() => action);
+      setAdminSecurityFeatureTitle(title);
+      setAdminSecurityFeatureDesc(desc);
+      setShowAdminSecurityModal(true);
+    }
+  };
 
   // Match selection
   const liveMatches = matches.filter(m => m.status === 'IN_PROGRESS');
@@ -694,7 +728,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           {/* Título & Badge de Transmisión Activa */}
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-600/20 border border-rose-500/40 text-rose-400 font-black text-[11px] tracking-wider uppercase shadow-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
                 <span>SEÑAL EN VIVO REAL</span>
@@ -705,6 +739,28 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               <span className="text-xs text-slate-400 hidden sm:inline">
                 {tenant.name}
               </span>
+
+              {/* Indicador de Estado de Administrador */}
+              {isAdminAuthorized || isSuperAdminAuth ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold flex items-center gap-1 shadow-sm">
+                  <Shield className="w-3 h-3 text-emerald-400" />
+                  <span>ADMINISTRADOR AUTORIZADO</span>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => requireAdminAction(
+                    () => {},
+                    'Control Oficial de Transmisión & VAR',
+                    'Streaming TV, Sala VAR, Grabación de Cámara y Resúmenes Reels están reservados para el Administrador mediante clave maestra o credenciales.'
+                  )}
+                  className="px-2.5 py-0.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all animate-pulse"
+                  title="Haz clic para desbloquear con tu clave maestra o correo de administrador"
+                >
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
+                </button>
+              )}
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
               {streamMode === 'vocalia' && <Radio className="w-7 h-7 text-emerald-400" />}
@@ -739,68 +795,100 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </button>
 
               <button
-                onClick={() => setStreamMode('var')}
+                onClick={() => requireAdminAction(
+                  () => setStreamMode('var'),
+                  'Sistema VAR Oficial & Peritaje Arbitral',
+                  'El acceso a la cabina arbitral de VAR y revisión forense de jugadas polémicas requiere validación de Administrador.'
+                )}
                 className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   streamMode === 'var'
                     ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25 scale-[1.02]'
                     : 'text-slate-300 hover:text-white hover:bg-white/5'
                 }`}
+                title={!isAdminAuthorized && !isSuperAdminAuth ? 'Exclusivo Administrador' : undefined}
               >
                 <Activity className="w-3.5 h-3.5" />
                 <span>Sala VAR</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
 
               <button
-                onClick={() => setStreamMode('tv')}
+                onClick={() => requireAdminAction(
+                  () => setStreamMode('tv'),
+                  'Streaming TV Abierta & RTMP Broadcast',
+                  'El control de la señal de televisión comunitaria y emisión en vivo requiere validación de Administrador.'
+                )}
                 className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   streamMode === 'tv'
                     ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/25 scale-[1.02]'
                     : 'text-slate-300 hover:text-white hover:bg-white/5'
                 }`}
+                title={!isAdminAuthorized && !isSuperAdminAuth ? 'Exclusivo Administrador' : undefined}
               >
                 <Tv className="w-3.5 h-3.5" />
                 <span>Streaming TV</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
             </div>
 
             {/* Quick Action Tools: Terminal Cámara, Tarea 1 QR, Tarea 2 Monetization & Tarea 1 Reels */}
             <div className="flex items-center gap-1.5 flex-wrap">
               <button
-                onClick={() => setShowTerminalCameraModal(true)}
+                onClick={() => requireAdminAction(
+                  () => setShowTerminalCameraModal(true),
+                  'Terminal de Cámara (Grabar & Transmitir)',
+                  'La conexión a la cámara del terminal, grabación continua del partido y emisión en vivo está reservada al Administrador.'
+                )}
                 className="px-3 py-2 bg-gradient-to-r from-cyan-500/25 to-blue-500/25 hover:from-cyan-500/35 hover:to-blue-500/35 text-cyan-300 border border-cyan-400/50 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/10 transition-all transform hover:scale-[1.02]"
-                title="Conectar a la cámara de cualquier terminal para grabar y transmitir en vivo"
+                title="Conectar a la cámara de cualquier terminal para grabar y transmitir en vivo (Exclusivo Administrador)"
               >
                 <Camera className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
                 <span className="hidden sm:inline">📹 Terminal Cámara (Grabar & Transmitir)</span>
                 <span className="sm:hidden">📹 Cámara Terminal</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
 
               <button
-                onClick={() => setShowHighlightReelsModal(true)}
+                onClick={() => requireAdminAction(
+                  () => setShowHighlightReelsModal(true),
+                  'Generador de Resúmenes & Reels 1-Clic',
+                  'La producción y descarga de videos verticales y horizontales para redes sociales está reservada al Administrador.'
+                )}
                 className="px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-pink-300 border border-pink-500/40 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                title="Generar Resumen de Video y Reels en 1 Clic (Tarea 1)"
+                title="Generar Resumen de Video y Reels en 1 Clic (Exclusivo Administrador)"
               >
                 <Film className="w-3.5 h-3.5 text-pink-400" />
                 <span className="hidden sm:inline">🎬 Resumen Reels (1 Clic)</span>
                 <span className="sm:hidden">Reels</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
 
               <button
-                onClick={() => setShowRtmpQrModal(true)}
+                onClick={() => requireAdminAction(
+                  () => setShowRtmpQrModal(true),
+                  'Configuración RTMP y QR para Celular',
+                  'La vinculación y configuración de servidores RTMP externos está reservada al Administrador.'
+                )}
                 className="px-3 py-2 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 rounded-2xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                title="Configuración RTMP con QR para Celular (Tarea 1)"
+                title="Configuración RTMP con QR para Celular (Exclusivo Administrador)"
               >
                 <QrCode className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">QR Celular (Tarea 1)</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
 
               <button
-                onClick={() => setShowMonetizationModal(true)}
+                onClick={() => requireAdminAction(
+                  () => setShowMonetizationModal(true),
+                  'Monetización & Pases PPV',
+                  'La gestión de cobro de boletos digitales y suscripciones de transmisión está reservada al Administrador.'
+                )}
                 className="px-3 py-2 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 hover:from-emerald-500/30 hover:to-cyan-500/30 text-emerald-300 border border-emerald-500/40 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                title="Monetizar Highlights & Pases PPV (Tarea 2)"
+                title="Monetizar Highlights & Pases PPV (Exclusivo Administrador)"
               >
                 <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Monetizar (Tarea 2)</span>
+                {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
             </div>
           </div>
@@ -1714,6 +1802,27 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
             setClipSavedToast(`⚡ Jugada de VAR guardada desde el terminal (${newClip.time})`);
             setTimeout(() => setClipSavedToast(null), 4000);
           }}
+        />
+      )}
+
+      {/* MODAL 5: AUTORIZACIÓN EXCLUSIVA DE ADMINISTRADOR (CLAVE MAESTRA O CREDENCIALES) */}
+      {showAdminSecurityModal && (
+        <AdminAuthSecurityModal
+          isOpen={showAdminSecurityModal}
+          onClose={() => {
+            setShowAdminSecurityModal(false);
+            setPendingAdminAction(null);
+          }}
+          onAuthorized={() => {
+            setIsAdminAuthorized(true);
+            if (pendingAdminAction) {
+              const action = pendingAdminAction;
+              setPendingAdminAction(null);
+              action();
+            }
+          }}
+          featureTitle={adminSecurityFeatureTitle}
+          featureDescription={adminSecurityFeatureDesc}
         />
       )}
     </div>

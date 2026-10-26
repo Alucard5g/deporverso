@@ -223,14 +223,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         },
       ]
     },
-    {
-      title: 'Operación & Arbitraje',
-      items: [
-        { id: 'vocalia', label: 'Vocalía Digital en Vivo', icon: Zap, color: 'text-amber-400', requiresSubscription: true },
-        { id: 'var', label: 'Sistema VAR Oficial', icon: Video, color: 'text-red-400', requiresSubscription: true },
-        { id: 'vision-ai', label: 'Cámaras & Visión de Cancha', icon: Cpu, color: 'text-cyan-400', requiresSubscription: true },
-      ]
-    },
+    ...(isSuperAdminAuth ? [
+      {
+        title: 'Operación & Arbitraje (Admin)',
+        items: [
+          { id: 'vocalia', label: 'Vocalía Digital en Vivo', icon: Zap, color: 'text-amber-400' },
+          { id: 'var', label: 'Sistema VAR Oficial', icon: Video, color: 'text-red-400' },
+          { id: 'vision-ai', label: 'Cámaras & Visión de Cancha', icon: Cpu, color: 'text-cyan-400' },
+        ]
+      }
+    ] : []),
     {
       title: 'Dirección & Gobernanza',
       items: [
@@ -255,6 +257,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         title: 'Panel Maestro SuperAdmin',
         items: [
           { id: 'master-admin', label: 'Panel Maestro SuperAdmin', icon: Shield, color: 'text-amber-400' },
+          { id: 'chronicle', label: 'Generación de Crónicas IA', icon: FileText, color: 'text-emerald-400' },
+          { id: 'ingestion', label: 'Ingesta de Planillas & Datos', icon: Database, color: 'text-cyan-400' },
+          { id: 'campaign-banners', label: 'Banners Publicitarios', icon: ImageIcon, color: 'text-purple-400' },
           { id: 'master-admin-crm', label: 'CRM Ligas & Ventas', icon: Users, color: 'text-indigo-400' },
           { id: 'sql-viewer', label: 'Script SQL Supabase', icon: Database, color: 'text-blue-400' },
         ]
@@ -380,6 +385,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <button
                       key={item.id}
                       onClick={() => {
+                        // Si el módulo requiere Administrador y el usuario no está autenticado como tal,
+                        // pasamos a setActiveTab para que App.tsx abra el modal de Clave Maestra o Correo/Clave
+                        if (item.requiresAdmin && !isSuperAdminAuth) {
+                          setActiveTab(item.id);
+                          setMobileMenuOpen(false);
+                          return;
+                        }
                         if (isLockedForGuest) {
                           if (onOpenAuthModal) {
                             onOpenAuthModal('register');

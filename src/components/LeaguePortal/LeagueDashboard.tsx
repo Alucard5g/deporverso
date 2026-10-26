@@ -622,16 +622,18 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             <FileText className="w-3.5 h-3.5 text-rose-400" /> Blog & Crónicas
           </button>
 
-          <button
-            onClick={() => { setActiveTab('online'); setStreamingMode('vocalia'); }}
-            className={`whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'online' 
-                ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
-                : 'deporverso-tab-pill-inactive'
-            }`}
-          >
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> En Vivo ({streamingMode === 'var' ? 'VAR' : streamingMode === 'tv' ? 'TV' : 'Vocalía'})
-          </button>
+          {isSuperAdminAuth && (
+            <button
+              onClick={() => { setActiveTab('online'); setStreamingMode('vocalia'); }}
+              className={`whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'online' 
+                  ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
+                  : 'deporverso-tab-pill-inactive'
+              }`}
+            >
+              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> En Vivo ({streamingMode === 'var' ? 'VAR' : streamingMode === 'tv' ? 'TV' : 'Vocalía'})
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab('rules')}
@@ -1266,8 +1268,8 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </div>
         )}
 
-        {/* SECTION: STREAMING EN VIVO REAL (VOCALÍA DIGITAL & VAR LOCAL) */}
-        {activeTab === 'online' && (
+        {/* SECTION: STREAMING EN VIVO REAL (VOCALÍA DIGITAL & VAR LOCAL) - SOLO ADMINISTRADOR */}
+        {activeTab === 'online' && isSuperAdminAuth && (
           <LiveStreamingPanel
             tenant={tenant}
             sport={sport}
@@ -1275,6 +1277,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             teams={teams}
             players={players}
             defaultMode={streamingMode}
+            isSuperAdminAuth={isSuperAdminAuth}
           />
         )}
 
@@ -1338,8 +1341,8 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
                 if (tab === 'standings') setActiveTab('standings');
                 else if (tab === 'matches') setActiveTab('matches');
                 else if (tab === 'teams') setActiveTab('teams');
-                else if (tab === 'var') { setActiveTab('online'); setStreamingMode('var'); }
-                else if (tab === 'vocalia') { setActiveTab('online'); setStreamingMode('vocalia'); }
+                else if (tab === 'var') { if (isSuperAdminAuth) { setActiveTab('online'); setStreamingMode('var'); } }
+                else if (tab === 'vocalia') { if (isSuperAdminAuth) { setActiveTab('online'); setStreamingMode('vocalia'); } }
               }}
             />
           </div>
