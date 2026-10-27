@@ -273,6 +273,52 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   const [showSponsorOverlay, setShowSponsorOverlay] = useState<boolean>(true);
   const [showTerminalCameraModal, setShowTerminalCameraModal] = useState<boolean>(false);
 
+  // Sincronización en Tiempo Real de Cámara de Celular / Terminal QR
+  const [isRemoteCameraSynced, setIsRemoteCameraSynced] = useState<boolean>(false);
+  const [remoteCameraInfo, setRemoteCameraInfo] = useState<{ matchId?: string; mode?: string; isStreaming?: boolean; timestamp?: number } | null>(null);
+
+  useEffect(() => {
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('deporverso_camera_sync');
+        bc.onmessage = (event) => {
+          if (event?.data?.type === 'HEARTBEAT' || event?.data?.type === 'CONNECTED') {
+            setIsRemoteCameraSynced(true);
+            setRemoteCameraInfo(event.data);
+          }
+        };
+      }
+    } catch (e) {}
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'deporverso_camera_active_session' && e.newValue) {
+        try {
+          const data = JSON.parse(e.newValue);
+          setIsRemoteCameraSynced(true);
+          setRemoteCameraInfo(data);
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    try {
+      const existing = localStorage.getItem('deporverso_camera_active_session');
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        if (Date.now() - (parsed.timestamp || 0) < 15000) {
+          setIsRemoteCameraSynced(true);
+          setRemoteCameraInfo(parsed);
+        }
+      }
+    } catch (e) {}
+
+    return () => {
+      if (bc) bc.close();
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
   // Dynamic Match Timer & Scores
   const [matchMinutes, setMatchMinutes] = useState<number>(73);
   const [matchSeconds, setMatchSeconds] = useState<number>(45);
@@ -866,14 +912,23 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               <button
                 onClick={() => requireAdminAction(
                   () => setShowRtmpQrModal(true),
-                  'Configuración RTMP y QR para Celular',
-                  'La vinculación y configuración de servidores RTMP externos está reservada al Administrador.'
+                  'Sincronizar Cámara con Código QR',
+                  'Vincular cualquier celular o terminal remoto para transmitir en vivo a DEPORVERSO.'
                 )}
-                className="px-3 py-2 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 rounded-2xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                title="Configuración RTMP con QR para Celular (Exclusivo Administrador)"
+                className={`px-3 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all ${
+                  isRemoteCameraSynced
+                    ? 'bg-gradient-to-r from-emerald-500/25 to-cyan-500/25 hover:from-emerald-500/35 hover:to-cyan-500/35 text-emerald-300 border border-emerald-400/60 shadow-emerald-500/20'
+                    : 'bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40'
+                }`}
+                title="Sincronizar cualquier cámara o celular mediante Código QR (Exclusivo Administrador)"
               >
                 <QrCode className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">QR Celular (Tarea 1)</span>
+                <span className="hidden sm:inline">
+                  {isRemoteCameraSynced ? '🟢 Cámara QR Sincronizada' : '📱 Sincronizar Cámara QR'}
+                </span>
+                <span className="sm:hidden">
+                  {isRemoteCameraSynced ? '🟢 Cámara QR' : '📱 QR Cámara'}
+                </span>
                 {!isAdminAuthorized && !isSuperAdminAuth && <Lock className="w-3 h-3 text-amber-400" />}
               </button>
 
@@ -1729,22 +1784,26 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
             </div>
 
             <button
-              onClick={() => setShowRtmpQrModal(true)}
-              className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer transition-all"
+              onClick={() => requireAdminAction(
+                () => setShowRtmpQrModal(true),
+                'Sincronizar Cámara con Código QR',
+                'Escanear con cualquier cámara para transmitir en vivo a DEPORVERSO.'
+              )}
+              className="w-full py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-black font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 cursor-pointer transition-all transform hover:scale-[1.01]"
             >
-              <QrCode className="w-4 h-4" />
-              <span>Escanear Código QR para Celular (Larix / OBS)</span>
+              <QrCode className="w-4 h-4 text-black" />
+              <span>📱 Sincronizar Cámara con Código QR (Celular)</span>
             </button>
 
             <p className="text-[10px] text-slate-400 leading-tight">
-              Instala <strong className="text-white">Larix Broadcaster</strong> en Android/iOS o abre tu app de cámara y escanea el QR para vincular automáticamente.
+              Apunta la cámara de cualquier teléfono <strong className="text-white">Android o iPhone</strong> al código QR. Abre DEPORVERSO al instante sin instalar nada y transmite en HD.
             </p>
           </div>
         </div>
       </div>
       )}
 
-      {/* MODAL 1: CONFIGURACIÓN RTMP CON CÓDIGO QR (TAREA 1) */}
+      {/* MODAL 1: SINCRONIZACIÓN DE CÁMARA POR CÓDIGO QR / RTMP (TAREA 1) */}
       {showRtmpQrModal && (
         <RtmpQrModal
           isOpen={showRtmpQrModal}
@@ -1752,6 +1811,11 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
           matchId={activeMatch.id}
           matchTitle={`${homeTeam.name} vs ${awayTeam.name}`}
           tenantName={tenant.name}
+          tenantId={tenant.id}
+          onOpenTerminalStudio={() => {
+            setShowRtmpQrModal(false);
+            setShowTerminalCameraModal(true);
+          }}
         />
       )}
 

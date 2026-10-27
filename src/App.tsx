@@ -27,6 +27,7 @@ import { CampaignBannersGenerator } from './components/Marketing/CampaignBanners
 import { ExclusiveOfferCheckoutModal } from './components/Marketing/ExclusiveOfferCheckoutModal';
 import { ClubDeporversoShowcase } from './components/ClubShowcase/ClubDeporversoShowcase';
 import { MultiversoStepTourModal } from './components/Demo/MultiversoStepTourModal';
+import { TerminalCameraBroadcasterModal } from './components/LeaguePortal/streaming/TerminalCameraBroadcasterModal';
 import { IpShieldBadge } from './components/IpShieldBadge';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
@@ -52,6 +53,10 @@ export default function App() {
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
   const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
   const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
+
+  // Sincronización Remota de Cámara por Código QR (?mode=terminal-camera)
+  const [isRemoteTerminalActive, setIsRemoteTerminalActive] = useState<boolean>(false);
+  const [remoteTerminalMatchId, setRemoteTerminalMatchId] = useState<string>('');
 
   // Modal de Seguridad de Administrador para Streaming, VAR, Videos y Crónicas
   const [showAdminSecurityModal, setShowAdminSecurityModal] = useState<boolean>(false);
@@ -190,11 +195,17 @@ export default function App() {
       if (mode === 'terminal-camera' || mode === 'camera') {
         setIsAuthenticated(true);
         setIsPlatformUnlocked(true);
+        setIsSuperAdminAuth(true);
+        setUserRole('LEAGUE_ADMIN');
+        setCurrentUserEmail('camara.remota@deporverso.com');
         const tId = params.get('tenantId');
         if (tId) setActiveTenantId(tId);
+        const mId = params.get('matchId');
+        if (mId) setRemoteTerminalMatchId(mId);
+        setIsRemoteTerminalActive(true);
         setActiveTab('league');
-        setAdminToast('📹 Terminal de Cámara Conectado: Transmisión y Grabación en Vivo');
-        setTimeout(() => setAdminToast(null), 4000);
+        setAdminToast('📹 Terminal de Cámara DeporVerso Sincronizado: Conexión Activa y Transmisión Lista');
+        setTimeout(() => setAdminToast(null), 5000);
       }
     } catch (e) {}
   }, []);
@@ -1110,6 +1121,46 @@ export default function App() {
         featureTitle={adminSecurityTitle}
         featureDescription={adminSecurityDesc}
       />
+
+      {/* MODAL DE TERMINAL DE CÁMARA REMOTO VÍA QR SCAN */}
+      {isRemoteTerminalActive && (
+        <TerminalCameraBroadcasterModal
+          isOpen={isRemoteTerminalActive}
+          onClose={() => {
+            setIsRemoteTerminalActive(false);
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('mode');
+              url.searchParams.delete('matchId');
+              url.searchParams.delete('auth');
+              window.history.replaceState({}, '', url.toString());
+            } catch (e) {}
+          }}
+          match={
+            matches.find(m => m.id === remoteTerminalMatchId) ||
+            matches[0] ||
+            ({
+              id: remoteTerminalMatchId || 'match-live-qr',
+              tenant_id: activeTenantId,
+              sport_id: 'FUTBOL',
+              sport_code: 'FUTBOL',
+              home_team_id: teams[0]?.id || 'team-1',
+              away_team_id: teams[1]?.id || 'team-2',
+              home_score: 2,
+              away_score: 1,
+              status: 'IN_PROGRESS',
+              field_location: 'Cancha Central',
+              match_date: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+              match_data: {}
+            } as unknown as Match)
+          }
+          homeTeam={teams[0] || ({ id: 'h1', name: 'Atlético Juvenil', primary_color: '#00e5ff' } as unknown as Team)}
+          awayTeam={teams[1] || ({ id: 'a1', name: 'Sporting San Pedro', primary_color: '#ff0055' } as unknown as Team)}
+          tenant={tenants.find(t => t.id === activeTenantId) || tenants[0] || ({ id: activeTenantId, name: 'Liga Pichincha' } as unknown as Tenant)}
+          isStandalone={true}
+        />
+      )}
         </div>
       </div>
     </div>

@@ -57,6 +57,7 @@ export interface TerminalCameraBroadcasterModalProps {
   awayTeam: Team;
   tenant: Tenant;
   onClipCaptured?: (clip: { id: string; url: string; time: string; title: string; type: string }) => void;
+  isStandalone?: boolean;
 }
 
 export type ResolutionProfile = '4k' | '1080p' | '720p' | '480p';
@@ -68,7 +69,8 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   homeTeam,
   awayTeam,
   tenant,
-  onClipCaptured
+  onClipCaptured,
+  isStandalone = false
 }) => {
   // Device selection states
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
@@ -153,7 +155,45 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   const recentClipsRef = useRef<Blob[]>([]);
 
   // Remote Camera Link Generator
-  const remoteCameraUrl = `${window.location.origin}/?mode=terminal-camera&matchId=${match.id}&tenantId=${tenant.id}`;
+  const remoteCameraUrl = `${window.location.origin}/?mode=terminal-camera&matchId=${encodeURIComponent(match.id)}&tenantId=${encodeURIComponent(tenant.id)}&auth=master-cig`;
+
+  // Sincronización en tiempo real y Heartbeat para el panel central de DeporVerso
+  useEffect(() => {
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        channel = new BroadcastChannel('deporverso_camera_sync');
+      }
+    } catch (e) {}
+
+    const interval = setInterval(() => {
+      const payload = {
+        type: 'CAMERA_HEARTBEAT',
+        matchId: match.id,
+        tenantId: tenant.id,
+        isLive: isLiveBroadcasting,
+        isCameraActive: isCameraActive,
+        fps: currentFps,
+        bitrate: currentBitrate,
+        homeScore: liveHomeScore,
+        awayScore: liveAwayScore,
+        homeTeam: homeTeam.name,
+        awayTeam: awayTeam.name,
+        timestamp: Date.now(),
+        device: typeof navigator !== 'undefined' && navigator.userAgent.includes('Mobile') ? 'Celular / Terminal Móvil' : 'Navegador Web Cancha'
+      };
+
+      try {
+        channel?.postMessage(payload);
+        localStorage.setItem('deporverso_camera_active_session', JSON.stringify(payload));
+      } catch (err) {}
+    }, 1200);
+
+    return () => {
+      clearInterval(interval);
+      channel?.close();
+    };
+  }, [isLiveBroadcasting, isCameraActive, match.id, tenant.id, currentFps, currentBitrate, liveHomeScore, liveAwayScore, homeTeam.name, awayTeam.name]);
 
   const triggerToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -952,8 +992,8 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-2 sm:p-4 bg-black/95 backdrop-blur-2xl animate-in fade-in duration-200 select-none font-sans">
-      <div className="relative w-full max-w-5xl h-[95vh] bg-[#030712] border border-cyan-500/40 rounded-3xl shadow-[0_0_80px_rgba(0,240,255,0.25)] flex flex-col overflow-hidden text-white">
+    <div className={`fixed inset-0 z-[100000] flex items-center justify-center ${isStandalone ? 'p-0' : 'p-2 sm:p-4'} bg-black/95 backdrop-blur-2xl animate-in fade-in duration-200 select-none font-sans`}>
+      <div className={`relative w-full ${isStandalone ? 'h-full max-w-none rounded-none border-0' : 'max-w-5xl h-[95vh] rounded-3xl border border-cyan-500/40'} bg-[#030712] shadow-[0_0_80px_rgba(0,240,255,0.25)] flex flex-col overflow-hidden text-white`}>
         
         {/* ======================================================== */}
         {/* TOAST FLOTANTE DE ACCIÓN                                 */}
