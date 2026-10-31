@@ -8,6 +8,7 @@ import { cigSecurityRouter } from "./server/routes/cigSecurityRoutes.ts";
 import { varHighlightRouter } from "./server/routes/varHighlightRoutes.ts";
 import { pdfReportRouter } from "./server/routes/pdfReportRoutes.ts";
 import { workerRoutes } from "./server/routes/workerRoutes.ts";
+import { openTimestampsRouter } from "./server/routes/openTimestampsRoutes.ts";
 import { 
   antiScrapingMiddleware, 
   rateLimiterMiddleware, 
@@ -37,6 +38,9 @@ async function startServer() {
 
   // CIG Security, Cryptographic Seal & Anti-Scraping Audit API
   app.use("/api/cig", cigSecurityRouter);
+
+  // OpenTimestamps Bitcoin Cryptographic Proofs & Blockchain Anchoring API
+  app.use("/api/timestamps", openTimestampsRouter);
 
   // AutoHighlightGenerator (Python 3 + FFmpeg) & VAR A la Carta Media API
   app.use("/api/media", varHighlightRouter);
