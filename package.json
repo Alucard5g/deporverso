@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
+    "dev": "tsx server.ts --port 3000",
     "build": "node scripts/generate-intellectual-shield.js && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs && node scripts/obfuscate.js && node seal-ip.js",
     "obfuscate": "node scripts/obfuscate.js",
     "seal": "node seal-ip.js",

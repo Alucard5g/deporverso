@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import path from "path";
 import fs from "fs";
 import { execSync } from "child_process";
@@ -24,11 +25,13 @@ async function startServer() {
   app.use(rateLimiterMiddleware);
   // Detección de puerto universal (Google Cloud Run vs Entorno Local/AI Studio):
   // 1. Argumento CLI explícito (--port 3000)
-  // 2. En producción (Google Cloud Run), process.env.PORT asignado dinámicamente (ej. 8080)
-  // 3. Fallback a 3000 para desarrollo local y proxy de AI Studio
+  // 2. En AI Studio dev server, NGINX ya ocupa el puerto 8080 y hace proxy al 3000, por lo que dev DEBE usar 3000.
+  // 3. En producción (Render / Cloud Run), process.env.PORT asignado dinámicamente.
   const portArgIndex = process.argv.indexOf('--port');
   const cliPort = portArgIndex !== -1 && process.argv[portArgIndex + 1] ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-  const envPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  const isDev = process.env.NODE_ENV !== 'production';
+  const rawEnvPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  const envPort = (isDev && rawEnvPort === 8080) ? 3000 : rawEnvPort;
   const PORT = cliPort || envPort || 3000;
 
   app.use(express.json({ limit: "10mb" }));
@@ -604,45 +607,17 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
   process.once('SIGUSR2', () => handleGracefulShutdown('SIGUSR2'));
 
   const listenWithRetry = (portToTry: number, retriesLeft = 15, delayMs = 400) => {
-    const mainServer = app.listen(portToTry, "0.0.0.0", () => {
-      activeServer = mainServer;
-      // Optimizar timeouts de keep-alive para evitar sockets zombis en reinicios rápidos
-      mainServer.keepAliveTimeout = 3000;
-      mainServer.headersTimeout = 4000;
-      console.log(`[DeporVerso Server] Running on http://0.0.0.0:${portToTry} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
-    });
+    const mainServer = http.createServer(app);
 
     mainServer.on("error", (err: any) => {
       if (err.code === 'EADDRINUSE') {
-        // Cerrar explícitamente el descriptor del intento actual
         try {
-          if (typeof mainServer.closeAllConnections === 'function') {
-            mainServer.closeAllConnections();
+          if (typeof (mainServer as any).closeAllConnections === 'function') {
+            (mainServer as any).closeAllConnections();
           }
           mainServer.close();
         } catch {
-          // Ignorar errores al cerrar descriptor no asignado
-        }
-
-        // En desarrollo/sandbox, auto-sanación de sockets huérfanos
-        if (process.env.NODE_ENV !== 'production') {
-          try {
-            const ssOutput = execSync(`ss -tlpn sport = :${portToTry} 2>/dev/null || true`, { encoding: 'utf-8' });
-            const matches = [...ssOutput.matchAll(/pid=(\d+)/g)];
-            for (const match of matches) {
-              const orphanPid = parseInt(match[1], 10);
-              if (orphanPid && orphanPid !== process.pid) {
-                console.warn(`[DeporVerso Server] Liberando puerto ${portToTry} retenido por proceso PID ${orphanPid}...`);
-                try {
-                  process.kill(orphanPid, 'SIGKILL');
-                } catch {
-                  // Proceso ya cerrado
-                }
-              }
-            }
-          } catch {
-            // Ignorar fallo de comando si ss no está disponible
-          }
+          // Ignorar
         }
 
         if (retriesLeft > 0) {
@@ -657,6 +632,13 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
       } else {
         console.error(`[DeporVerso Server] Error en puerto ${portToTry}:`, err.message);
       }
+    });
+
+    mainServer.listen(portToTry, "0.0.0.0", () => {
+      activeServer = mainServer;
+      mainServer.keepAliveTimeout = 3000;
+      mainServer.headersTimeout = 4000;
+      console.log(`[DeporVerso Server] Running on http://0.0.0.0:${portToTry} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
     });
   };
 

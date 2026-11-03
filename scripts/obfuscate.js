@@ -39,7 +39,7 @@ try {
     splitStringsChunkLength: 10,
     target: 'node',
     identifierNamesGenerator: 'hexadecimal',
-    reservedNames: ['startServer', 'express', 'PORT', 'app', 'listen']
+    reservedNames: ['startServer', 'express', 'PORT', 'app', 'listen', 'require', 'module', 'exports', '__filename', '__dirname']
   });
 
   fs.writeFileSync(SERVER_BUNDLE, obfuscatedResult.getObfuscatedCode(), 'utf-8');

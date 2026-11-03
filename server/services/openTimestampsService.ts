@@ -18,10 +18,17 @@ import fs from 'fs';
 import path from 'path';
 import { createRequire } from 'module';
 
-// Soporte CJS para la librería oficial opentimestamps en entornos ESM / tsx
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const OpenTimestamps = require('opentimestamps');
+// Resolutor universal para opentimestamps: funciona en ESM (tsx dev) y CJS (dist/server.cjs para Render)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const requireFn: any = typeof globalThis !== 'undefined' && typeof (globalThis as any).require === 'function'
+  ? (globalThis as any).require
+  : createRequire(
+      typeof import.meta !== 'undefined' && import.meta?.url
+        ? import.meta.url
+        : `file://${process.cwd()}/package.json`
+    );
+
+const OpenTimestamps = requireFn('opentimestamps');
 
 export interface TimestampResult {
   success: boolean;

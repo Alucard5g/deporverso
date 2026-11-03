@@ -17,11 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import puppeteer from 'puppeteer';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '..');
+const ROOT_DIR = process.cwd();
 
 const REPORTS_DIR = path.join(ROOT_DIR, 'public', 'generated-reports');
 const MASTER_HASH_PATH = path.join(ROOT_DIR, 'master-hash.txt');
@@ -342,7 +338,7 @@ export async function generateLegalIpCertificatePdf(customOutputPath = null) {
 }
 
 // Ejecución directa desde CLI si se llama con `node scripts/export-legal-ip-certificate.js`
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && process.argv[1].endsWith('export-legal-ip-certificate.js')) {
   generateLegalIpCertificatePdf()
     .then(res => {
       console.log('Certificado listo:', res);
