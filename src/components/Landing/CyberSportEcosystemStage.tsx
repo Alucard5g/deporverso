@@ -134,7 +134,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Tabla de Goleadores en Vivo',
       'Algoritmo Fair Play Automático'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Velocidad de Disparo',
       metricValue: '118.4 km/h',
@@ -192,7 +192,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Gestión de Tiempos Fuertes (Timeouts)',
       'Carnet Digital Oficial Barrial'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Efectividad en Triples',
       metricValue: '48.2% (12/25)',
@@ -250,7 +250,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Reserva Automatizada de Pistas',
       'Carnet Digital de Pareja'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Velocidad de Smash',
       metricValue: '142.0 km/h',
@@ -308,7 +308,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Gestión de Penalizaciones en Segundos',
       'Carnet Gamer Anti-Smurf'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Tiempo de Vuelta Rápida',
       metricValue: '1:14.289 min',
@@ -366,7 +366,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Árbol de Combates por División de Peso',
       'Pasaporte de Grado y Cinturón Marcial'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Fuerza de Contacto',
       metricValue: '348 Joules',
@@ -424,7 +424,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Asignación de Carriles por Tiempos Semilla',
       'Carnet del Nadador Federado'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Tiempo Split 50m',
       metricValue: '21.84 seg',
@@ -482,7 +482,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Calculadora de Relevos 4x100m (Zona de Testigo)',
       'Pasaporte del Atleta de Alto Rendimiento'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Cronómetro Centesimal',
       metricValue: '09.84 seg',
@@ -540,7 +540,7 @@ export const ALL_SPORT_MODULES: SportEcosystemModule[] = [
       'Evaluación de Eficiencia de Bloqueos',
       'Carnet Oficial del Jugador de Vóley'
     ],
-    pricingText: 'Activar este módulo • Desde $25/mes',
+    pricingText: 'Activar • $35/club mayores · $25 formativas',
     simulationData: {
       metricTitle: 'Velocidad de Remate',
       metricValue: '108.6 km/h',
@@ -676,25 +676,22 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
       {/* ======================================================== */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2">
         <div className="flex items-center gap-2.5">
-          <div className="relative flex items-center justify-center w-3 h-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-          </div>
+          <span className="inline-flex rounded-full h-2 w-2 bg-cyan-400 shrink-0" />
           <div>
             <span className="text-xs font-mono font-black tracking-wider text-cyan-400 uppercase">
               DEPORVERSO BROADCAST CENTER
             </span>
             <span className="text-slate-500 mx-2 text-xs">|</span>
             <span className="text-xs font-mono text-slate-300">
-              Transmisión Oficial en Vivo CIG 4K
+              Transmisión Oficial CIG 4K
             </span>
           </div>
         </div>
 
         {/* Acciones directas y estado */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/30 text-[11px] font-mono text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/30 text-[11px] font-mono text-emerald-400 whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span className="font-bold">SEÑAL ULTRA HD</span>
           </div>
         </div>
@@ -858,7 +855,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                 {/* Overlay Táctico de Arco y Mira Balística */}
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/60">
                   {/* Retícula Balística Central */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-amber-400/40 rounded-full flex items-center justify-center animate-pulse">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-amber-400/40 rounded-full flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_#f59e0b]" />
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-amber-400/30" />
                     <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-amber-400/30" />
@@ -1079,7 +1076,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
 
           {/* TELEMETRÍA Y CONTROLES DEL BROADCAST INFERIOR (Ocultos en pantalla completa) */}
           {!isFullscreen && (
-            <div className="w-full mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-center">
+            <div className="w-full mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-center tabular-nums">
               <div className="p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center">
                 <span className="text-[10px] text-slate-400 uppercase tracking-widest">Resolución</span>
                 <span className="text-xs sm:text-sm font-black text-cyan-300 mt-0.5">4K Ultra HD</span>
@@ -1104,8 +1101,8 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
         {/* BADGE CENTRAL INFERIOR DEPORVERSO CORE V2.4 (Oculto en pantalla completa) */}
         {!isFullscreen && (
           <div className="mt-6 flex items-center justify-center">
-            <div className="px-5 py-2 rounded-full bg-[#080F24]/90 backdrop-blur-2xl border border-[#00F0FF]/40 shadow-[0_0_30px_rgba(0,240,255,0.35)] flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00F0FF] animate-pulse" />
+            <div className="px-5 py-2 rounded-full bg-[#080F24]/90 backdrop-blur-2xl border border-[#00F0FF]/40 shadow-[0_0_24px_rgba(0,240,255,0.25)] flex items-center gap-3 tabular-nums">
+              <span className="w-2 h-2 rounded-full bg-[#00F0FF]" />
               <span className="font-mono text-[11px] uppercase tracking-widest text-white font-extrabold flex items-center gap-1.5">
                 <span>DEPORVERSO CORE V2.4</span>
               </span>
@@ -1196,7 +1193,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                       {module.tag.split(' ')[0]}
                     </span>
                     {isSelected ? (
-                      <span className="w-2 h-2 rounded-full bg-[#00F0FF] shadow-[0_0_8px_#00F0FF] animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-[#00F0FF] shadow-[0_0_8px_#00F0FF]" />
                     ) : (
                       <span className="text-[9px] font-mono text-cyan-400/60 font-bold">CIG</span>
                     )}
@@ -1322,7 +1319,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                               'Exportación de Actas a PDF',
                               'Carnet Oficial Digital'
                             ],
-                            pricingText: 'Activar este módulo • Desde $25/mes',
+                            pricingText: 'Activar • $35/club mayores · $25 formativas',
                             simulationData: {
                               metricTitle: 'Estado del Motor',
                               metricValue: '100% OPERATIVO',
@@ -1400,7 +1397,7 @@ export const CyberSportEcosystemStage: React.FC<CyberSportEcosystemStageProps> =
                       {activeModalModule.tag}
                     </span>
                     <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
                       ENGINE ONLINE
                     </span>
                   </div>

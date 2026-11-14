@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { QrCode, ShieldCheck, Zap, Award, Sparkles, CheckCircle2, UserCheck, Star, ChevronRight, Activity } from 'lucide-react';
 import { Player, Team, Tenant, Sport } from '../../types';
 import { getPlayerFullData, PlayerFullData } from '../../utils/playerStatsHelper';
+import { getAthletePortrait } from '../../data/cinematicAssets';
 
 interface TradingCardCarnetProps {
   player: Player;
@@ -47,20 +48,7 @@ export const TradingCardCarnet: React.FC<TradingCardCarnetProps> = ({
   };
 
   // Default player portrait fallback based on ID index
-  const getDefaultPortrait = (id: string) => {
-    const photos = [
-      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400'
-    ];
-    let num = 0;
-    for (let i = 0; i < id.length; i++) num += id.charCodeAt(i);
-    return photos[num % photos.length];
-  };
+  const getDefaultPortrait = (id: string) => getAthletePortrait(id);
 
   const photo = player.photo_url || getDefaultPortrait(player.id);
   const posAbbr = getPosShort(player.position);

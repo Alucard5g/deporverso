@@ -483,17 +483,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : !hasPaidFullAccess && !isSuperAdminAuth ? (
               <div className="p-3 rounded-2xl bg-gradient-to-br from-[#0c162b] to-[#060b17] border border-amber-500/40 text-center space-y-2 shadow-lg">
                 <div className="flex items-center justify-center gap-1.5 text-[11px] font-black text-amber-300">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   <span>MODO DEMO ACTIVO</span>
                 </div>
                 <p className="text-[10px] text-slate-300 leading-tight">
-                  Este usuario solo accede a la demo. Para acceder al portal de Deporverso completo ($35/club con 50% de descuento) activa tu suscripción.
+                  Acceso de demostración. Activa el portal completo ($35 mayores / $25 formativas, 50% OFF).
                 </p>
                 <button
                   onClick={onOpenCheckout || (() => setActiveTab('exclusive-offer'))}
-                  className="w-full py-1.5 px-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[10px] rounded-xl shadow-md cursor-pointer transition-all uppercase tracking-wide transform hover:scale-[1.02] active:scale-95"
+                  className="w-full py-1.5 px-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[10px] rounded-xl shadow-md cursor-pointer transition-all uppercase tracking-wide active:scale-95"
                 >
-                  Suscríbete y accede al 50% descuento
+                  Suscribirse 50% OFF
                 </button>
               </div>
             ) : (
@@ -511,20 +511,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* FOOTER USER / STATUS CAPSULE */}
         {!collapsed && (
           <div className="p-3 border-t border-white/[0.06] bg-[#090e1a]/60 space-y-2">
-            <div className="flex items-center justify-between px-1 text-[10px]">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="text-slate-300 font-medium tracking-wide">
-                  Motor Cuántico
-                </span>
-              </div>
-              <span className="font-mono text-emerald-400/90 font-medium">En Línea</span>
-            </div>
-
             {isSuperAdminAuth && (
               <button
                 onClick={onLogoutSuperAdmin}
-                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm mt-1"
+                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm whitespace-nowrap"
                 title="Cerrar panel de administrador y regresar al modo público"
               >
                 <LogOut className="w-3.5 h-3.5 text-rose-400" />
@@ -532,20 +522,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1 border-t border-white/[0.04]">
+            <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1">
               <div className="flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="font-medium text-slate-300 text-xs">Deporverso 2026</span>
+                <span className="font-medium text-slate-300 text-xs">DeporVerso 2026</span>
               </div>
-              {isSuperAdminAuth && (
-                <button
-                  onClick={onLogoutSuperAdmin}
-                  className="font-mono text-[9px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/20 cursor-pointer transition-colors"
-                  title="Cerrar Sesión SuperAdmin"
-                >
-                  Admin Activo
-                </button>
-              )}
+              <span className="font-mono text-[10px] text-slate-400">
+                {isSuperAdminAuth ? 'SuperAdmin' : hasPaidFullAccess ? 'Plan CIG Pro' : 'Edición Demo'}
+              </span>
             </div>
           </div>
         )}

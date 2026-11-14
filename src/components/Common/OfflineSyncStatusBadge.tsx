@@ -71,11 +71,11 @@ export const OfflineSyncStatusBadge: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         title="Motor de Sincronización en Lote DeporVerso (Offline-First)"
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border shadow-sm ${
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border shadow-sm cursor-pointer whitespace-nowrap shrink-0 ${
           !status.isOnline
             ? 'bg-amber-950/80 text-amber-300 border-amber-600/60 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
             : status.pendingCount > 0
-            ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50 animate-pulse'
+            ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50'
             : 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:border-emerald-500/60'
         }`}
       >
@@ -84,7 +84,7 @@ export const OfflineSyncStatusBadge: React.FC = () => {
             <WifiOff className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden sm:inline">Offline</span>
             {status.pendingCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-amber-500 text-black font-black text-[10px] flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-amber-500 text-black font-black text-[10px] flex items-center justify-center tabular-nums">
                 {status.pendingCount}
               </span>
             )}
@@ -92,11 +92,11 @@ export const OfflineSyncStatusBadge: React.FC = () => {
         ) : status.pendingCount > 0 ? (
           <>
             <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${status.isSyncing ? 'animate-spin' : ''}`} />
-            <span>{status.pendingCount} en cola</span>
+            <span className="tabular-nums">{status.pendingCount} en cola</span>
           </>
         ) : (
           <>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
             <Wifi className="w-3.5 h-3.5 text-emerald-400" />
             <span className="hidden md:inline font-mono text-[11px]">Sync OK</span>
           </>

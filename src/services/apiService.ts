@@ -7,7 +7,8 @@ import {
   INITIAL_MIGRATION_TICKETS,
   INITIAL_SUBSCRIPTIONS,
   INITIAL_TEAMS,
-  INITIAL_PLAYERS
+  INITIAL_PLAYERS,
+  INITIAL_CHRONICLES
 } from '../data/mockData';
 import {
   Sport,
@@ -23,30 +24,48 @@ import {
   VocaliaReportRecord
 } from '../types';
 
-// In-memory persistent state (simulating real backend / Supabase / Firebase store)
+// Persistent localStorage keys (v2)
+const LOCAL_STORAGE_TENANTS_KEY = 'deporverso_firebase_tenants_v2';
 const LOCAL_STORAGE_MATCHES_KEY = 'deporverso_firebase_matches_v2';
+const LOCAL_STORAGE_EVENTS_KEY = 'deporverso_firebase_events_v2';
+const LOCAL_STORAGE_VAR_KEY = 'deporverso_firebase_var_v2';
+const LOCAL_STORAGE_TICKETS_KEY = 'deporverso_firebase_tickets_v2';
+const LOCAL_STORAGE_SUBS_KEY = 'deporverso_firebase_subs_v2';
 const LOCAL_STORAGE_PLAYERS_KEY = 'deporverso_firebase_players_v2';
 const LOCAL_STORAGE_VOCALIA_KEY = 'deporverso_firebase_vocalia_reports_v2';
+const LOCAL_STORAGE_CHRONICLES_KEY = 'deporverso_firebase_chronicles_v2';
 
-const loadSavedMatches = (): Match[] => {
+const loadFromStorage = <T,>(key: string, fallback: T[]): T[] => {
   try {
-    const saved = localStorage.getItem(LOCAL_STORAGE_MATCHES_KEY);
-    if (saved) return JSON.parse(saved);
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
   } catch (e) {
-    console.warn('Could not load matches from localStorage', e);
+    console.warn(`Could not load ${key} from localStorage`, e);
   }
-  return [...INITIAL_MATCHES];
+  return [...fallback];
 };
 
-const loadSavedPlayers = (): Player[] => {
+const persistToStorage = <T,>(key: string, data: T[]) => {
   try {
-    const saved = localStorage.getItem(LOCAL_STORAGE_PLAYERS_KEY);
-    if (saved) return JSON.parse(saved);
+    localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {
-    console.warn('Could not load players from localStorage', e);
+    console.warn(`Failed saving ${key} to localStorage`, e);
   }
-  return [...INITIAL_PLAYERS];
 };
+
+let sportsStore: Sport[] = [...INITIAL_SPORTS];
+let tenantsStore: Tenant[] = loadFromStorage<Tenant>(LOCAL_STORAGE_TENANTS_KEY, INITIAL_TENANTS);
+let matchesStore: Match[] = loadFromStorage<Match>(LOCAL_STORAGE_MATCHES_KEY, INITIAL_MATCHES);
+let eventsStore: MatchEvent[] = loadFromStorage<MatchEvent>(LOCAL_STORAGE_EVENTS_KEY, INITIAL_MATCH_EVENTS);
+let varStore: VarRequest[] = loadFromStorage<VarRequest>(LOCAL_STORAGE_VAR_KEY, INITIAL_VAR_REQUESTS);
+let ticketsStore: MigrationTicket[] = loadFromStorage<MigrationTicket>(LOCAL_STORAGE_TICKETS_KEY, INITIAL_MIGRATION_TICKETS);
+let subsStore: Subscription[] = loadFromStorage<Subscription>(LOCAL_STORAGE_SUBS_KEY, INITIAL_SUBSCRIPTIONS);
+let teamsStore: Team[] = [...INITIAL_TEAMS];
+let playersStore: Player[] = loadFromStorage<Player>(LOCAL_STORAGE_PLAYERS_KEY, INITIAL_PLAYERS);
+let chroniclesStore: AiChronicle[] = loadFromStorage<AiChronicle>(LOCAL_STORAGE_CHRONICLES_KEY, INITIAL_CHRONICLES);
 
 const buildInitialVocaliaReports = (): VocaliaReportRecord[] => {
   const reports: VocaliaReportRecord[] = [];
@@ -110,40 +129,17 @@ const loadSavedVocaliaReports = (): VocaliaReportRecord[] => {
   return buildInitialVocaliaReports();
 };
 
-let sportsStore: Sport[] = [...INITIAL_SPORTS];
-let tenantsStore: Tenant[] = [...INITIAL_TENANTS];
-let matchesStore: Match[] = loadSavedMatches();
-let eventsStore: MatchEvent[] = [...INITIAL_MATCH_EVENTS];
-let varStore: VarRequest[] = [...INITIAL_VAR_REQUESTS];
-let ticketsStore: MigrationTicket[] = [...INITIAL_MIGRATION_TICKETS];
-let subsStore: Subscription[] = [...INITIAL_SUBSCRIPTIONS];
-let teamsStore: Team[] = [...INITIAL_TEAMS];
-let playersStore: Player[] = loadSavedPlayers();
 let vocaliaReportsStore: VocaliaReportRecord[] = loadSavedVocaliaReports();
 
-const persistMatches = () => {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_MATCHES_KEY, JSON.stringify(matchesStore));
-  } catch (e) {
-    console.warn('Failed saving to localStorage', e);
-  }
-};
-
-const persistPlayers = () => {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_PLAYERS_KEY, JSON.stringify(playersStore));
-  } catch (e) {
-    console.warn('Failed saving players to localStorage', e);
-  }
-};
-
-const persistVocaliaReports = () => {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_VOCALIA_KEY, JSON.stringify(vocaliaReportsStore));
-  } catch (e) {
-    console.warn('Failed saving vocalia reports to localStorage', e);
-  }
-};
+const persistTenants = () => persistToStorage(LOCAL_STORAGE_TENANTS_KEY, tenantsStore);
+const persistMatches = () => persistToStorage(LOCAL_STORAGE_MATCHES_KEY, matchesStore);
+const persistEvents = () => persistToStorage(LOCAL_STORAGE_EVENTS_KEY, eventsStore);
+const persistVar = () => persistToStorage(LOCAL_STORAGE_VAR_KEY, varStore);
+const persistTickets = () => persistToStorage(LOCAL_STORAGE_TICKETS_KEY, ticketsStore);
+const persistSubs = () => persistToStorage(LOCAL_STORAGE_SUBS_KEY, subsStore);
+const persistPlayers = () => persistToStorage(LOCAL_STORAGE_PLAYERS_KEY, playersStore);
+const persistVocaliaReports = () => persistToStorage(LOCAL_STORAGE_VOCALIA_KEY, vocaliaReportsStore);
+const persistChronicles = () => persistToStorage(LOCAL_STORAGE_CHRONICLES_KEY, chroniclesStore);
 
 export const apiService = {
   getSports: async (): Promise<Sport[]> => {
@@ -163,19 +159,24 @@ export const apiService = {
       created_at: new Date().toISOString()
     };
     tenantsStore = [newTenant, ...tenantsStore];
+    persistTenants();
 
     // Create default annual subscription
     const priceMap = { BASIC_3: 3.00, PRO_5: 5.00, ENTERPRISE_8: 8.00 };
     const tier = tenant.plan_tier || 'PRO_5';
-    subsStore.push({
-      id: `sub-${Date.now()}`,
-      tenant_id: newTenant.id,
-      plan_tier: tier,
-      price_monthly: priceMap[tier],
-      status: 'ACTIVE',
-      current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 365*84600*1000).toISOString()
-    });
+    subsStore = [
+      {
+        id: `sub-${Date.now()}`,
+        tenant_id: newTenant.id,
+        plan_tier: tier,
+        price_monthly: priceMap[tier],
+        status: 'ACTIVE',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date(Date.now() + 365 * 86400 * 1000).toISOString()
+      },
+      ...subsStore
+    ];
+    persistSubs();
 
     return newTenant;
   },
@@ -192,6 +193,10 @@ export const apiService = {
     }));
   },
 
+  getEvents: async (): Promise<MatchEvent[]> => {
+    return eventsStore;
+  },
+
   getMatchEvents: async (matchId: string): Promise<MatchEvent[]> => {
     return eventsStore.filter(e => e.match_id === matchId);
   },
@@ -204,6 +209,7 @@ export const apiService = {
       created_at: new Date().toISOString()
     };
     eventsStore = [...eventsStore, newEvt];
+    persistEvents();
     return newEvt;
   },
 
@@ -262,7 +268,6 @@ export const apiService = {
       matchesStore[idx] = updatedMatch;
       persistMatches();
 
-      // Guardar también en el almacén de Informes de Vocalía
       const reportRecord: VocaliaReportRecord = {
         id: `vocalia-${params.matchId}`,
         match_id: params.matchId,
@@ -324,6 +329,7 @@ export const apiService = {
       created_at: new Date().toISOString()
     };
     varStore = [newReq, ...varStore];
+    persistVar();
     return newReq;
   },
 
@@ -335,6 +341,7 @@ export const apiService = {
         status,
         result_notes: resultNotes || varStore[idx].result_notes
       };
+      persistVar();
       return varStore[idx];
     }
     throw new Error('VAR Request not found');
@@ -351,6 +358,7 @@ export const apiService = {
       created_at: new Date().toISOString()
     };
     ticketsStore = [newTicket, ...ticketsStore];
+    persistTickets();
     return newTicket;
   },
 
@@ -366,6 +374,25 @@ export const apiService = {
   getPlayers: async (tenantId?: string): Promise<Player[]> => {
     if (tenantId) return playersStore.filter(p => p.tenant_id === tenantId);
     return playersStore;
+  },
+
+  transferPlayer: async (playerId: string, newTeamId: string, newJerseyNumber?: number): Promise<void> => {
+    playersStore = playersStore.map(p =>
+      p.id === playerId
+        ? { ...p, team_id: newTeamId, jersey_number: newJerseyNumber !== undefined ? newJerseyNumber : p.jersey_number }
+        : p
+    );
+    persistPlayers();
+  },
+
+  getChronicles: async (): Promise<AiChronicle[]> => {
+    return chroniclesStore;
+  },
+
+  addChronicle: async (chronicle: AiChronicle): Promise<AiChronicle[]> => {
+    chroniclesStore = [chronicle, ...chroniclesStore];
+    persistChronicles();
+    return chroniclesStore;
   },
 
   // Gemini AI Chronicle Generator
@@ -390,17 +417,16 @@ export const apiService = {
       return await response.json();
     } catch (err) {
       console.warn('Fallback to local chronicle generator:', err);
-      // Fallback local chronicle
       return {
         match_id: params.matchId,
-        headline: `¡Épica batalla en ${params.sportCode}! ${params.homeTeam} (${params.homeScore}) vs ${params.awayTeam} (${params.awayScore})`,
+        headline: `${params.homeTeam} (${params.homeScore}) vs ${params.awayTeam} (${params.awayScore}) — Crónica Oficial (${params.sportCode})`,
         body: `Un apasionante encuentro de ${params.sportCode} se vivió en el campo de juego. El marcador final reflejó la intensidad de ambos planteles: ${params.homeTeam} anotó ${params.homeScore} frente a ${params.awayScore} de ${params.awayTeam}. La afición vibró durante cada minuto registrado en la vocalía digital de Deporverso.`,
         key_moments: [
           `Inicio del compromiso con despliegue táctico de alto nivel.`,
           `Momentos decisivos con ${params.events.length} incidencias clave registradas en vivo.`,
           `Pitazo final y cierre de acta digital auditada en tiempo real.`
         ],
-        tactical_notes: `Despliegue defensivo sólido y contraataques rápidos marcaron el ritmo del partido.`,
+        tactical_notes: `Despliegue defensivo sólido y transiciones rápidas marcaron el ritmo del partido.`,
         generated_at: new Date().toISOString()
       };
     }

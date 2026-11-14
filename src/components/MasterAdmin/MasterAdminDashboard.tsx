@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { DollarSign, Shield, Building, Video, FileText, Plus, CheckCircle, Database, Copy, Download, RefreshCw, Calendar, Image, Sparkles, Cpu, LogOut, Users, Key, Check, ExternalLink, Search, Clock, AlertCircle, X, ChevronRight, ImageIcon } from 'lucide-react';
 import { Tenant, Sport, Subscription, MigrationTicket, Match, MatchEvent, SportCode, AiChronicle, VocaliaReportRecord } from '../../types';
 import { FULL_SUPABASE_SQL_SCRIPT } from '../../data/sqlScript';
@@ -11,6 +11,7 @@ import { CigSecurityPanel } from './CigSecurityPanel';
 import { AdminUserManager } from './AdminUserManager';
 import { CampaignBannersGenerator } from '../Marketing/CampaignBannersGenerator';
 import { syncVocaliaReportToFirebase } from '../../services/firebaseService';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface MasterAdminDashboardProps {
   tenants: Tenant[];
@@ -50,6 +51,13 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
   const [activeAdminTab, setActiveAdminTab] = useState<'overview' | 'crm' | 'users-management' | 'vocalia-reports' | 'ingestion' | 'chronicle' | 'calendar' | 'campaign-banners' | 'subscriptions' | 'migrations' | 'sql' | 'cig-security' | 'drive-assets'>(initialAdminTab || 'overview');
+
+  useEffect(() => {
+    if (initialAdminTab) {
+      setActiveAdminTab(initialAdminTab);
+    }
+  }, [initialAdminTab]);
+
   const [selectedCalendarTenantId, setSelectedCalendarTenantId] = useState<string>(tenants?.[0]?.id || '1');
 
   // Google Drive Admin State
@@ -377,53 +385,62 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* SuperAdmin Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/40 p-6 rounded-2xl border border-amber-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-amber-500 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              Control Maestro Exclusivo
-            </span>
-            <span className="text-slate-400 text-xs font-medium">Panel Principal • Administrador Global</span>
+      {/* SuperAdmin Cinematic Banner */}
+      <div className="cine-stage-frame min-h-[185px] p-6 sm:p-8 border border-amber-500/30 flex flex-col justify-end">
+        <img
+          src={CINEMATIC_ASSETS.varBooth}
+          alt="Centro de control maestro VAR y Administración Deporverso"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="cine-scrim-hero" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider">
+                Control Maestro Exclusivo
+              </span>
+              <span className="text-slate-300 text-xs font-medium">Panel Principal • Administrador Global</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Panel SuperAdmin Deporverso
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-200/85 mt-1 max-w-2xl">
+              Administración Global Multi-Tenant, Licencias Anuales ($25/año), Planes Recurrentes ($3, $5, $8/mes) e Ingesta de Datos.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Panel SuperAdmin Deporverso
-          </h1>
-          <p className="text-sm text-slate-300 mt-1">
-            Administración Global Multi-Tenant, Licencias Anuales ($25/año), Planes Recurrentes ($3, $5, $8/mes) e Ingesta de Datos.
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
-          {onExitAdminMode && (
+          <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+            {onExitAdminMode && (
+              <button
+                onClick={onExitAdminMode}
+                className="inline-flex items-center gap-2 bg-rose-500/25 hover:bg-rose-500/35 text-rose-200 border border-rose-400/45 font-black px-4 py-2.5 rounded-xl shadow-lg transition-colors cursor-pointer whitespace-nowrap text-xs backdrop-blur-md"
+                title="Cerrar panel de administrador y regresar al modo público"
+              >
+                <LogOut className="w-4 h-4 text-rose-300" />
+                Salir de Modo Administrador
+              </button>
+            )}
+
             <button
-              onClick={onExitAdminMode}
-              className="inline-flex items-center gap-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 hover:border-rose-400 font-black px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap text-xs"
-              title="Cerrar panel de administrador y regresar al modo público"
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-4 py-2.5 rounded-xl shadow-lg transition-colors cursor-pointer whitespace-nowrap text-xs"
             >
-              <LogOut className="w-4 h-4 text-rose-400" />
-              Salir de Modo Administrador
+              <Plus className="w-4 h-4" />
+              Nueva Liga / Organización
             </button>
-          )}
-
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer whitespace-nowrap text-xs"
-          >
-            <Plus className="w-4 h-4" />
-            Nueva Liga / Organización
-          </button>
+          </div>
         </div>
       </div>
 
       {/* Financial Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 tabular-nums">
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-md">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span>Ingresos Licencias Anuales</span>
             <DollarSign className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-black text-white">${annualLicensesTotal.toFixed(2)} USD</div>
+          <div className="text-2xl font-black font-mono text-white">${annualLicensesTotal.toFixed(2)} USD</div>
           <p className="text-xs text-slate-400 mt-1">${25.00} USD por cada una de las {totalTenants} ligas activas</p>
         </div>
 
@@ -432,7 +449,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             <span>MRR Mensual Recurrente</span>
             <Building className="w-4 h-4 text-teal-400" />
           </div>
-          <div className="text-2xl font-black text-emerald-400">${mrrTotal.toFixed(2)} USD / mes</div>
+          <div className="text-2xl font-black font-mono text-emerald-400">${mrrTotal.toFixed(2)} USD / mes</div>
           <p className="text-xs text-slate-400 mt-1">Suscripciones activas ($3, $5 y $8/mes)</p>
         </div>
 
@@ -441,7 +458,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             <span>ARR Proyectado Anual</span>
             <Shield className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-black text-amber-300">${arrTotal.toFixed(2)} USD / año</div>
+          <div className="text-2xl font-black font-mono text-amber-300">${arrTotal.toFixed(2)} USD / año</div>
           <p className="text-xs text-slate-400 mt-1">Proyección global de ingresos Deporverso</p>
         </div>
 
@@ -450,7 +467,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             <span>Módulos VAR A la Carta</span>
             <Video className="w-4 h-4 text-red-400" />
           </div>
-          <div className="text-2xl font-black text-white">$12.00 USD</div>
+          <div className="text-2xl font-black font-mono text-white">$12.00 USD</div>
           <p className="text-xs text-slate-400 mt-1">Tarifa fija de revisión por encuentro</p>
         </div>
       </div>

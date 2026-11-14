@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from './components/Navbar';
 import { TopHeader } from './components/TopHeader';
 import { WelcomePage } from './components/Landing/WelcomePage';
@@ -18,7 +18,7 @@ import { FULL_SUPABASE_SQL_SCRIPT } from './data/sqlScript';
 import { INITIAL_CHRONICLES, INITIAL_MATCH_EVENTS } from './data/mockData';
 import { apiService } from './services/apiService';
 import { UserRole, Tenant, Sport, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, Team, Player, SportCode, AiChronicle } from './types';
-import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame, KeyRound } from 'lucide-react';
+import { Database, Copy, Download, CheckCircle, Shield, Lock, Sparkles, FileText, LogOut, Users, Flame, KeyRound, X } from 'lucide-react';
 import { syncMatchToFirebase, syncEventToFirebase, syncChronicleToFirebase, syncTenantToFirebase, subscribeToMatches } from './services/firebaseService';
 import { AffiliationModal } from './components/Affiliation/AffiliationModal';
 import { LoginGate } from './components/Auth/LoginGate';
@@ -29,6 +29,7 @@ import { ClubDeporversoShowcase } from './components/ClubShowcase/ClubDeporverso
 import { MultiversoStepTourModal } from './components/Demo/MultiversoStepTourModal';
 import { TerminalCameraBroadcasterModal } from './components/LeaguePortal/streaming/TerminalCameraBroadcasterModal';
 import { IpShieldBadge } from './components/IpShieldBadge';
+import { QuickCommandPalette } from './components/Common/QuickCommandPalette';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -50,9 +51,20 @@ export default function App() {
     }
   });
   const [adminToast, setAdminToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (msg: string, duration = 4500) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setAdminToast(msg);
+    toastTimerRef.current = setTimeout(() => {
+      setAdminToast(null);
+      toastTimerRef.current = null;
+    }, duration);
+  };
+
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
   const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
   const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
+  const [showCommandPalette, setShowCommandPalette] = useState<boolean>(false);
 
   // Sincronización Remota de Cámara por Código QR (?mode=terminal-camera)
   const [isRemoteTerminalActive, setIsRemoteTerminalActive] = useState<boolean>(false);
@@ -63,6 +75,35 @@ export default function App() {
   const [adminSecurityTargetTab, setAdminSecurityTargetTab] = useState<string | null>(null);
   const [adminSecurityTitle, setAdminSecurityTitle] = useState<string>('Acceso Oficial de Administrador');
   const [adminSecurityDesc, setAdminSecurityDesc] = useState<string>('Streaming, VAR, clips de video y crónicas están restringidos únicamente a Administradores.');
+
+  // Restaurar sesión persistida al recargar (TTL: 7 días)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode');
+      if (mode === 'terminal-camera' || mode === 'camera') return;
+
+      const raw = localStorage.getItem('deporverso_auth_session');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+        const isFresh = parsed?.loginTimestamp && (Date.now() - Number(parsed.loginTimestamp) < sevenDaysMs);
+        if (parsed?.authenticated && isFresh) {
+          setIsAuthenticated(true);
+          setCurrentUserEmail(parsed.email || '');
+          const isAdmin = Boolean(parsed.isSuperAdmin);
+          setIsSuperAdminAuth(isAdmin);
+          setUserRole(parsed.role || (isAdmin ? 'SUPER_ADMIN' : 'LEAGUE_ADMIN'));
+          setIsPlatformUnlocked(true);
+          setActiveTab(isAdmin ? 'master-admin' : 'league');
+        } else if (raw) {
+          localStorage.removeItem('deporverso_auth_session');
+        }
+      }
+    } catch (e) {
+      console.warn('No se pudo restaurar la sesión:', e);
+    }
+  }, []);
 
   const handleAdminSecurityAuthorized = () => {
     setIsAuthenticated(true);
@@ -84,8 +125,7 @@ export default function App() {
 
     const target = adminSecurityTargetTab || 'master-admin';
     setActiveTab(target);
-    setAdminToast('👑 Acceso Maestro Autorizado: Funciones de Administrador Desbloqueadas');
-    setTimeout(() => setAdminToast(null), 4500);
+    showToast('👑 Acceso Maestro Autorizado: Funciones de Administrador Desbloqueadas', 4500);
   };
 
   const handleOpenStepTour = (initialIndex: number = 0) => {
@@ -115,14 +155,13 @@ export default function App() {
 
     if (authData.isSuperAdmin) {
       setActiveTab('master-admin');
-      setAdminToast('👑 Acceso Maestro: Modo Super Administrador CIG (Acceso Total Desbloqueado)');
+      showToast('👑 Acceso Maestro: Modo Super Administrador CIG (Acceso Total Desbloqueado)', 4500);
     } else {
       setActiveTenantId('t-pichincha');
       setActiveSport('FUTBOL');
       setActiveTab('league');
-      setAdminToast(`✓ ¡Bienvenido ${authData.email}! Acceso concedido a la demo de la Liga Pichincha y el Club Deporverso.`);
+      showToast(`✓ Bienvenido ${authData.email}. Acceso concedido a la demo de Liga Pichincha y Club Deporverso.`, 4500);
     }
-    setTimeout(() => setAdminToast(null), 4500);
   };
 
   const handleGlobalLogout = () => {
@@ -135,21 +174,36 @@ export default function App() {
     setCurrentUserEmail('');
     setUserRole('LEAGUE_ADMIN');
     setActiveTab('welcome');
-    setAdminToast('🔒 Plataforma bloqueada: Sesión cerrada');
-    setTimeout(() => setAdminToast(null), 3000);
+    showToast('🔒 Plataforma bloqueada: Sesión cerrada', 3000);
   };
 
-  // Escucha global de teclado: El administrador accede desde cualquier parte de la app con su clave 1326 al ser digitada
+  // Escucha global de teclado: Cmd/Ctrl+K para Quick Command Palette y clave 1326 fuera de inputs editables
   useEffect(() => {
     let keyBuffer = '';
-    let timeoutId: any = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const handleGlobalKeyStroke = (e: KeyboardEvent) => {
-      // Capturar cualquier caracter simple introducido
-      if (e.key && e.key.length === 1) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowCommandPalette((prev) => !prev);
+        return;
+      }
+
+      const targetEl = e.target as HTMLElement | null;
+      if (
+        targetEl &&
+        (targetEl.tagName === 'INPUT' ||
+          targetEl.tagName === 'TEXTAREA' ||
+          targetEl.tagName === 'SELECT' ||
+          targetEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key && e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
         keyBuffer += e.key;
 
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           keyBuffer = '';
         }, 3500);
@@ -162,8 +216,7 @@ export default function App() {
           setIsPlatformUnlocked(true);
           setCurrentUserEmail('roly3d.rg@gmail.com');
           setActiveTab('master-admin');
-          setAdminToast('👑 Acceso Maestro: Modo Administrador CIG Desbloqueado (1326)');
-          setTimeout(() => setAdminToast(null), 4500);
+          showToast('👑 Acceso Maestro: Modo Administrador CIG Desbloqueado (1326)', 4500);
 
           try {
             localStorage.setItem('deporverso_auth_session', JSON.stringify({
@@ -183,7 +236,7 @@ export default function App() {
     window.addEventListener('keydown', handleGlobalKeyStroke, true);
     return () => {
       window.removeEventListener('keydown', handleGlobalKeyStroke, true);
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
@@ -204,8 +257,7 @@ export default function App() {
         if (mId) setRemoteTerminalMatchId(mId);
         setIsRemoteTerminalActive(true);
         setActiveTab('league');
-        setAdminToast('📹 Terminal de Cámara DeporVerso Sincronizado: Conexión Activa y Transmisión Lista');
-        setTimeout(() => setAdminToast(null), 5000);
+        showToast('📹 Terminal de Cámara DeporVerso Sincronizado: Conexión Activa', 5000);
       }
     } catch (e) {}
   }, []);
@@ -245,6 +297,9 @@ export default function App() {
       const mts = await apiService.getMatches();
       setMatches(mts);
 
+      const evts = await apiService.getEvents();
+      setEvents(evts);
+
       const vrs = await apiService.getVarRequests();
       setVarRequests(vrs);
 
@@ -253,6 +308,9 @@ export default function App() {
 
       const sbs = await apiService.getSubscriptions();
       setSubscriptions(sbs);
+
+      const chrs = await apiService.getChronicles();
+      setPublishedChronicles(chrs);
     };
 
     initData();
@@ -362,6 +420,7 @@ export default function App() {
 
   const handleAddChronicle = (chronicle: AiChronicle) => {
     setPublishedChronicles(prev => [chronicle, ...prev]);
+    apiService.addChronicle(chronicle);
     syncChronicleToFirebase({
       id: `chr-${chronicle.match_id}-${Date.now()}`,
       tenantId: activeTenantId,
@@ -375,6 +434,7 @@ export default function App() {
   };
 
   const handlePlayerTransferred = (playerId: string, newTeamId: string, newJerseyNumber?: number) => {
+    apiService.transferPlayer(playerId, newTeamId, newJerseyNumber);
     setPlayers(prev => prev.map(p => {
       if (p.id === playerId) {
         return {
@@ -478,8 +538,7 @@ export default function App() {
     if (!isAuthenticated && !isCurrentlyAdmin && resolvedTab !== 'exclusive-offer') {
       setAuthModalMode('register');
       setShowAuthModal(true);
-      setAdminToast('👋 Regístrate gratis para acceder a la demo de la Liga Pichincha y el Club Deporverso.');
-      setTimeout(() => setAdminToast(null), 4500);
+      showToast('👋 Regístrate gratis para acceder a la demo de la Liga Pichincha y el Club Deporverso.', 4500);
       return;
     }
 
@@ -487,8 +546,7 @@ export default function App() {
     // Los usuarios que paguen la suscripción acceden al portal de Deporverso completo:
     if (!hasPaidFullAccess && !isCurrentlyAdmin && !DEMO_ALLOWED_TABS.includes(resolvedTab)) {
       setShowCheckoutOfferModal(true);
-      setAdminToast('🔒 Este usuario solo accede a la demo. Para desbloquear el portal de Deporverso completo, suscríbete ($35 por club y torneo).');
-      setTimeout(() => setAdminToast(null), 5000);
+      showToast('🔒 Acceso limitado a demo. Suscríbete ($35 mayores / $25 formativas) para desbloquear todo DeporVerso.', 5000);
       return;
     }
 
@@ -506,25 +564,35 @@ export default function App() {
     try {
       localStorage.removeItem('deporverso_auth_session');
     } catch (e) {}
-    setAdminToast('🔒 Panel de Administrador cerrado: Vuelto a Inicio');
-    setTimeout(() => setAdminToast(null), 3000);
+    showToast('🔒 Panel de Administrador cerrado: Vuelto a Inicio', 3000);
   };
 
   const handleElevateToSuperAdmin = () => {
     setIsSuperAdminAuth(true);
     setUserRole('SUPER_ADMIN');
     setCurrentUserEmail('roly3d.rg@gmail.com');
-    setAdminToast('👑 Sesión elevada: Acceso concedido como Administrador Maestro');
-    setTimeout(() => setAdminToast(null), 3500);
+    showToast('👑 Sesión elevada: Acceso concedido como Administrador Maestro', 3500);
   };
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
-      {/* TOAST FLOTANTE DE NOTIFICACIÓN ADMINISTRADOR */}
+      {/* TOAST FLOTANTE DE NOTIFICACIÓN */}
       {adminToast && (
-        <div className="fixed top-5 right-5 z-50 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top duration-300 border border-amber-300">
-          <Sparkles className="w-4 h-4 text-black" />
-          <span>{adminToast}</span>
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-5 right-5 z-[160] max-w-md bg-amber-400 text-slate-950 font-bold text-xs pl-4 pr-2 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 border border-amber-200"
+        >
+          <Sparkles className="w-4 h-4 text-slate-950 shrink-0" />
+          <span className="leading-snug">{adminToast}</span>
+          <button
+            type="button"
+            onClick={() => setAdminToast(null)}
+            className="p-1 rounded-lg hover:bg-black/10 text-slate-950 transition-colors cursor-pointer shrink-0"
+            aria-label="Cerrar notificación"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
@@ -583,25 +651,22 @@ export default function App() {
         <div className="relative z-10 flex-1 flex flex-col min-h-full">
           {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (AUTORIZADO CON CREDENCIALES) */}
           {isSuperAdminAuth && isPlatformUnlocked && (
-            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
+            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-2.5 w-2.5 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                </span>
-                <span className="text-amber-300 font-black tracking-wide uppercase flex items-center gap-1.5">
+                <span className="inline-flex rounded-full h-2 w-2 bg-amber-400 shrink-0" />
+                <span className="text-amber-300 font-bold tracking-wide uppercase flex items-center gap-1.5 whitespace-nowrap">
                   <Shield className="w-4 h-4 text-amber-400" />
                   Modo Administrador Global Activo
                 </span>
                 <span className="hidden md:inline text-slate-400 text-[11px]">
-                  • Panel Maestro y CRM Confidencial desplegados
+                  · Panel Maestro y CRM Confidencial desplegados
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveTab('master-admin')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     activeTab === 'master-admin'
                       ? 'bg-amber-500 text-black font-extrabold shadow-sm'
                       : 'text-amber-300 hover:text-white bg-amber-500/10 border border-amber-500/30'
@@ -611,60 +676,57 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('master-admin-crm')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                     activeTab === 'master-admin-crm'
                       ? 'bg-indigo-600 text-white font-extrabold shadow-sm'
                       : 'text-indigo-300 hover:text-white bg-indigo-500/10 border border-indigo-500/30'
                   }`}
                 >
                   <Users className="w-3 h-3 text-indigo-400" />
-                  CRM Ligas (Confidencial)
+                  CRM Ligas
                 </button>
                 <button
                   onClick={handleLogoutSuperAdmin}
-                  className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 hover:border-rose-400 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-1"
+                  className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 hover:border-rose-400 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-1 whitespace-nowrap shrink-0"
                   title="Cerrar sesión de administrador y ocultar funciones"
                 >
                   <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Salir de Modo Admin</span>
+                  <span>Salir Admin</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* TopHeader (Panel Imagen 1) - Se oculta en inicio y se despliega al presionar el botón */}
-          <div
-            className={`transition-all duration-700 ease-in-out z-30 shrink-0 ${
-              isPlatformUnlocked
-                ? 'translate-y-0 opacity-100 max-h-36'
-                : '-translate-y-full opacity-0 max-h-0 overflow-hidden pointer-events-none'
-            }`}
-          >
-            <TopHeader
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              userRole={userRole}
-              setUserRole={setUserRole}
-              tenants={tenants}
-              activeTenantId={activeTenantId}
-              setActiveTenantId={setActiveTenantId}
-              activeSport={activeSport}
-              setActiveSport={setActiveSport}
-              onOpenOnboarding={() => setShowAffiliationModal(true)}
-              isSuperAdminAuth={isSuperAdminAuth}
-              onLogoutSuperAdmin={handleLogoutSuperAdmin}
-              onElevateToSuperAdmin={handleElevateToSuperAdmin}
-              userEmail={currentUserEmail}
-              onLogout={handleGlobalLogout}
-              onOpenStepTour={handleOpenStepTour}
-              onOpenAuthModal={(mode) => {
-                setAuthModalMode(mode || 'register');
-                setShowAuthModal(true);
-              }}
-              hasPaidFullAccess={hasPaidFullAccess}
-              onOpenCheckout={() => setShowCheckoutOfferModal(true)}
-            />
-          </div>
+          {/* TopHeader - Se oculta en inicio y se despliega en el espacio de trabajo */}
+          {isPlatformUnlocked && (
+            <div className="z-30 shrink-0">
+              <TopHeader
+                activeTab={activeTab}
+                setActiveTab={handleTabChange}
+                userRole={userRole}
+                setUserRole={setUserRole}
+                tenants={tenants}
+                activeTenantId={activeTenantId}
+                setActiveTenantId={setActiveTenantId}
+                activeSport={activeSport}
+                setActiveSport={setActiveSport}
+                onOpenOnboarding={() => setShowAffiliationModal(true)}
+                isSuperAdminAuth={isSuperAdminAuth}
+                onLogoutSuperAdmin={handleLogoutSuperAdmin}
+                onElevateToSuperAdmin={handleElevateToSuperAdmin}
+                userEmail={currentUserEmail}
+                onLogout={handleGlobalLogout}
+                onOpenStepTour={handleOpenStepTour}
+                onOpenAuthModal={(mode) => {
+                  setAuthModalMode(mode || 'register');
+                  setShowAuthModal(true);
+                }}
+                hasPaidFullAccess={hasPaidFullAccess}
+                onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+                onOpenCommandPalette={() => setShowCommandPalette(true)}
+              />
+            </div>
+          )}
 
           {/* Main App Content View Container */}
           <main className={`flex-1 w-full min-w-0 transition-all duration-500 ${
@@ -1054,14 +1116,29 @@ export default function App() {
             </pre>
           </div>
         )}
-        {/* FOOTER GLOBAL CON BLINDAJE DE PROPIEDAD INTELECTUAL CIG */}
-        <footer className="mt-12 pt-6 pb-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
-          <div className="flex items-center gap-2">
-            <span>© 2026 DeporVerso · Corporación e Innovación Guerra (CIG)</span>
-          </div>
-          <IpShieldBadge />
-        </footer>
+        {/* FOOTER GLOBAL CON BLINDAJE DE PROPIEDAD INTELECTUAL CIG (SOLO EN WORKSPACE PARA EVITAR DOBLE FOOTER EN LANDING) */}
+        {isPlatformUnlocked && (
+          <footer className="mt-12 pt-6 pb-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
+            <div className="flex items-center gap-2">
+              <span>© 2026 DeporVerso · Corporación e Innovación Guerra (CIG)</span>
+            </div>
+            <IpShieldBadge />
+          </footer>
+        )}
       </main>
+
+      {/* BUSCADOR RÁPIDO COMMAND PALETTE (CMD/CTRL + K) */}
+      <QuickCommandPalette
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        onNavigateTab={handleTabChange}
+        onSelectTenant={(tenantId) => setActiveTenantId(tenantId)}
+        tenants={tenants}
+        teams={teams}
+        matches={matches}
+        isSuperAdminAuth={isSuperAdminAuth}
+        hasPaidFullAccess={hasPaidFullAccess}
+      />
 
       {/* MODAL OFICIAL DE AFILIACIÓN DE LIGAS */}
       {showAffiliationModal && (

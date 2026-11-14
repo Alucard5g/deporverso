@@ -8,6 +8,7 @@ import {
 import { Match, MatchEvent, Player, Sport, Tenant, Team, PlayerMatchStat, VocalReport, RefereeReport, CaptainApproval } from '../../types';
 import { TradingCardCarnet } from '../LeaguePortal/TradingCardCarnet';
 import { ContinuousQrScannerModal } from './ContinuousQrScannerModal';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface VocaliaDigitalProps {
   matches: Match[];
@@ -791,97 +792,110 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
       />
 
       {/* Top Banner & League Header */}
-      <div className="bg-gradient-to-r from-[#0a1524] via-[#050d17] to-[#040c0f] p-6 sm:p-8 rounded-3xl border border-cyan-500/35 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-2xl relative overflow-hidden card-3d-interactive">
-        <div className="corner-bracket-tl"></div>
-        <div className="corner-bracket-br"></div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="bg-amber-500 text-black font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-              <Zap className="w-3 h-3 fill-current" /> Vocalía Digital Cuántica
-            </span>
-            <span className="text-[#00ff66] text-xs font-black uppercase tracking-wider drop-shadow-[0_0_10px_rgba(0,255,102,0.4)]">
-              {tenant?.name || 'LIGA DEPORTIVA'}
-            </span>
-            <span className="text-xs text-white/50 font-mono">| {activeMatch.field_location}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Mesa de Control & Vocalía Automatizada</h1>
-          <p className="text-xs text-white/60 font-normal max-w-2xl leading-relaxed">
-            Panel dual de jugadores para ambos equipos, lectura QR continua por cámara para cada club, aprobación biométrica de capitanes y actas oficiales sincronizadas con Firebase.
-          </p>
-        </div>
+      <div className="cine-stage-frame bg-[#050d17]">
+        <div className="relative p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <img
+            src={CINEMATIC_ASSETS.stadiumBroadcast}
+            alt="Mesa de Control Estadio"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover opacity-35"
+          />
+          <div className="cine-scrim-hero" />
 
-        {/* Quick Action Buttons & Match Selector */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {/* DUAL CAMERA CONTINUOUS QR BUTTONS (FOR BOTH TEAMS) */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* QR Local Button */}
-            <button
-              type="button"
-              onClick={() => handleOpenQrScannerForTeam('HOME')}
-              className="px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 hover:scale-[1.02]"
-              title={`Escanear carnets asignando directamente a ${homeTeam?.name || 'Equipo Local'}`}
-            >
-              <Camera className="w-4 h-4 text-black stroke-[2.5]" />
-              <div className="text-left leading-tight">
-                <span className="block text-[9px] font-mono opacity-80">CÁMARA QR</span>
-                <span>🔵 LOCAL: {homeTeam?.name || 'Local'}</span>
-              </div>
-            </button>
-
-            {/* QR Visitante Button */}
-            <button
-              type="button"
-              onClick={() => handleOpenQrScannerForTeam('AWAY')}
-              className="px-4 py-3 bg-teal-500 hover:bg-teal-400 text-black font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 hover:scale-[1.02]"
-              title={`Escanear carnets asignando directamente a ${awayTeam?.name || 'Equipo Visitante'}`}
-            >
-              <Camera className="w-4 h-4 text-black stroke-[2.5]" />
-              <div className="text-left leading-tight">
-                <span className="block text-[9px] font-mono opacity-80">CÁMARA QR</span>
-                <span>🟢 VISITANTE: {awayTeam?.name || 'Visitante'}</span>
-              </div>
-            </button>
-          </div>
-
-          {/* Match Selector */}
-          <div className="bg-black/60 p-2.5 rounded-2xl border border-white/10 min-w-[240px]">
-            <label className="block text-[9px] font-bold text-white/50 uppercase tracking-widest px-1 mb-1 flex items-center justify-between font-mono">
-              <span>Partido en Mesa</span>
-              <span className="text-[#00ff66] font-mono text-[9px] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00ff66] animate-pulse"></span>
-                EN VIVO
+          <div className="relative z-10 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap mb-1 text-xs font-mono">
+              <span className="text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                Vocalía Digital Oficial
               </span>
-            </label>
-            <select
-              value={selectedMatchId}
-              onChange={(e) => setSelectedMatchId(e.target.value)}
-              className="w-full bg-[#080808] text-white font-bold text-xs p-2 rounded-xl outline-none border border-white/10 cursor-pointer focus:border-[#00ff66]"
-            >
-              {matches.map((m) => (
-                <option key={m.id} value={m.id} className="bg-[#0a0a0a] text-white font-medium">
-                  {m.home_team?.name || 'Local'} vs {m.away_team?.name || 'Visitante'} ({m.status === 'FINISHED' ? 'Finalizado' : 'En Curso'})
-                </option>
-              ))}
-            </select>
+              <span className="text-white/25">·</span>
+              <span className="text-[#00ff66] font-bold uppercase tracking-wider">
+                {tenant?.name || 'LIGA DEPORTIVA'}
+              </span>
+              <span className="text-white/25">·</span>
+              <span className="text-slate-300">{activeMatch.field_location}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Mesa de Control & Vocalía Automatizada
+            </h1>
+            <p className="text-xs text-slate-300 font-normal max-w-2xl leading-relaxed">
+              Planilla dual sincronizada, lectura continua QR para ambos planteles, aprobación de capitanes y actas oficiales en la nube.
+            </p>
+          </div>
+
+          {/* Quick Action Buttons & Match Selector */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => handleOpenQrScannerForTeam('HOME')}
+                className="px-4 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 whitespace-nowrap"
+                title={`Escanear carnets asignando directamente a ${homeTeam?.name || 'Equipo Local'}`}
+              >
+                <Camera className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+                <div className="text-left leading-tight">
+                  <span className="block text-[9px] font-mono opacity-80">CÁMARA QR</span>
+                  <span>LOCAL · {(homeTeam?.name || 'Local').slice(0, 14)}</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleOpenQrScannerForTeam('AWAY')}
+                className="px-4 py-2.5 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 whitespace-nowrap"
+                title={`Escanear carnets asignando directamente a ${awayTeam?.name || 'Equipo Visitante'}`}
+              >
+                <Camera className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+                <div className="text-left leading-tight">
+                  <span className="block text-[9px] font-mono opacity-80">CÁMARA QR</span>
+                  <span>VISITA · {(awayTeam?.name || 'Visita').slice(0, 14)}</span>
+                </div>
+              </button>
+            </div>
+
+            <div className="bg-black/75 backdrop-blur-md p-2.5 rounded-xl border border-white/15 min-w-[230px]">
+              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-1 flex items-center justify-between font-mono">
+                <span>Partido en Mesa</span>
+                <span className="text-[#00ff66] font-mono text-[9px]">
+                  {activeMatch.status === 'IN_PROGRESS' ? 'EN JUEGO' : activeMatch.status}
+                </span>
+              </label>
+              <select
+                value={selectedMatchId}
+                onChange={(e) => setSelectedMatchId(e.target.value)}
+                className="w-full bg-[#080d18] text-white font-bold text-xs p-2 rounded-lg outline-none border border-white/10 cursor-pointer focus:border-[#00ff66]"
+              >
+                {matches.map((m) => (
+                  <option key={m.id} value={m.id} className="bg-[#0a0a0a] text-white font-medium">
+                    {m.home_team?.name || 'Local'} vs {m.away_team?.name || 'Visitante'} ({m.status === 'FINISHED' ? 'Finalizado' : 'En Curso'})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Scoreboard & Timer */}
-      <div className="bg-gradient-to-b from-[#0a121e] to-[#040810] border border-cyan-500/35 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden card-3d-interactive cyber-sheen-effect">
-        <div className="corner-bracket-tl"></div>
-        <div className="corner-bracket-br"></div>
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-40 bg-[#00ff66]/10 blur-3xl pointer-events-none rounded-full"></div>
-
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto relative z-10">
+      <div className="cine-surface p-6 sm:p-8 space-y-6 tabular-nums">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
           {/* Home Team Score */}
           <div className="space-y-2 flex-1 text-center w-full">
             <span className="text-xs uppercase font-extrabold text-cyan-400 tracking-wider block font-mono">EQUIPO LOCAL</span>
             <h3 className="text-xl font-black text-white truncate">{homeTeam?.name || 'Local'}</h3>
-            <div className="text-6xl sm:text-7xl font-black text-[#00ff66] font-mono bg-black/70 py-4 rounded-3xl border border-white/10 shadow-inner tracking-tight drop-shadow-[0_0_18px_rgba(0,255,102,0.4)]">
+            <div className="text-6xl sm:text-7xl font-black text-[#00ff66] font-mono bg-black/70 py-4 rounded-2xl border border-white/10 tracking-tight">
               {homeGoalsFromStats}
             </div>
-            <span className="text-[11px] text-white/50 font-mono block">Goles acumulados</span>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <button
+                type="button"
+                disabled={!homePlayersList[0]}
+                onClick={() => homePlayersList[0] && updatePlayerGoals(homePlayersList[0].player_id, 1)}
+                className="px-3 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/35 text-cyan-300 font-mono text-[11px] font-bold cursor-pointer disabled:opacity-40 whitespace-nowrap"
+              >
+                +1 Gol Rápido ({homePlayersList[0]?.jersey_number ? `#${homePlayersList[0].jersey_number}` : 'Local'})
+              </button>
+            </div>
           </div>
 
           {/* Center Timer & Match Controls */}
@@ -892,8 +906,8 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                   key={p}
                   onClick={() => setCurrentPeriod(p)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition-all cursor-pointer ${
-                    currentPeriod === p 
-                      ? 'deporverso-tab-pill-active font-bold' 
+                    currentPeriod === p
+                      ? 'deporverso-tab-pill-active font-bold'
                       : 'deporverso-tab-pill-inactive'
                   }`}
                 >
@@ -902,15 +916,17 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
               ))}
             </div>
 
-            <div className="text-4xl sm:text-5xl font-black text-amber-400 font-mono tracking-wider bg-black/70 px-7 py-2.5 rounded-3xl border border-amber-500/30 inline-block shadow-inner">
+            <div className="text-4xl sm:text-5xl font-black text-amber-400 font-mono tracking-wider bg-black/70 px-7 py-2.5 rounded-2xl border border-amber-500/30 inline-block">
               {formatTimer(timerSeconds)}
             </div>
 
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => setIsTimerRunning(!isTimerRunning)}
-                className={`px-5 py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg ${
-                  isTimerRunning ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-amber-500/20' : 'bg-[#00ff66] text-black hover:bg-[#00ff66]/90 shadow-[#00ff66]/20'
+                className={`px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg ${
+                  isTimerRunning
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                    : 'bg-[#00ff66] text-black hover:bg-[#00ff66]/90'
                 }`}
               >
                 {isTimerRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
@@ -920,7 +936,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
               <button
                 onClick={() => setTimerSeconds(0)}
                 title="Reiniciar cronómetro"
-                className="p-2.5 bg-black/50 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl border border-white/10 cursor-pointer transition-colors"
+                className="p-2.5 bg-black/50 hover:bg-white/10 text-white/60 hover:text-white rounded-xl border border-white/10 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -931,20 +947,32 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           <div className="space-y-2 flex-1 text-center w-full">
             <span className="text-xs uppercase font-extrabold text-teal-400 tracking-wider block font-mono">EQUIPO VISITANTE</span>
             <h3 className="text-xl font-black text-white truncate">{awayTeam?.name || 'Visitante'}</h3>
-            <div className="text-6xl sm:text-7xl font-black text-[#00ff66] font-mono bg-black/70 py-4 rounded-3xl border border-white/10 shadow-inner tracking-tight drop-shadow-[0_0_18px_rgba(0,255,102,0.4)]">
+            <div className="text-6xl sm:text-7xl font-black text-[#00ff66] font-mono bg-black/70 py-4 rounded-2xl border border-white/10 tracking-tight">
               {awayGoalsFromStats}
             </div>
-            <span className="text-[11px] text-white/50 font-mono block">Goles acumulados</span>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <button
+                type="button"
+                disabled={!awayPlayersList[0]}
+                onClick={() => awayPlayersList[0] && updatePlayerGoals(awayPlayersList[0].player_id, 1)}
+                className="px-3 py-1 rounded-lg bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/35 text-teal-300 font-mono text-[11px] font-bold cursor-pointer disabled:opacity-40 whitespace-nowrap"
+              >
+                +1 Gol Rápido ({awayPlayersList[0]?.jersey_number ? `#${awayPlayersList[0].jersey_number}` : 'Visita'})
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Global summary badge bar */}
         <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between text-xs text-[#A0A0A0] gap-3">
-          <div className="flex items-center gap-4 flex-wrap">
-            <span>⚽ Total Goles: <strong className="text-white font-bold">{homeGoalsFromStats + awayGoalsFromStats}</strong></span>
-            <span>🟨 Tarjetas Amarillas: <strong className="text-amber-400 font-bold">{totalYellowCards}</strong></span>
-            <span>🟥 Tarjetas Rojas: <strong className="text-red-400 font-bold">{totalRedCards}</strong></span>
-            <span className="text-cyan-400 font-bold">📷 Carnets QR Verificados: <strong className="text-white">{verifiedQrPlayers.size}</strong></span>
+          <div className="flex items-center gap-4 flex-wrap font-mono">
+            <span>Total Goles: <strong className="text-white font-bold">{homeGoalsFromStats + awayGoalsFromStats}</strong></span>
+            <span>·</span>
+            <span>Amarillas: <strong className="text-amber-400 font-bold">{totalYellowCards}</strong></span>
+            <span>·</span>
+            <span>Rojas: <strong className="text-red-400 font-bold">{totalRedCards}</strong></span>
+            <span>·</span>
+            <span className="text-cyan-400 font-bold">QR Verificados: <strong className="text-white">{verifiedQrPlayers.size}</strong></span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">

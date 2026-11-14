@@ -1,3 +1,4 @@
+import { getAthletePortrait } from './cinematicAssets';
 import { Sport, Tenant, Profile, Category, Team, Player, Match, MatchEvent, VarRequest, MigrationTicket, Subscription, AiChronicle } from '../types';
 
 export const INITIAL_SPORTS: Sport[] = [
@@ -279,7 +280,7 @@ export const INITIAL_PROFILES: Profile[] = [
     full_name: 'Rolando Guerra',
     email: 'rolando@deporverso.app',
     phone: '+593 99 123 4567',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+    avatar_url: getAthletePortrait('athlete-1')
   },
   {
     id: 'u-admin-pichincha',
@@ -398,7 +399,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Mateo "El Rayo" Silva', 
     jersey_number: 10, 
     position: 'Mediocampista Creativo', 
-    photo_url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-2'),
     qr_code: 'DPV-QR-MATEO-10', 
     is_active: true 
   },
@@ -409,7 +410,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Gabriel Torres', 
     jersey_number: 9, 
     position: 'Delantero Centro', 
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-3'),
     qr_code: 'DPV-QR-TORRES-09', 
     is_active: true 
   },
@@ -420,7 +421,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Lucas Benítez', 
     jersey_number: 1, 
     position: 'Portero Titular', 
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-4'),
     qr_code: 'DPV-QR-LUCAS-01', 
     is_active: true 
   },
@@ -431,7 +432,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Carlos Arboleda', 
     jersey_number: 4, 
     position: 'Defensa Central', 
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-5'),
     qr_code: 'DPV-QR-ARBOLEDA-04', 
     is_active: true 
   },
@@ -442,7 +443,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Julián Morales', 
     jersey_number: 7, 
     position: 'Extremo Derecho', 
-    photo_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-6'),
     qr_code: 'DPV-QR-MORALES-07', 
     is_active: true 
   },
@@ -453,7 +454,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Sebastián Rivas', 
     jersey_number: 8, 
     position: 'Pivote Organizador', 
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-7'),
     qr_code: 'DPV-QR-RIVAS-08', 
     is_active: true 
   },
@@ -468,7 +469,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Kevin "Sniper" Andrade', 
     jersey_number: 7, 
     position: 'Escolta Tirador', 
-    photo_url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-8'),
     qr_code: 'DPV-QR-ANDRADE-07', 
     is_active: true 
   },
@@ -479,7 +480,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Dante "Air" Caicedo', 
     jersey_number: 23, 
     position: 'Alero Capitán', 
-    photo_url: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-9'),
     qr_code: 'DPV-QR-CAICEDO-23', 
     is_active: true 
   },
@@ -490,7 +491,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Marcus Valdivieso', 
     jersey_number: 3, 
     position: 'Base Armador', 
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-10'),
     qr_code: 'DPV-QR-VALDIVIESO-03', 
     is_active: true 
   },
@@ -501,7 +502,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Bruno Moreira', 
     jersey_number: 33, 
     position: 'Pívot Titular', 
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-11'),
     qr_code: 'DPV-QR-MOREIRA-33', 
     is_active: true 
   },
@@ -514,7 +515,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Mateo Guerrero', 
     jersey_number: 10, 
     position: 'Mediocampista Creativo', 
-    photo_url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-12'),
     qr_code: 'SPORTIA-QR-PL-101', 
     is_active: true 
   },
@@ -525,7 +526,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Santiago López', 
     jersey_number: 9, 
     position: 'Delantero Centro', 
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-13'),
     qr_code: 'SPORTIA-QR-PL-102', 
     is_active: true 
   },
@@ -536,7 +537,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Esteban Paredes', 
     jersey_number: 7, 
     position: 'Extremo Derecho', 
-    photo_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-14'),
     qr_code: 'SPORTIA-QR-PL-110', 
     is_active: true 
   },
@@ -547,7 +548,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Franklin Salas', 
     jersey_number: 1, 
     position: 'Portero Titular', 
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-15'),
     qr_code: 'SPORTIA-QR-PL-111', 
     is_active: true 
   },
@@ -558,7 +559,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Diego Calderón', 
     jersey_number: 4, 
     position: 'Defensa Central', 
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-16'),
     qr_code: 'SPORTIA-QR-PL-112', 
     is_active: true 
   },
@@ -571,7 +572,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Andrés Villacís', 
     jersey_number: 7, 
     position: 'Extremo Izquierdo', 
-    photo_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-17'),
     qr_code: 'SPORTIA-QR-PL-103', 
     is_active: true 
   },
@@ -582,7 +583,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'David "El Rayo" Rocha', 
     jersey_number: 11, 
     position: 'Lateral Izquierdo', 
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-18'),
     qr_code: 'SPORTIA-QR-PL-104', 
     is_active: true 
   },
@@ -593,7 +594,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Javier Corozo', 
     jersey_number: 9, 
     position: 'Delantero Centro', 
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-19'),
     qr_code: 'SPORTIA-QR-PL-113', 
     is_active: true 
   },
@@ -604,7 +605,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Byron Mina', 
     jersey_number: 5, 
     position: 'Volante de Marca', 
-    photo_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-20'),
     qr_code: 'SPORTIA-QR-PL-114', 
     is_active: true 
   },
@@ -615,7 +616,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Alexander Domínguez', 
     jersey_number: 1, 
     position: 'Arquero', 
-    photo_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-21'),
     qr_code: 'SPORTIA-QR-PL-115', 
     is_active: true 
   },
@@ -628,7 +629,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Carlos "El Muro" Vaca', 
     jersey_number: 1, 
     position: 'Portero Titular', 
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-22'),
     qr_code: 'SPORTIA-QR-PL-105', 
     is_active: true 
   },
@@ -639,7 +640,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Renato Ibarra', 
     jersey_number: 8, 
     position: 'Volante Ofensivo', 
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-23'),
     qr_code: 'SPORTIA-QR-PL-116', 
     is_active: true 
   },
@@ -652,7 +653,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Gabriel Benavides', 
     jersey_number: 8, 
     position: 'Defensa Central', 
-    photo_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-24'),
     qr_code: 'SPORTIA-QR-PL-106', 
     is_active: true 
   },
@@ -663,7 +664,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Gonzalo Plata', 
     jersey_number: 10, 
     position: 'Delantero', 
-    photo_url: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-25'),
     qr_code: 'SPORTIA-QR-PL-117', 
     is_active: true 
   },
@@ -676,7 +677,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Christian "La Torre" Silva', 
     jersey_number: 23, 
     position: 'Pívot', 
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-26'),
     qr_code: 'SPORTIA-QR-PL-201', 
     is_active: true 
   },
@@ -687,7 +688,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Galo "El Zorro" Morales', 
     jersey_number: 1, 
     position: 'Colocador', 
-    photo_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-27'),
     qr_code: 'SPORTIA-QR-PL-301', 
     is_active: true 
   },
@@ -700,7 +701,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Esteban "El Rayo" Cárdenas',
     jersey_number: 10,
     position: 'Pívot Goleador',
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-28'),
     qr_code: 'DV-QR-FUTS-101',
     is_active: true
   },
@@ -711,7 +712,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Bryan Vaca',
     jersey_number: 1,
     position: 'Portero Cierre',
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-29'),
     qr_code: 'DV-QR-FUTS-102',
     is_active: true
   },
@@ -722,7 +723,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Nicolás Andrade',
     jersey_number: 7,
     position: 'Ala Izquierda',
-    photo_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-30'),
     qr_code: 'DV-QR-FUTS-201',
     is_active: true
   },
@@ -735,7 +736,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Kevin "El Mago" Salgado',
     jersey_number: 8,
     position: 'Mediocampista Creativo (Indoor 7)',
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-31'),
     qr_code: 'DV-QR-INDO-101',
     is_active: true
   },
@@ -746,7 +747,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Andrés Paredes',
     jersey_number: 9,
     position: 'Delantero Punta (Indoor 7)',
-    photo_url: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-32'),
     qr_code: 'DV-QR-INDO-102',
     is_active: true
   },
@@ -757,7 +758,7 @@ export const INITIAL_PLAYERS: Player[] = [
     full_name: 'Mauricio Guayasamín',
     jersey_number: 11,
     position: 'Extremo Rápido (Indoor 9)',
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    photo_url: getAthletePortrait('athlete-33'),
     qr_code: 'DV-QR-INDO-301',
     is_active: true
   }

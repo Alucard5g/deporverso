@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Tenant, Sport, Match, Team, Player } from '../../types';
 import ligaBarrialPichinchaHero from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface PichinchaExecutiveDemoProps {
   tenant: Tenant;
@@ -35,6 +36,7 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
   const [copiedProposal, setCopiedProposal] = useState<boolean>(false);
   const [simulatedGoalEvent, setSimulatedGoalEvent] = useState<boolean>(false);
   const [activeTabSection, setActiveTabSection] = useState<'dossier' | 'calculator' | 'simulator'>('calculator');
+  const [heroScene, setHeroScene] = useState<'stadium' | 'var'>('stadium');
 
   // Cálculos dinámicos de monetización y ahorro real
   const costoAutomatizacionDeporverso = 35; // DeporVerso cobra $35 por club/torneo
@@ -79,87 +81,107 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* ============================================================== */}
-      {/* 1. HERO INSTITUCIONAL: DOSSIER PARA EL DIRECTORIO             */}
+      {/* 1. HERO INSTITUCIONAL CINEMATOGRÁFICO: DOSSIER DIRECTORIO      */}
       {/* ============================================================== */}
-      <div className="relative rounded-3xl overflow-hidden border border-cyan-500/40 bg-[#040816] p-6 sm:p-10 shadow-2xl">
-        {/* Portada Cinematográfica de la Liga Barrial Pichincha */}
+      <div className="cine-stage-frame p-6 sm:p-10">
         <div className="absolute inset-0 z-0">
           <img 
-            src={ligaBarrialPichinchaHero} 
+            src={heroScene === 'stadium' ? CINEMATIC_ASSETS.stadiumBroadcast : CINEMATIC_ASSETS.varBooth} 
             alt="Liga Barrial Pichincha Oficial" 
-            className="w-full h-full object-cover object-center filter brightness-[0.38] contrast-125 scale-105"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center brightness-[0.55] contrast-[1.08] transition-all duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#040816] via-[#091533]/85 to-[#060e22]/90" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#030712]/95 via-[#030712]/60 to-transparent" />
+          <div className="absolute inset-0 cine-scrim-hero" />
+          <div className="absolute inset-0 cine-vignette pointer-events-none" />
         </div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                Dossier Ejecutivo de Directorio 2026
-              </span>
-              <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono text-[11px] font-bold px-3 py-1 rounded-full">
-                Liga Barrial Pichincha · Serie A & Serie B
-              </span>
+            <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-300">
+              <span className="text-cyan-300 font-semibold">Dossier Ejecutivo 2026</span>
+              <span aria-hidden="true" className="text-white/30">·</span>
+              <span>Liga Barrial Pichincha · Serie A &amp; Serie B</span>
+              <span aria-hidden="true" className="text-white/30">·</span>
+              <div className="inline-flex items-center gap-1 bg-black/50 p-0.5 rounded-lg border border-white/15">
+                <button
+                  type="button"
+                  onClick={() => setHeroScene('stadium')}
+                  className={`px-2 py-0.5 rounded-md text-[10px] transition-colors cursor-pointer ${
+                    heroScene === 'stadium' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Estadio
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroScene('var')}
+                  className={`px-2 py-0.5 rounded-md text-[10px] transition-colors cursor-pointer ${
+                    heroScene === 'var' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Cabina VAR
+                </button>
+              </div>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
               Transformación Digital Integral para Dirigentes y Presidentes de Clubes
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Propuesta oficial para la modernización de los <strong>{teams.length} clubes inscritos</strong> y <strong>{players.length}+ deportistas federados</strong> de la <strong>{tenant.name}</strong>. Cero papel, tablas en tiempo real, vocalía móvil, carnetización holográfica QR y VAR barrial al alcance de cada cancha.
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Propuesta oficial para la modernización de los <strong className="text-white tabular-nums">{teams.length} clubes inscritos</strong> y <strong className="text-white tabular-nums">{players.length}+ deportistas federados</strong> de la <strong className="text-white">{tenant.name}</strong>. Cero papel, tablas en tiempo real, vocalía móvil, carnetización QR y VAR barrial en cada cancha.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
             {onLaunchTour && (
               <button
+                type="button"
                 onClick={onLaunchTour}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:scale-[1.02] active:scale-95"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm tracking-tight shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 <Sparkles className="w-4 h-4 text-slate-950" />
-                <span>Iniciar Tour Multiverso Paso a Paso</span>
+                <span>Iniciar Tour Guiado</span>
               </button>
             )}
 
             <button
+              type="button"
               onClick={handleCopyProposal}
-              className="px-4 py-3 rounded-xl bg-[#0e1c3d] hover:bg-[#142857] border border-cyan-400/30 text-cyan-300 text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-3 rounded-xl bg-black/65 hover:bg-black/85 border border-cyan-400/35 text-cyan-300 text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0"
               title="Copiar texto resumen para enviar por WhatsApp al grupo de presidentes"
             >
               {copiedProposal ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-              <span>{copiedProposal ? '¡Copiado!' : 'Compartir en WhatsApp'}</span>
+              <span>{copiedProposal ? '¡Copiado!' : 'Compartir WhatsApp'}</span>
             </button>
 
             <button
+              type="button"
               onClick={handlePrintDossier}
-              className="px-3.5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 text-xs font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               title="Imprimir propuesta en formato A4"
             >
-              <Printer className="w-4 h-4 text-slate-300" />
+              <Printer className="w-4 h-4 text-slate-200" />
               <span>Imprimir A4</span>
             </button>
           </div>
         </div>
 
-        {/* Badges de Autoridades y Respaldo */}
+        {/* Autoridades y Respaldo */}
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-white/10 text-xs font-mono">
-          <div className="p-3 bg-white/[0.03] rounded-xl border border-white/5">
+          <div className="p-3 bg-black/55 backdrop-blur-md rounded-xl border border-white/10">
             <span className="text-[10px] text-slate-400 block uppercase">Presidente de Liga</span>
             <span className="font-bold text-white text-xs truncate block">Sr. Carlos Guayasamín</span>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-xl border border-white/5">
+          <div className="p-3 bg-black/55 backdrop-blur-md rounded-xl border border-white/10">
             <span className="text-[10px] text-slate-400 block uppercase">Comisión Técnica</span>
             <span className="font-bold text-cyan-300 text-xs truncate block">Ing. Rodrigo Almendariz</span>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-xl border border-white/5">
+          <div className="p-3 bg-black/55 backdrop-blur-md rounded-xl border border-white/10">
             <span className="text-[10px] text-slate-400 block uppercase">Tribunal de Penas</span>
             <span className="font-bold text-amber-300 text-xs truncate block">Dr. Fausto Villacís</span>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-xl border border-white/5">
+          <div className="p-3 bg-black/55 backdrop-blur-md rounded-xl border border-white/10">
             <span className="text-[10px] text-slate-400 block uppercase">Club Modelo</span>
             <span className="font-bold text-emerald-300 text-xs truncate block">Club Deportivo Deporverso</span>
           </div>
@@ -404,10 +426,41 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
 
           {/* SIMULADOR INTERACTIVO DE VARIABLES */}
           <div className="bg-[#08132e] border border-cyan-500/20 rounded-2xl p-5 space-y-4">
-            <h4 className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-cyan-400" />
-              Parámetros Financieros Configurables para la Asamblea
-            </h4>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h4 className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                <Calculator className="w-4 h-4 text-cyan-400" />
+                Parámetros Financieros Configurables para la Asamblea
+              </h4>
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
+                <button
+                  type="button"
+                  onClick={() => { setNumClubes(16); setPrecioInscripcionLiga(50); setGarantiaTradicional(100); }}
+                  className={`px-2.5 py-1 rounded-lg border transition-colors cursor-pointer whitespace-nowrap ${
+                    numClubes === 16 ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold' : 'bg-black/40 border-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Serie Única (16)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setNumClubes(24); setPrecioInscripcionLiga(60); setGarantiaTradicional(150); }}
+                  className={`px-2.5 py-1 rounded-lg border transition-colors cursor-pointer whitespace-nowrap ${
+                    numClubes === 24 ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold' : 'bg-black/40 border-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Liga Pichincha (24)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setNumClubes(32); setPrecioInscripcionLiga(75); setGarantiaTradicional(200); }}
+                  className={`px-2.5 py-1 rounded-lg border transition-colors cursor-pointer whitespace-nowrap ${
+                    numClubes === 32 ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold' : 'bg-black/40 border-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Interligas Mayor (32)
+                </button>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Clubes */}
@@ -667,14 +720,17 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
                 Simula la anotación de Santiago López para Deportivo Quito Norte en el Clásico Barrial.
               </p>
               <button
+                type="button"
                 onClick={handleTriggerSimulatedGoal}
                 className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-md"
               >
                 {simulatedGoalEvent ? '¡Gol Registrado en 0.2s!' : 'Simular Gol de Quito Norte'}
               </button>
               {simulatedGoalEvent && (
-                <div className="p-2.5 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono animate-in fade-in">
-                  ✓ Gol computado en Vocalía Digital. Tabla de Serie A recalculada en 0.2 segundos.
+                <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-300 text-[11px] font-mono space-y-1 animate-in fade-in">
+                  <div>✓ Marcador actualizado en Vocalía Digital (3 - 1)</div>
+                  <div>✓ Tabla Serie A recalculada en 0.2s</div>
+                  <div>✓ Clip 9:16 y alerta push encolados</div>
                 </div>
               )}
             </div>

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Match, VarRequest } from '../../types';
 import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface VarModuleProps {
   tenantId: string;
@@ -82,7 +83,8 @@ export const VarModule: React.FC<VarModuleProps> = ({
   };
 
   const [selectedMatchId, setSelectedMatchId] = useState(matches[0]?.id || '');
-  const [cameraAngle, setCameraAngle] = useState('Ángulo 1: Línea de Gol / Área Chica');
+  const [cameraAngle, setCameraAngle] = useState('Ángulo 1: Línea de Gol');
+  const [playbackSpeed, setPlaybackSpeed] = useState<'0.25x' | '0.5x' | '1.0x'>('0.5x');
   const [activeVarView, setActiveVarView] = useState<VarRequest | null>(varRequests[0] || null);
   const [refereeNotes, setRefereeNotes] = useState('');
 
@@ -232,89 +234,138 @@ export const VarModule: React.FC<VarModuleProps> = ({
         </div>
       )}
 
-      {/* Banner de Cabecera con Badge de Seguridad */}
-      <div className="bg-[#080d1a]/80 backdrop-blur-xl p-6 sm:p-7 rounded-2xl border border-white/[0.08] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              VAR A la Carta ($12.00 USD)
-            </span>
-            <span className="text-slate-400 text-xs font-mono font-medium">Ultra Baja Latencia (Cloudflare R2)</span>
+      {/* Cabecera Cinemática Sala VAR */}
+      <div className="cine-stage-frame bg-[#080d1a]">
+        <div className="relative p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <img
+            src={CINEMATIC_ASSETS.varBooth}
+            alt="Cabina de Control VAR"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
+          />
+          <div className="cine-scrim-hero" />
 
-            {/* Admin Security Badge */}
-            {isAdminAuthorized ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                ADMIN AUTORIZADO
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap text-xs font-mono">
+              <span className="text-rose-300 font-bold uppercase tracking-wider">
+                VAR A la Carta · $12.00 USD
               </span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setSecurityModalTitle('Desbloquear Control VAR Oficial');
-                  setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para dictaminar y gestionar el VAR.');
-                  setShowSecurityModal(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[10px] font-bold cursor-pointer transition-all shadow-sm animate-pulse"
-              >
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
-              </button>
-            )}
+              <span className="text-white/25">·</span>
+              <span className="text-slate-300">Baja Latencia Multicámara</span>
+              <span className="text-white/25">·</span>
+              {isAdminAuthorized ? (
+                <span className="inline-flex items-center gap-1 text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  ADMIN AUTORIZADO
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSecurityModalTitle('Desbloquear Control VAR Oficial');
+                    setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para dictaminar y gestionar el VAR.');
+                    setShowSecurityModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[11px] font-bold cursor-pointer transition-all"
+                >
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
+                </button>
+              )}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Sistema VAR A la Carta & Revisión Arbitral
+            </h1>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Reserva de cámaras reglamentarias por partido, revisión cuadro a cuadro, emisión de dictámenes oficiales A4 y clips verticales 9:16.
+            </p>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Sistema VAR A la Carta e Involucramiento de Árbitros</h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Reserva de cámaras reglamentarias por partido, emisión de dictámenes periciales y clips verticales de jugadas polémicas.
-          </p>
-        </div>
 
-        <div className="bg-white/[0.03] p-4 rounded-xl border border-white/[0.08] text-center shrink-0">
-          <span className="text-[10px] uppercase tracking-wider text-slate-400 block font-semibold mb-0.5">TARIFA POR REVISIÓN</span>
-          <span className="text-2xl sm:text-3xl font-bold text-cyan-400">$12.00 USD</span>
+          <div className="relative z-10 bg-black/65 backdrop-blur-md p-4 rounded-xl border border-white/15 text-center shrink-0 tabular-nums">
+            <span className="text-[10px] uppercase tracking-wider text-slate-300 block font-semibold mb-0.5">TARIFA POR REVISIÓN</span>
+            <span className="text-2xl sm:text-3xl font-black text-cyan-300 font-mono">$12.00 USD</span>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* VAR Video Review Screen */}
-        <div className="lg:col-span-2 bg-[#080d1a]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-7 space-y-4 shadow-xl">
-          <h3 className="text-sm sm:text-base font-bold text-white flex items-center justify-between">
-            <span className="flex items-center gap-2">
+        <div className="lg:col-span-2 cine-surface p-6 sm:p-7 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
               <Video className="w-4 h-4 text-rose-400" />
-              Monitor VAR de Campo de Juego
-            </span>
-            {activeVarView && (
-              <span className="bg-cyan-500/15 text-cyan-300 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-cyan-500/30">
-                {activeVarView.status}
-              </span>
-            )}
-          </h3>
+              <span>Monitor VAR de Campo de Juego</span>
+            </h3>
+
+            <div className="flex items-center gap-2">
+              {/* Velocidad de Reproducción */}
+              <div className="inline-flex items-center gap-1 bg-white/[0.04] p-1 rounded-lg border border-white/10 text-[11px] font-mono tabular-nums">
+                {(['0.25x', '0.5x', '1.0x'] as const).map((spd) => (
+                  <button
+                    key={spd}
+                    type="button"
+                    onClick={() => setPlaybackSpeed(spd)}
+                    className={`px-2 py-0.5 rounded cursor-pointer transition-colors ${
+                      playbackSpeed === spd
+                        ? 'bg-rose-500 text-white font-bold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {spd}
+                  </button>
+                ))}
+              </div>
+
+              {activeVarView && (
+                <span className="text-cyan-300 font-mono text-xs font-bold">
+                  · {activeVarView.status}
+                </span>
+              )}
+            </div>
+          </div>
 
           <div className="relative rounded-xl overflow-hidden bg-slate-950 border border-white/[0.08] aspect-video flex items-center justify-center">
             {activeVarView?.video_url ? (
               <video
                 src={activeVarView.video_url}
+                poster={CINEMATIC_ASSETS.varBooth}
                 controls
-                autoPlay
                 loop
+                playsInline
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-center p-6 text-slate-400">
-                <Video className="w-10 h-10 mx-auto mb-2 opacity-40" />
-                <p className="text-xs">Selecciona o solicita una revisión VAR para cargar el video multiseñales.</p>
+              <div className="relative w-full h-full flex items-center justify-center">
+                <img
+                  src={CINEMATIC_ASSETS.varBooth}
+                  alt="Señal en espera VAR"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover opacity-50"
+                />
+                <div className="cine-scrim-hero" />
+                <div className="relative z-10 text-center p-6 text-slate-200 max-w-sm">
+                  <Video className="w-9 h-9 mx-auto mb-2 text-cyan-300" />
+                  <p className="text-xs font-medium">Selecciona o solicita una revisión VAR para cargar el video multiseñal en {cameraAngle}.</p>
+                </div>
               </div>
             )}
 
-            <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-200 border border-white/10">
-              {cameraAngle}
+            <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-mono font-semibold text-slate-200 border border-white/15 tabular-nums">
+              {cameraAngle} · Vel {playbackSpeed}
             </div>
           </div>
 
-          {/* Camera Angles Switcher */}
+          {/* Camera Angles Switcher (4 Angles) */}
           <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto text-xs">
-            {['Ángulo 1: Línea de Gol', 'Ángulo 2: Táctica Superior', 'Ángulo 3: Lateral Banda'].map((angle) => (
+            {[
+              'Ángulo 1: Línea de Gol',
+              'Ángulo 2: Área Chica',
+              'Ángulo 3: Táctica Aérea',
+              'Ángulo 4: Lateral Banda'
+            ].map((angle) => (
               <button
                 key={angle}
+                type="button"
                 onClick={() => setCameraAngle(angle)}
                 className={`whitespace-nowrap transition-all cursor-pointer ${
                   cameraAngle === angle

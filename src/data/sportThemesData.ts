@@ -1,3 +1,8 @@
+import { CINEMATIC_ASSETS } from './cinematicAssets';
+import soccerHeroImg from '../assets/images/soccer_hero_banner_1785853921446.jpg';
+import basketHeroImg from '../assets/images/basketball_hero_bg_1785854264293.jpg';
+import volleyHeroImg from '../assets/images/volleyball_hero_bg_1785854282070.jpg';
+import pichinchaHeroImg from '../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
 import { SportCode } from '../types';
 
 export interface SportVisualTheme {
@@ -36,19 +41,19 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       {
         title: 'Estadio Iluminado & Graderías',
         description: 'Atmósfera nocturna de finales barriales y federadas.',
-        url: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.stadiumBroadcast,
         tag: 'Estadio Nocturno'
       },
       {
         title: 'Control Táctico en el Círculo Central',
         description: 'Seguimiento de pases, amonestaciones y sustituciones.',
-        url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'VAR & Vocalía'
       },
       {
         title: 'Celebración de Gol & Pasión de Club',
         description: 'Crónicas generadas en segundos para redes de la liga.',
-        url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'IA Periodística'
       }
     ],
@@ -76,19 +81,19 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       {
         title: 'Remate en el Aro con Suspensión',
         description: 'Captura fotográfica y registro instantáneo de triples y dobles.',
-        url: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Tiro de Campo'
       },
       {
         title: 'Reflejo en Parquet Profesional',
         description: 'Control de faltas individuales, colectivas y técnicas.',
-        url: 'https://images.unsplash.com/photo-1505666287802-931dc83948e9?auto=format&fit=crop&q=80&w=600',
+        url: soccerHeroImg,
         tag: 'Mesa de Anotación'
       },
       {
         title: 'Estrategia de Minuto Solicitado',
         description: 'Tiempos muertos gestionados directamente desde la app de mesa.',
-        url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=600',
+        url: basketHeroImg,
         tag: 'Pizarra DT'
       }
     ],
@@ -116,19 +121,19 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       {
         title: 'Batida & Bloqueo en la Red Alta',
         description: 'Alineación de 3 jugadores: colocador, volador y servidor.',
-        url: 'https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&q=80&w=600',
+        url: volleyHeroImg,
         tag: 'Punto de Quince'
       },
       {
         title: 'Cancha de Cemento y Arcilla',
         description: 'Conteo especial de cambios y puntos válidos por rotación.',
-        url: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&q=80&w=600',
+        url: pichinchaHeroImg,
         tag: 'Reglamento Barrial'
       },
       {
         title: 'Final con Barra y Graderías Llenas',
         description: 'Liquidación de apuestas reglamentadas y actas firmadas.',
-        url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.stadiumBroadcast,
         tag: 'Torneo Abierto'
       }
     ],
@@ -156,19 +161,19 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
       {
         title: 'Pista Panorámica de Cristal',
         description: 'Seguimiento por sets a 6 juegos con tie-break a 7 puntos.',
-        url: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'Pista de Cristal'
       },
       {
         title: 'Golpe de Bandeja y Remate Smash',
         description: 'Estadísticas de puntos ganadores y errores no forzados.',
-        url: 'https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'Estadística en Vivo'
       },
       {
         title: 'Parejas Federadas y Torneo Abierto',
         description: 'Cuadros de llaves de eliminación directa y round-robin.',
-        url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Ranking Parejas'
       }
     ],
@@ -191,24 +196,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Fútsal & Indor Fútbol',
     tagline: 'Control estricto de 5 faltas acumuladas, tiro directo de 10m y reloj parado',
     badge: '👟 Dinamismo Total',
-    heroImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1200',
+    heroImage: CINEMATIC_ASSETS.stadiumBroadcast,
     actionImages: [
       {
         title: 'Duelo 1 vs 1 en Parquet Pulido',
         description: 'Tiempos de 20 minutos con cronómetro detenido al silbato.',
-        url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
+        url: basketHeroImg,
         tag: 'Alta Velocidad'
       },
       {
         title: 'Tiro de Diez Metros por 5ª Falta',
         description: 'Alerta sonora y visual en pantalla de mesa al superar faltas.',
-        url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=600',
+        url: volleyHeroImg,
         tag: 'Doble Penal'
       },
       {
         title: 'Portero-Jugador en Minuto Crítico',
         description: 'Gestión de tácticas especiales y sustituciones volantes.',
-        url: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=600',
+        url: pichinchaHeroImg,
         tag: 'Poder Ofensivo'
       }
     ],
@@ -231,24 +236,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Voleibol Sala & Playa',
     tagline: 'Rotaciones de 6 jugadores, control de líbero, sets a 25 puntos y tie-break a 15',
     badge: '🏐 Salto & Coordinación',
-    heroImage: 'https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&q=80&w=1200',
+    heroImage: pichinchaHeroImg,
     actionImages: [
       {
         title: 'Ataque por Zona 4 y Bloqueo Doble',
         description: 'Registro de puntos de ataque, bloqueo y errores de servicio.',
-        url: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'Ataque Directo'
       },
       {
         title: 'Recepción Defensiva del Líbero',
         description: 'Control de sustituciones especializadas sin agotar cambios.',
-        url: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'Líbero Activo'
       },
       {
         title: 'Match Point en Set Definitivo',
         description: 'Regla de ventaja obligatoria de 2 puntos en todos los sets.',
-        url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Set Decisivo'
       }
     ],
@@ -271,24 +276,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Béisbol & Sóftbol',
     tagline: 'Conteo de bolas y strikes, entradas completas, bateo por turnos y carreras',
     badge: '⚾ Diamante Deportivo',
-    heroImage: 'https://images.unsplash.com/photo-1508344928928-7165b67de128?auto=format&fit=crop&q=80&w=1200',
+    heroImage: soccerHeroImg,
     actionImages: [
       {
         title: 'Bateo de Cuadrangular (Home Run)',
         description: 'Registro de hits, dobles, triples y jonrones al instante.',
-        url: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?auto=format&fit=crop&q=80&w=600',
+        url: basketHeroImg,
         tag: 'Jonrón'
       },
       {
         title: 'Lanzamiento a 95 MPH desde el Montículo',
         description: 'Seguimiento de efectividad de pitchers y ponches (K).',
-        url: 'https://images.unsplash.com/photo-1531247448636-47565b43d1a7?auto=format&fit=crop&q=80&w=600',
+        url: volleyHeroImg,
         tag: 'Montículo'
       },
       {
         title: 'Atrapada en el Jardín Central',
         description: 'Mesa de anotación digital con diagrama de bases en vivo.',
-        url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=600',
+        url: pichinchaHeroImg,
         tag: 'Defensa'
       }
     ],
@@ -311,24 +316,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Sóftbol Fastpitch & Slowpitch',
     tagline: 'Lanzamiento molinete bajo hombro, Mercy Rule y categorías mixtas',
     badge: '🥎 Velocidad & Precisión',
-    heroImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200',
+    heroImage: CINEMATIC_ASSETS.stadiumBroadcast,
     actionImages: [
       {
         title: 'Lanzamiento Molinete Femenino',
         description: 'Técnica de alta velocidad y control de zona de strike.',
-        url: 'https://images.unsplash.com/photo-1531247448636-47565b43d1a7?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'Molinete'
       },
       {
         title: 'Bateo Oportuno con Corredores',
         description: 'Anotación instantánea de carreras producidas y outs.',
-        url: 'https://images.unsplash.com/photo-1544298621-35a9634e0622?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'Bateo'
       },
       {
         title: 'Defensa de Cuadro Interior',
         description: 'Doble matanzas y asistencia rápida en primera base.',
-        url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Infield'
       }
     ],
@@ -351,24 +356,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Fútbol Americano & Flag Football',
     tagline: 'Estrategia de 4 downs, yardas ganadas, touchdowns y play clock digital',
     badge: '🏈 Táctica & Potencia',
-    heroImage: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&q=80&w=1200',
+    heroImage: pichinchaHeroImg,
     actionImages: [
       {
         title: 'Pase en Profundidad del Quarterback',
         description: 'Lectura de cobertura y precisión en rutas aéreas.',
-        url: 'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?auto=format&fit=crop&q=80&w=600',
+        url: basketHeroImg,
         tag: 'Pase QB'
       },
       {
         title: 'Línea de Golpeo & Bloqueo',
         description: 'Duelo en las trincheras y protección del mariscal.',
-        url: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&q=80&w=600',
+        url: volleyHeroImg,
         tag: 'Tackle'
       },
       {
         title: 'Flag Football Olímpico 5v5',
         description: 'Extracción limpia de cintas y velocidad en espacio abierto.',
-        url: 'https://images.unsplash.com/photo-1544298621-35a9634e0622?auto=format&fit=crop&q=80&w=600',
+        url: pichinchaHeroImg,
         tag: 'Flag'
       }
     ],
@@ -391,24 +396,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Artes Marciales, MMA & Boxeo',
     tagline: 'Octágono, ring y tatami con pesaje biométrico y tarjetas de 3 jueces 10-9 Must',
     badge: '🥋 Honor & Combate',
-    heroImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
+    heroImage: soccerHeroImg,
     actionImages: [
       {
         title: 'Combate en Octágono Profesional',
         description: 'Control de rounds de 5 minutos, sumisiones y striking.',
-        url: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'MMA Pro'
       },
       {
         title: 'Báscula y Pesaje Oficial',
         description: 'Registro biométrico previo para cumplimiento de división.',
-        url: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'Pesaje'
       },
       {
         title: 'Jiu-Jitsu & Grappling No-Gi',
         description: 'Puntuación IBJJF en tiempo real y finalizaciones por sumisión.',
-        url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Tatami'
       }
     ],
@@ -431,24 +436,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Tenis Singles & Dobles',
     tagline: 'Ranking ATP/ITF dinámico, gestión de cuadros de eliminación y súper tie-breaks',
     badge: '🎾 Pista & Circuito',
-    heroImage: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&q=80&w=1200',
+    heroImage: CINEMATIC_ASSETS.stadiumBroadcast,
     actionImages: [
       {
         title: 'Saque As a 200 KM/H',
         description: 'Registro de primeros servicios y efectividad de quiebre.',
-        url: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&q=80&w=600',
+        url: basketHeroImg,
         tag: 'Saque As'
       },
       {
         title: 'Intercambio desde el Fondo en Arcilla',
         description: 'Estadísticas de winners de revés y errores no forzados.',
-        url: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&q=80&w=600',
+        url: volleyHeroImg,
         tag: 'Arcilla'
       },
       {
         title: 'Definición en la Red de Dobles',
         description: 'Coordinación táctica de pareja y definición en tie-break.',
-        url: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&q=80&w=600',
+        url: pichinchaHeroImg,
         tag: 'Dobles'
       }
     ],
@@ -471,24 +476,24 @@ export const SPORT_VISUAL_THEMES: Record<SportCode, SportVisualTheme> = {
     name: 'Multideporte & Disciplinas Adaptables',
     tagline: 'Esquema modular para cualquier deporte federado o comunal que requiera liga',
     badge: '🏆 Modular 100%',
-    heroImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
+    heroImage: pichinchaHeroImg,
     actionImages: [
       {
         title: 'Competición Multidisciplinaria',
         description: 'Adaptable a deportes de raqueta, combate, césped o pista.',
-        url: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.goalMoment,
         tag: 'Multideporte'
       },
       {
         title: 'Control de Participantes y Carnet QR',
         description: 'Identificación digital instantánea contra falsificaciones.',
-        url: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.clubTunnel,
         tag: 'Carnet QR'
       },
       {
         title: 'Podio y Premiación Final',
         description: 'Generación automática de tablas acumuladas y trofeos.',
-        url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&q=80&w=600',
+        url: CINEMATIC_ASSETS.varBooth,
         tag: 'Podio'
       }
     ],

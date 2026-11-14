@@ -5,6 +5,7 @@ import {
   Sliders, Award
 } from 'lucide-react';
 import { SportCode, Sport, Tenant } from '../../types';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface TacticalBoardProps {
   sport: Sport;
@@ -418,6 +419,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
   const [activeModality, setActiveModality] = useState<TacticalModality>(getInitialModality());
   const [showRivalTeam, setShowRivalTeam] = useState(true);
   const [draggedTokenId, setDraggedTokenId] = useState<string | null>(null);
+  const [tacticalPhase, setTacticalPhase] = useState<'BASE' | 'OFENSIVA' | 'REPLIEGUE'>('BASE');
 
   // Filter presets for active modality
   const currentPresets = TACTICAL_PRESETS.filter(p => p.modality === activeModality);
@@ -452,6 +454,7 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
     setSelectedPresetId(preset.id);
     setHomeTokens(preset.homeTokens);
     setAwayTokens(preset.awayTokens);
+    setTacticalPhase('BASE');
     setAiReport(null);
   };
 
@@ -460,7 +463,26 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
     if (p) {
       setHomeTokens(p.homeTokens);
       setAwayTokens(p.awayTokens);
+      setTacticalPhase('BASE');
     }
+  };
+
+  const handleSwitchPhase = (phase: 'BASE' | 'OFENSIVA' | 'REPLIEGUE') => {
+    setTacticalPhase(phase);
+    const p = TACTICAL_PRESETS.find((pr) => pr.id === selectedPresetId);
+    if (!p) return;
+    if (phase === 'BASE') {
+      setHomeTokens(p.homeTokens);
+      return;
+    }
+    const delta = phase === 'OFENSIVA' ? 10 : -9;
+    setHomeTokens(
+      p.homeTokens.map((t) =>
+        t.role === 'POR'
+          ? t
+          : { ...t, x: Math.max(12, Math.min(92, t.x + delta)) }
+      )
+    );
   };
 
   // Dragging / Moving token logic
@@ -600,42 +622,50 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
 
   return (
     <div className="space-y-6">
-      {/* TACTICAL BOARD BANNER */}
-      <div className="bg-gradient-to-r from-[#0a1b2a] via-[#05111c] to-[#030910] p-6 sm:p-8 rounded-3xl border border-cyan-500/35 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden card-3d-interactive">
-        <div className="corner-bracket-tl"></div>
-        <div className="corner-bracket-br"></div>
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="bg-cyan-400 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Layout className="w-3.5 h-3.5" />
-              <span>Pizarra Táctica Multideporte</span>
-            </span>
-            <span className="text-cyan-400 text-xs font-mono font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-              {sportName}
-            </span>
-            {tenant && (
-              <span className="text-emerald-400 text-xs font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                {tenant.name} ({tenant.domain})
-              </span>
-            )}
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-            Pizarra Táctica Inteligente para DTs & Arbitraje
-          </h1>
-          <p className="text-xs text-white/60 mt-1 max-w-2xl leading-relaxed">
-            Adaptada para cada deporte: <strong>Indor 7</strong> y <strong>Indor 9</strong> jugadores, <strong>Fútsal 5</strong> jugadores, <strong>Fútbol 11</strong>, <strong>Ecuavoley 3</strong>, <strong>Baloncesto</strong> y <strong>Pádel</strong>. Sincronizada con el subdominio de tu liga.
-          </p>
-        </div>
+      {/* TACTICAL BOARD BANNER CINEMÁTICO */}
+      <div className="cine-stage-frame bg-[#05111c]">
+        <div className="relative p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <img
+            src={CINEMATIC_ASSETS.stadiumBroadcast}
+            alt="Pizarra Táctica Estadio"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover opacity-35"
+          />
+          <div className="cine-scrim-hero" />
 
-        <div className="flex items-center gap-3 flex-wrap">
-          <button
-            onClick={handleGenerateAiReport}
-            disabled={generatingAi}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-teal-400 to-[#00ff66] hover:from-cyan-300 hover:to-emerald-300 text-black font-black px-5 py-3 rounded-2xl shadow-xl shadow-cyan-500/25 transition-all cursor-pointer whitespace-nowrap text-xs hover:scale-105 active:scale-95"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>{generatingAi ? 'Analizando Formación...' : 'Análisis Táctico Automatizado'}</span>
-          </button>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap text-xs font-mono">
+              <span className="text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Layout className="w-3.5 h-3.5 text-cyan-400" />
+                Pizarra Táctica Multideporte
+              </span>
+              <span className="text-white/25">·</span>
+              <span className="text-emerald-300 font-bold">{sportName}</span>
+              {tenant && (
+                <>
+                  <span className="text-white/25">·</span>
+                  <span className="text-slate-300">{tenant.name}</span>
+                </>
+              )}
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Pizarra Táctica Inteligente para DTs & Arbitraje
+            </h1>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Configuración táctica para <strong>Indor 7 &amp; 9</strong>, <strong>Fútsal 5</strong>, <strong>Fútbol 11</strong>, <strong>Ecuavoley 3</strong> y <strong>Baloncesto</strong> con transición de bloques en tiempo real.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-3 flex-wrap shrink-0">
+            <button
+              onClick={handleGenerateAiReport}
+              disabled={generatingAi}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-[#00ff66] hover:opacity-95 text-slate-950 font-black px-5 py-3 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap text-xs active:scale-95"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{generatingAi ? 'Analizando Formación...' : 'Análisis Táctico Automatizado'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -737,31 +767,50 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* IZQUIERDA: PIZARRA DE CANCHA VISUAL */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="bg-[#050b12] border border-cyan-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden card-3d-interactive">
-            <div className="corner-bracket-tl"></div>
-            <div className="corner-bracket-br"></div>
-
+          <div className="cine-surface p-5 sm:p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
               <div>
-                <span className="text-xs font-bold text-white flex items-center gap-2 font-mono">
-                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-                  <span>{court.tag}</span>
+                <span className="text-xs font-bold text-white font-mono block">
+                  {court.tag}
                 </span>
-                <p className="text-[11px] text-white/50 font-mono mt-0.5">
-                  Haz clic en una ficha y luego en cualquier zona de la cancha para reposicionarla libremente.
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  Haz clic en una ficha y luego en cualquier zona de la cancha para reposicionarla.
                 </p>
               </div>
 
-              {/* SELECTOR DE PRESETS DE LA MODALIDAD */}
-              <div className="flex gap-1.5 flex-wrap">
-                {currentPresets.map(preset => (
+              {/* SELECTOR DE FASE + PRESETS */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-1 bg-white/[0.04] p-1 rounded-lg border border-white/10 text-[11px] font-mono">
+                  {(
+                    [
+                      { id: 'BASE', label: 'Base' },
+                      { id: 'OFENSIVA', label: 'Presión Alta' },
+                      { id: 'REPLIEGUE', label: 'Repliegue' }
+                    ] as const
+                  ).map((ph) => (
+                    <button
+                      key={ph.id}
+                      type="button"
+                      onClick={() => handleSwitchPhase(ph.id)}
+                      className={`px-2.5 py-1 rounded cursor-pointer transition-colors ${
+                        tacticalPhase === ph.id
+                          ? 'bg-emerald-400 text-slate-950 font-bold'
+                          : 'text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      {ph.label}
+                    </button>
+                  ))}
+                </div>
+
+                {currentPresets.map((preset) => (
                   <button
                     key={preset.id}
                     onClick={() => handleSelectPreset(preset)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer font-mono ${
                       selectedPresetId === preset.id
-                        ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/30 font-black'
-                        : 'bg-black/50 text-white/60 hover:text-white border border-white/10'
+                        ? 'bg-cyan-400 text-slate-950 font-black'
+                        : 'bg-white/[0.04] text-slate-300 hover:text-white border border-white/10'
                     }`}
                   >
                     {preset.name}
@@ -770,14 +819,13 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
               </div>
             </div>
 
-            {/* SIMULADOR DE CANCHA */}
+            {/* SIMULADOR DE CANCHA CON ATMÓSFERA DE ESTADIO */}
             <div
               ref={boardRef}
               onClick={handleBoardClick}
               className={`relative w-full aspect-[16/9] ${court.bg} border-2 ${court.border} rounded-2xl overflow-hidden shadow-2xl select-none cursor-crosshair`}
             >
-              {/* LÁSER DE RASTREO TÁCTICO */}
-              <div className={`absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent ${court.laser} to-transparent shadow-[0_0_12px_#22d3ee] animate-laser-sweep pointer-events-none z-10`} />
+              <div className="cine-vignette" />
 
               {/* DEMARCACIÓN SEGÚN MODALIDAD */}
               {activeModality === 'ECUAVOLEY_3' ? (

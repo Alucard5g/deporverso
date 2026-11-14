@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Match } from '../../types';
 import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface ComputerVisionEdgeProps {
   match?: Match;
@@ -78,6 +79,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match, i
   const [detectedJersey, setDetectedJersey] = useState('10');
   const [confidenceScore, setConfidenceScore] = useState(98.4);
   const [detectedAction, setDetectedAction] = useState('Detección de Balón en Área de Meta');
+  const [overlayMode, setOverlayMode] = useState<'DORSAL' | 'BALON' | 'CALIBRACION'>('DORSAL');
 
   // Generador de Clips 9:16 State
   const [isGeneratingClip, setIsGeneratingClip] = useState(false);
@@ -244,92 +246,166 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match, i
         </div>
       )}
 
-      {/* Main Module Header Banner with Admin Status */}
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-              <Cpu className="w-3 h-3" /> Módulo de Cámaras & Visión de Cancha
-            </span>
-            <span className="text-white/40 text-xs font-mono">Seguimiento Inteligente de Jugadas</span>
+      {/* Main Module Header Banner with Photorealistic Frame */}
+      <div className="cine-stage-frame bg-[#080d1a]">
+        <div className="relative p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <img
+            src={CINEMATIC_ASSETS.stadiumBroadcast}
+            alt="Cámaras en Cancha"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover opacity-35"
+          />
+          <div className="cine-scrim-hero" />
 
-            {/* Admin Badge */}
-            {isAdminAuthorized ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                ADMIN AUTORIZADO
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap text-xs font-mono">
+              <span className="text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                Visión Computacional en Cancha
               </span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setSecurityModalTitle('Desbloquear Visión & Cámaras en Cancha');
-                  setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para operar las cámaras de visión y clips.');
-                  setShowSecurityModal(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[10px] font-bold cursor-pointer transition-all shadow-sm animate-pulse"
-              >
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
-              </button>
-            )}
+              <span className="text-white/25">·</span>
+              {isAdminAuthorized ? (
+                <span className="inline-flex items-center gap-1 text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  ADMIN AUTORIZADO
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSecurityModalTitle('Desbloquear Visión & Cámaras en Cancha');
+                    setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para operar las cámaras de visión y clips.');
+                    setShowSecurityModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[11px] font-bold cursor-pointer transition-all"
+                >
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>
+                </button>
+              )}
+            </div>
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              Cámaras en Cancha para Mesa de Control & Generación 9:16
+            </h1>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+              Detección automática de dorsales, trayectoria del balón y extracción cinemática de clips verticales 1080×1920 para redes sociales.
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-white">Cámaras en Cancha para Mesa de Control & Generación 9:16</h1>
-          <p className="text-xs text-white/50 mt-1">
-            Detección automática de dorsales de jugadores, seguimiento de balón y extracción cinemática de clips verticales (1080x1920) para redes sociales en menos de 1 segundo.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={triggerRescan}
-            className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap text-xs"
-          >
-            {!isAdminAuthorized ? (
-              <Lock className="w-4 h-4 text-black" />
-            ) : (
-              <RefreshCw className={`w-4 h-4 ${isProcessing ? 'animate-spin' : ''}`} />
-            )}
-            Escanear Cancha en Vivo
-          </button>
+          <div className="relative z-10 flex items-center gap-3 shrink-0">
+            <button
+              onClick={triggerRescan}
+              className="inline-flex items-center gap-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap text-xs"
+            >
+              {!isAdminAuthorized ? (
+                <Lock className="w-4 h-4 text-slate-950" />
+              ) : (
+                <RefreshCw className={`w-4 h-4 ${isProcessing ? 'animate-spin' : ''}`} />
+              )}
+              <span>Escanear Cancha en Vivo</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Video Feed Simulation with AI Overlays */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Feed Container */}
-        <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-4 space-y-4 shadow-2xl">
-          <div className="relative rounded-xl overflow-hidden bg-[#050505] border border-white/10 aspect-video flex items-center justify-center">
-            {/* Sample Stadium / Sports Image */}
-            <img
-              src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1000"
-              alt="Match Feed"
-              className="w-full h-full object-cover opacity-80"
-            />
-
-            {/* AI Bounding Box Overlay Simulation */}
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-cyan-400 bg-cyan-500/10 p-2 rounded-lg text-center backdrop-blur-xs shadow-lg animate-pulse">
-              <span className="bg-cyan-500 text-black font-bold text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider">
-                Dorsal #{detectedJersey} ({confidenceScore}%)
-              </span>
-              <div className="w-16 h-20 border border-cyan-400/60 mt-1 mx-auto rounded"></div>
+        <div className="lg:col-span-2 cine-surface p-4 space-y-4">
+          {/* Interactive Overlay Mode Switcher */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/10">
+              {(
+                [
+                  { id: 'DORSAL', label: 'Tracking Dorsal' },
+                  { id: 'BALON', label: 'Trayectoria Balón' },
+                  { id: 'CALIBRACION', label: 'Calibración Cancha' }
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setOverlayMode(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                    overlayMode === tab.id
+                      ? 'bg-cyan-400 text-slate-950 font-bold'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
+            <span className="text-[11px] font-mono text-slate-400 tabular-nums">
+              Cámara Principal · 60 FPS
+            </span>
+          </div>
+
+          <div className="relative rounded-xl overflow-hidden bg-[#050505] border border-white/10 aspect-video flex items-center justify-center">
+            <img
+              src={CINEMATIC_ASSETS.goalMoment}
+              alt="Transmisión táctica de cancha"
+              referrerPolicy="no-referrer"
+              className={`w-full h-full object-cover transition-all duration-500 ${
+                isProcessing ? 'brightness-75 scale-[1.02]' : 'brightness-90'
+              }`}
+            />
+            <div className="cine-vignette" />
+
+            {/* Calibración de Cancha Grid */}
+            {overlayMode === 'CALIBRACION' && (
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-8 border border-dashed border-emerald-400/70 rounded" />
+                <div className="absolute top-1/2 inset-x-8 h-px bg-cyan-400/60" />
+                <div className="absolute left-1/2 inset-y-8 w-px bg-cyan-400/60" />
+                <div className="absolute bottom-4 right-4 bg-black/80 px-2.5 py-1 rounded text-[11px] font-mono text-emerald-300 border border-emerald-500/40 tabular-nums">
+                  HOMOGRAFÍA ACTIVA · ERROR &lt; 1.8 cm
+                </div>
+              </div>
+            )}
+
+            {/* Bounding Box Dorsal */}
+            {(overlayMode === 'DORSAL' || overlayMode === 'CALIBRACION') && (
+              <div
+                className={`absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-cyan-400 bg-cyan-500/10 p-2 rounded-lg text-center backdrop-blur-xs shadow-lg tabular-nums ${
+                  isProcessing ? 'animate-pulse' : ''
+                }`}
+              >
+                <span className="bg-cyan-400 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider">
+                  Dorsal #{detectedJersey} ({confidenceScore}%)
+                </span>
+                <div className="w-16 h-20 border border-cyan-400/60 mt-1 mx-auto rounded" />
+              </div>
+            )}
 
             {/* Ball Tracker */}
-            <div className="absolute top-1/2 left-2/3 border-2 border-amber-400 rounded-full w-8 h-8 flex items-center justify-center bg-amber-400/20 animate-bounce">
-              <span className="text-[9px] font-black text-amber-300">BALÓN</span>
-            </div>
+            {(overlayMode === 'BALON' || overlayMode === 'CALIBRACION') && (
+              <>
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path
+                    d="M 48 62 Q 58 38 68 50"
+                    fill="none"
+                    stroke="rgba(251,191,36,0.75)"
+                    strokeWidth="0.6"
+                    strokeDasharray="2 1.5"
+                  />
+                </svg>
+                <div className="absolute top-1/2 left-2/3 border-2 border-amber-400 rounded-full w-10 h-10 flex items-center justify-center bg-amber-400/20 shadow-lg">
+                  <span className="text-[9px] font-black text-amber-200">BALÓN</span>
+                </div>
+              </>
+            )}
 
             {/* Live Indicator */}
-            <div className="absolute top-4 left-4 bg-[#0a0a0a]/90 text-white text-xs px-3 py-1 rounded-full border border-white/10 flex items-center gap-2 font-mono">
-              <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" />
-              <span>CÁMARA TÁCTICA DEPORTIVA - 60 FPS</span>
+            <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[11px] px-3 py-1 rounded-lg border border-white/15 flex items-center gap-2 font-mono tabular-nums">
+              <Radio className="w-3.5 h-3.5 text-red-400" />
+              <span>CÁMARA TÁCTICA · {overlayMode}</span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50 bg-[#121212] p-3 rounded-xl border border-white/10">
-            <span>Visión Inteligente en Cancha</span>
-            <span className="text-cyan-400 font-mono font-bold">Latencia Inferencia: 12ms</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 bg-white/[0.03] p-3 rounded-xl border border-white/10 tabular-nums">
+            <span>Visión Inteligente en Cancha · {match ? `${match.home_team?.name || 'Local'} vs ${match.away_team?.name || 'Visita'}` : 'Señal Principal'}</span>
+            <span className="text-cyan-400 font-mono font-bold">Latencia Inferencia: {workerLatency || 12}ms</span>
           </div>
 
           {/* AUTO-HIGHLIGHT GENERATOR 9:16 TRIGGER CARD */}

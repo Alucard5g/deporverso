@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Match, SportCode, Team, Tenant } from '../../types';
 import { SPORT_THEMES } from '../Navbar';
+import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
 
 interface MultiSportCalendarProps {
   matches: Match[];
@@ -187,48 +188,49 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
         </div>
       )}
 
-      {/* 3D CYBER BANNER PRINCIPAL */}
-      <div className="bg-gradient-to-r from-[#03101d] via-[#051829] to-[#040813] p-6 sm:p-8 rounded-3xl border border-cyan-500/35 shadow-2xl relative overflow-hidden card-3d-interactive cyber-sheen-effect">
-        <div className="corner-bracket-tl"></div>
-        <div className="corner-bracket-br"></div>
+      {/* CINEMATIC STADIUM FIXTURE BANNER */}
+      <div className="cine-stage-frame min-h-[210px] p-6 sm:p-8 border border-white/[0.08] flex flex-col justify-end">
+        <img
+          src={CINEMATIC_ASSETS.stadiumBroadcast}
+          alt="Estadio iluminado - Fixture Deporverso"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="cine-scrim-hero" />
 
-        {/* Ambient glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-mono font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-md">
+              <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono font-bold text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1.5">
                 <CalendarIcon className="w-3 h-3" />
-                <span>Calendario Cuántico Multideporte</span>
+                <span>Calendario Oficial Multideporte</span>
               </span>
-              <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-mono text-xs px-3 py-0.5 rounded-full font-bold">
+              <span className="text-cyan-300/90 font-mono text-xs font-semibold">
                 Temporada Oficial 2026
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
               Fixture Global & Programación de Partidos
             </h1>
-            <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-2xl leading-relaxed">
-              Consulta en tiempo real los encuentros de todas las fechas y ligas en <strong>Fútbol 11, Baloncesto, Ecuavoley, Pádel y Fútsal</strong>. Designaciones arbitrales, sedes georreferenciadas y sincronización universal con Google Calendar y iCal.
+            <p className="text-xs sm:text-sm text-slate-200/85 mt-1.5 max-w-2xl leading-relaxed">
+              Consulta en tiempo real los encuentros de todas las fechas y ligas en <strong className="text-white">Fútbol 11, Indor Fútbol 9/7 y Fútsal 5</strong>. Designaciones arbitrales, sedes y sincronización con Google Calendar y iCal.
             </p>
 
             {/* QUICK STATS CHIPS */}
-            <div className="flex items-center gap-2.5 mt-4 flex-wrap">
-              <div className="bg-black/60 border border-red-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                <span className="text-[11px] font-mono text-white/70">En Vivo:</span>
+            <div className="flex items-center gap-2.5 mt-4 flex-wrap tabular-nums">
+              <div className="bg-black/65 backdrop-blur-md border border-red-500/35 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+                <Radio className="w-3.5 h-3.5 text-red-400" />
+                <span className="text-[11px] font-mono text-slate-300">En Vivo:</span>
                 <strong className="text-xs font-mono font-black text-red-400">{liveCount}</strong>
               </div>
-              <div className="bg-black/60 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+              <div className="bg-black/65 backdrop-blur-md border border-cyan-500/35 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-[11px] font-mono text-white/70">Programados:</span>
+                <span className="text-[11px] font-mono text-slate-300">Programados:</span>
                 <strong className="text-xs font-mono font-black text-cyan-400">{schedCount}</strong>
               </div>
-              <div className="bg-black/60 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+              <div className="bg-black/65 backdrop-blur-md border border-emerald-500/35 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[11px] font-mono text-white/70">Finalizados:</span>
+                <span className="text-[11px] font-mono text-slate-300">Finalizados:</span>
                 <strong className="text-xs font-mono font-black text-emerald-400">{finishCount}</strong>
               </div>
             </div>
@@ -238,7 +240,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <button
               onClick={handleExportICS}
-              className="bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black px-5 py-3 rounded-2xl shadow-xl shadow-emerald-500/20 text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-105 active:scale-95"
+              className="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-5 py-3 rounded-xl shadow-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               title="Descargar archivo .ics compatible con Google Calendar, Apple y Outlook"
             >
               <Download className="w-4 h-4" />
@@ -247,7 +249,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
 
             <button
               onClick={() => window.print()}
-              className="bg-black/60 hover:bg-white/10 text-white border border-white/10 px-4 py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg"
+              className="bg-black/65 hover:bg-white/10 text-white border border-white/15 px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               title="Imprimir o guardar cronograma en PDF"
             >
               <Printer className="w-4 h-4 text-cyan-400" />
@@ -258,7 +260,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
       </div>
 
       {/* FILTER & VIEW CONTROLS */}
-      <div className="bg-[#080d1a]/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-4 sm:p-5 space-y-4 shadow-xl">
+      <div className="cine-surface rounded-2xl p-4 sm:p-5 space-y-4">
         {/* FOOTBALL LAUNCH MODALITY CHIPS (Fútbol 11, Indor 9, Indor 7, Fútsal 5) */}
         <div className="deporverso-segmented-nav no-scrollbar flex items-center gap-1.5 overflow-x-auto">
           <button
@@ -402,32 +404,29 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
             return (
               <div 
                 key={match.id}
-                className="bg-gradient-to-b from-[#09111c] to-[#040810] rounded-3xl border border-white/10 hover:border-cyan-500/40 p-5 space-y-4 shadow-xl transition-all card-3d-interactive relative overflow-hidden group flex flex-col justify-between"
+                className="cine-surface rounded-2xl border border-white/[0.08] hover:border-cyan-500/40 p-5 space-y-4 transition-colors relative overflow-hidden group flex flex-col justify-between tabular-nums"
               >
-                <div className="corner-bracket-tl"></div>
-                <div className="corner-bracket-br"></div>
-
                 <div>
                   {/* TOP CARD HEADER */}
                   <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
                     <div className="flex items-center gap-1.5">
                       <span className="text-base">{theme.icon}</span>
-                      <span className="text-[11px] font-mono font-bold text-white/70">
+                      <span className="text-[11px] font-mono font-bold text-white/75">
                         {match.match_data?.round || 'Fase Regular'}
                       </span>
                     </div>
 
                     {isLive ? (
-                      <span className="bg-red-500/15 border border-red-500/40 text-red-400 font-mono text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-[0_0_10px_rgba(239,68,68,0.3)]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span>
+                      <span className="bg-red-500/15 border border-red-500/40 text-red-400 font-mono text-[10px] font-black px-2.5 py-0.5 rounded flex items-center gap-1.5">
+                        <Radio className="w-3 h-3" />
                         <span>EN VIVO {match.match_data?.current_period ? `• ${match.match_data.current_period}` : ''}</span>
                       </span>
                     ) : isFinished ? (
-                      <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded">
                         FINALIZADO
                       </span>
                     ) : (
-                      <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" />
                         <span>PROGRAMADO</span>
                       </span>
@@ -582,7 +581,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
 
       {/* VISTA 2: AGENDA CRONOLÓGICA */}
       {viewMode === 'agenda' && (
-        <div className="bg-[#080e18] rounded-3xl border border-white/10 p-6 space-y-6 shadow-2xl">
+        <div className="cine-surface rounded-2xl p-6 space-y-6 tabular-nums">
           <div className="space-y-4">
             {filteredMatches.map((match, idx) => {
               const home = getTeam(match.home_team_id);
@@ -669,7 +668,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
 
       {/* VISTA 3: CALENDARIO MENSUAL / MATRIZ */}
       {viewMode === 'month' && (
-        <div className="bg-[#080e18] rounded-3xl border border-white/10 p-6 space-y-6 shadow-2xl">
+        <div className="cine-surface rounded-2xl p-6 space-y-6 tabular-nums">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-black text-white flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-cyan-400" />
@@ -704,9 +703,11 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-black text-white/70">{dayNumber}</span>
+                    <span className="font-mono text-xs font-black text-white/80">{dayNumber}</span>
                     {dayMatches.length > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="text-[10px] font-mono font-bold text-emerald-400">
+                        {dayMatches.length} {dayMatches.length === 1 ? 'partido' : 'partidos'}
+                      </span>
                     )}
                   </div>
 
@@ -742,11 +743,9 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
           onClick={() => setSelectedMatchModal(null)}
         >
           <div 
-            className="bg-gradient-to-b from-[#0a1424] to-[#040810] border border-cyan-500/40 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 relative overflow-hidden card-3d-interactive"
+            className="cine-surface border border-cyan-500/40 rounded-2xl p-6 sm:p-8 max-w-xl w-full space-y-6 relative overflow-hidden tabular-nums"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="corner-bracket-tl"></div>
-            <div className="corner-bracket-br"></div>
 
             {/* HEADER MODAL */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">

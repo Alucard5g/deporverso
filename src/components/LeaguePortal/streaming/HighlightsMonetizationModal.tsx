@@ -17,6 +17,7 @@ import {
   Video
 } from 'lucide-react';
 import { Match, Team } from '../../../types';
+import { CINEMATIC_ASSETS } from '../../../data/cinematicAssets';
 
 interface HighlightClip {
   id: string;
@@ -61,7 +62,7 @@ export const HighlightsMonetizationModal: React.FC<HighlightsMonetizationModalPr
       title: "Golazo al ángulo de tiro libre - Tiro perfecto",
       minute: 23,
       type: 'goal',
-      videoThumbnail: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&auto=format&fit=crop&q=60',
+      videoThumbnail: CINEMATIC_ASSETS.goalMoment,
       previewUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       duration: '0:28',
       priceUsd: 0.99,
@@ -73,7 +74,7 @@ export const HighlightsMonetizationModal: React.FC<HighlightsMonetizationModalPr
       title: "Contragolpe letal y definición cruzada",
       minute: 58,
       type: 'goal',
-      videoThumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=60',
+      videoThumbnail: CINEMATIC_ASSETS.stadiumBroadcast,
       previewUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       duration: '0:35',
       priceUsd: 0.99,
@@ -85,7 +86,7 @@ export const HighlightsMonetizationModal: React.FC<HighlightsMonetizationModalPr
       title: "Cabezazo heroico de tiro de esquina",
       minute: 68,
       type: 'goal',
-      videoThumbnail: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=500&auto=format&fit=crop&q=60',
+      videoThumbnail: CINEMATIC_ASSETS.clubTunnel,
       previewUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       duration: '0:22',
       priceUsd: 0.99,
@@ -97,7 +98,7 @@ export const HighlightsMonetizationModal: React.FC<HighlightsMonetizationModalPr
       title: "Revisión VAR: Fuera de juego milimétrico en el área",
       minute: 72,
       type: 'var',
-      videoThumbnail: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=500&auto=format&fit=crop&q=60',
+      videoThumbnail: CINEMATIC_ASSETS.varBooth,
       previewUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       duration: '0:45',
       priceUsd: 0.99,

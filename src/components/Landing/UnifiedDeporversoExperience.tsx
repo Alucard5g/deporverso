@@ -11,6 +11,7 @@ import { ExclusiveOfferCheckoutModal } from '../Marketing/ExclusiveOfferCheckout
 import { CyberSportEcosystemStage } from './CyberSportEcosystemStage';
 import { useScrollProgress } from '../../hooks/useScrollProgress';
 import { ClubData } from '../../data/clubs';
+import { IpShieldBadge } from '../IpShieldBadge';
 
 import deporversoDarkBg from '../../assets/images/deporverso_dark_bg_1789426720628.jpg';
 import canchaTierraImg from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
@@ -107,7 +108,7 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
         />
 
         {/* Resplandor Cósmico */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[550px] bg-gradient-to-tr from-[#0066FF]/25 via-[#00F0FF]/15 to-transparent rounded-full blur-[90px] animate-pulse" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[550px] bg-gradient-to-tr from-[#0066FF]/20 via-[#00F0FF]/12 to-transparent rounded-full blur-[90px]" />
         <div className="absolute bottom-10 left-1/4 w-[500px] h-[400px] bg-[#0066FF]/15 rounded-full blur-[110px]" />
         
         {/* Dynamic Act Scene Images with Smooth Crossfade */}
@@ -156,16 +157,14 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
         {/* ======================================================== */}
         <section id="hero-section" className="flex flex-col justify-center px-4 sm:px-6 pt-10 pb-16 max-w-7xl mx-auto w-full min-h-[90vh]">
           
-          <div className="text-center max-w-4xl mx-auto pt-6 pb-4">
-            
-            {/* Píldora Superior: Badge Ecosistema Multideporte */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F172A]/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_20px_rgba(0,240,255,0.25)] text-xs font-semibold text-cyan-300 tracking-wider uppercase mb-6">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>ECOSISTEMA OFICIAL • FÚTBOL PRO, BALONCESTO, PÁDEL & C.I.G DEPORVERSO GAME</span>
-            </div>
+          <div className="text-center max-w-4xl mx-auto pt-4 pb-6">
+            {/* Eyebrow técnico sin ping decorativo */}
+            <p className="text-[11px] font-mono font-semibold text-[#00F0FF] tracking-[0.2em] uppercase mb-5">
+              ECOSISTEMA OFICIAL MULTIDEPORTE · FÚTBOL PRO, BALONCESTO, PÁDEL &amp; C.I.G GAME
+            </p>
 
             {/* Título Principal */}
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.08] mb-6">
+            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.06] mb-6">
               La Evolución Digital del <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-[#00F0FF]">
                 Deporte Organizado
@@ -173,18 +172,18 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
             </h1>
 
             {/* Párrafo Descriptivo Secundario */}
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed mb-8">
-              Orquestación integral de torneos y disciplinas deportivas: <strong>Fútbol Pro</strong> (11v11, Indor 7 y 9), <strong>Baloncesto Oficial</strong>, <strong>Tenis & Pádel</strong> y <strong>C.I.G Deporverso game</strong>. Vocalía digital sin papel, sistema VAR oficial y carnets QR antifraude.
+            <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed mb-8">
+              Orquestación integral de torneos y disciplinas deportivas: <strong>Fútbol Pro</strong> (11v11, Indor 7 y 9), <strong>Baloncesto Oficial</strong>, <strong>Tenis &amp; Pádel</strong> y <strong>C.I.G Deporverso game</strong>. Vocalía digital sin papel, sistema VAR oficial y carnets QR antifraude.
             </p>
 
             {/* Botones de Acción Oficial Deporverso */}
             <div className="flex flex-wrap items-center justify-center gap-3.5">
               <button
                 onClick={() => setShowCheckoutOfferModal(true)}
-                className="px-6 sm:px-8 py-3.5 rounded-full text-xs sm:text-sm font-black text-slate-950 tracking-wider uppercase bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00F0FF] hover:from-[#0052cc] hover:to-[#00d0dd] shadow-[0_0_30px_rgba(0,240,255,0.7)] hover:shadow-[0_0_40px_rgba(0,240,255,0.95)] border border-[#00F0FF]/50 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                className="px-6 sm:px-8 py-3.5 rounded-full text-xs sm:text-sm font-black text-slate-950 tracking-wider uppercase bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00F0FF] hover:from-[#0052cc] hover:to-[#00d0dd] shadow-[0_0_28px_rgba(0,240,255,0.5)] hover:shadow-[0_0_38px_rgba(0,240,255,0.85)] border border-[#00F0FF]/50 transition-all flex items-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
               >
                 <Tag className="w-4 h-4 text-slate-950" />
-                <span>Suscríbete y accede al 50% descuento</span>
+                <span>Suscribirse con 50% OFF</span>
               </button>
 
               <button
@@ -197,24 +196,46 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
                     handleScrollToSection('capacidades');
                   }
                 }}
-                className="px-6 sm:px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold text-[#00F0FF] bg-[#050B1A]/90 hover:bg-[#08122B] border-2 border-[#00F0FF]/60 hover:border-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] text-cyan-200 hover:text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95 animate-pulse"
+                className="px-6 sm:px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold bg-[#050B1A]/90 hover:bg-[#08122B] border border-[#00F0FF]/50 hover:border-[#00F0FF] text-cyan-200 hover:text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-4 h-4 text-[#00F0FF]" />
                 <span>Ver Demo Multiverso</span>
                 <ChevronRight className="w-3.5 h-3.5 text-[#00F0FF]" />
               </button>
             </div>
+
+            {/* Proof Strip de métricas operativas */}
+            <div className="mt-10 pt-7 border-t border-white/[0.08] grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+              <div className="px-3">
+                <span className="text-xl sm:text-2xl font-display font-extrabold text-white tabular-nums block">24+</span>
+                <span className="text-[11px] font-mono text-slate-400">Disciplinas homologadas</span>
+              </div>
+              <div className="px-3 sm:border-l border-white/[0.08]">
+                <span className="text-xl sm:text-2xl font-display font-extrabold text-[#00F0FF] tabular-nums block">$35 / $25</span>
+                <span className="text-[11px] font-mono text-slate-400">Club mayores / formativas</span>
+              </div>
+              <div className="px-3 sm:border-l border-white/[0.08]">
+                <span className="text-xl sm:text-2xl font-display font-extrabold text-emerald-400 tabular-nums block">0.4 s</span>
+                <span className="text-[11px] font-mono text-slate-400">Latencia replay VAR 4K</span>
+              </div>
+              <div className="px-3 sm:border-l border-white/[0.08]">
+                <span className="text-xl sm:text-2xl font-display font-extrabold text-amber-300 tabular-nums block">RFC 8032</span>
+                <span className="text-[11px] font-mono text-slate-400">Sello criptográfico CIG</span>
+              </div>
+            </div>
           </div>
 
           {/* ESCENARIO CYBERPUNK HIGH-TECH INTERACTIVO (DISCIPLINAS FLOTANTES Y DEPORVERSO CORE V2.4) */}
-          <CyberSportEcosystemStage
-            onSelectSport={(sport) => {
-              setActiveDiscipline(sport.toLowerCase());
-              if (onSelectSport) onSelectSport(sport);
-            }}
-            onNavigateTab={onNavigateTab}
-            onOpenCheckout={() => setShowCheckoutOfferModal(true)}
-          />
+          <div id="video-broadcast">
+            <CyberSportEcosystemStage
+              onSelectSport={(sport) => {
+                setActiveDiscipline(sport.toLowerCase());
+                if (onSelectSport) onSelectSport(sport);
+              }}
+              onNavigateTab={onNavigateTab}
+              onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+            />
+          </div>
 
         </section>
 
@@ -381,30 +402,29 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
         {/* PARTE 3: SECCIÓN DE CONVERSIÓN Y ACCIÓN DE SOFTWARE      */}
         {/* ======================================================== */}
         <div className="relative py-16 px-6 max-w-7xl mx-auto w-full text-center border-t border-b border-white/10 my-10 bg-gradient-to-r from-transparent via-[#0066FF]/10 to-transparent">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#080F24] border border-[#00F0FF]/40 text-xs font-mono text-[#00F0FF] mb-4">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span>LANZAMIENTO OFICIAL LATAM</span>
-          </div>
+          <p className="text-[11px] font-mono font-semibold text-[#00F0FF] tracking-[0.2em] uppercase mb-3">
+            LANZAMIENTO OFICIAL LATAM
+          </p>
 
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
             Transforma la Operación de Tu Liga Hoy
           </h2>
 
           <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed mb-8">
-            Únete a la plataforma multideporte de alta precisión: sistema VAR oficial, vocalía digital en vivo, subdominio propio y carnets QR con un 50% de descuento ($35 por club y por torneo en vez de precio real $70) para las primeras 10 ligas.
+            Únete a la plataforma multideporte de alta precisión: sistema VAR oficial, vocalía digital en vivo, subdominio propio y carnets QR con un 50% de descuento ($35 por club mayores · $25 por club formativas por torneo) para las primeras 10 ligas.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => setShowCheckoutOfferModal(true)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00F0FF] hover:from-[#0052cc] hover:to-[#00d0dd] text-slate-950 text-sm font-black uppercase tracking-wider shadow-[0_0_30px_rgba(0,240,255,0.7)] hover:shadow-[0_0_40px_rgba(0,240,255,0.95)] border border-[#00F0FF]/50 transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00F0FF] hover:from-[#0052cc] hover:to-[#00d0dd] text-slate-950 text-sm font-black uppercase tracking-wider shadow-[0_0_28px_rgba(0,240,255,0.5)] hover:shadow-[0_0_38px_rgba(0,240,255,0.85)] border border-[#00F0FF]/50 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <Tag className="w-4 h-4 text-slate-950" />
-              <span>Suscríbete y accede al 50% descuento</span>
+              <span>Suscribirse con 50% OFF</span>
             </button>
             <button
               onClick={() => onNavigateTab('league')}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#050B1A]/90 hover:bg-[#08122B] text-cyan-200 hover:text-white text-sm font-bold border-2 border-[#00F0FF]/60 hover:border-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.35)] transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#050B1A]/90 hover:bg-[#08122B] text-cyan-200 hover:text-white text-sm font-bold border border-[#00F0FF]/50 hover:border-[#00F0FF] transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <Trophy className="w-4 h-4 text-[#00F0FF]" />
               <span>Ver Portal de Liga</span>
@@ -515,9 +535,10 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
 
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
               <p>© 2026 DeporVerso • CORPORACIÓN E INNOVACIÓN GUERRA (CIG). Todos los derechos reservados.</p>
-              <div className="flex items-center gap-4">
-                <span>Quito • Guayaquil • Cuenca • LATAM</span>
+              <div className="flex flex-wrap items-center gap-4">
+                <span>Quito · Guayaquil · Cuenca · LATAM</span>
                 <span>Soporte: 0958610578</span>
+                <IpShieldBadge />
               </div>
             </div>
 

@@ -1,9 +1,7 @@
 import React from 'react';
 import { UnifiedDeporversoExperience } from './UnifiedDeporversoExperience';
 import { Tenant, UserRole } from '../../types';
-import { 
-  ArrowRight, UserPlus, Tag, Flame, CheckCircle2, Shield, Sparkles, Video, ExternalLink
-} from 'lucide-react';
+import { ArrowRight, Sparkles, UserPlus } from 'lucide-react';
 
 interface WelcomePageProps {
   onNavigateTab: (tab: string) => void;
@@ -24,8 +22,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
   onAddTenant,
   onOpenStepTour,
   onOpenAuthModal,
-  isAuthenticated = false,
-  hasPaidFullAccess = false
+  isAuthenticated = false
 }) => {
   const handleEnter = (tabKey: string = 'league') => {
     if (onEnterFullPlatform) {
@@ -44,115 +41,100 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
 
   return (
     <div className="w-full min-h-screen relative bg-[#030611] text-slate-100 selection:bg-cyan-500 selection:text-black">
-      
       {/* ============================================================== */}
-      {/* 1. BANNER PROMOCIONAL SUPERIOR: 50% OFF LANZAMIENTO           */}
+      {/* HEADER ÚNICO DE NAVEGACIÓN (3 ZONAS LIMPIAS Y EN UNA LÍNEA)     */}
       {/* ============================================================== */}
-      <div className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#0066FF] via-[#00F0FF] to-[#0066FF] p-[1px] shadow-[0_4px_25px_rgba(0,102,255,0.4)]">
-        <div className="bg-[#030712]/95 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="flex items-center gap-1.5 font-black text-amber-300">
-              <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
-              OFERTA DE LANZAMIENTO (50% OFF):
-            </span>
-            <span className="text-slate-200">
-              Solo <strong className="text-cyan-300 font-black text-sm">$35 por club y por torneo</strong>
-              <span className="text-slate-400 ml-1.5 line-through font-mono">(Precio real: $70)</span>
-            </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-mono font-bold border border-red-500/40 animate-pulse">
-              ¡Cupos con 50% de descuento activos!
+      <header className="sticky top-0 z-50 w-full bg-[#030712]/90 backdrop-blur-xl border-b border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* ZONA 1: IDENTIDAD DE MARCA + INFO DE LANZAMIENTO COMPACTA */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-2.5 cursor-pointer text-left"
+            >
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#00F0FF] p-[1.5px] shadow-md shadow-cyan-500/20">
+                <div className="w-full h-full bg-[#050A18] rounded-[10px] flex items-center justify-center font-mono font-black text-xs text-white">
+                  DV
+                </div>
+              </div>
+              <span className="font-display text-lg font-extrabold tracking-tight text-white">
+                Depor<span className="text-[#00F0FF]">Verso</span>
+              </span>
+            </button>
+            <span className="hidden xl:inline-flex items-center gap-1.5 text-[11px] font-mono text-amber-300/95 pl-3 border-l border-white/10 whitespace-nowrap">
+              50% OFF Lanzamiento · $35 mayores / $25 formativas
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* ZONA 2: ENLACES DE NAVEGACIÓN DE UNA LÍNEA */}
+          <nav className="hidden md:flex items-center gap-1 text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => scrollToElement('hero-section')}
+              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              Ecosistema
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToElement('video-broadcast')}
+              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              Broadcast & VAR
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToElement('capacidades')}
+              className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              Capacidades
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated && onOpenAuthModal) {
+                  onOpenAuthModal('register');
+                } else {
+                  handleEnter('league');
+                }
+              }}
+              className="px-3 py-1.5 rounded-lg text-cyan-300 hover:text-white hover:bg-cyan-500/10 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 font-semibold"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#00F0FF]" />
+              <span>{isAuthenticated ? 'Ir al Portal Demo' : 'Ver Demo en Vivo'}</span>
+            </button>
+          </nav>
+
+          {/* ZONA 3: AUTENTICACIÓN + CTA PRINCIPAL ÚNICO */}
+          <div className="flex items-center gap-2 shrink-0">
             {!isAuthenticated && onOpenAuthModal && (
               <button
-                onClick={() => onOpenAuthModal('register')}
-                className="px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[11px] shadow transition-all cursor-pointer flex items-center gap-1"
+                type="button"
+                onClick={() => onOpenAuthModal('login')}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
-                <UserPlus className="w-3 h-3 text-slate-950" />
-                <span>Registrarse en la App</span>
+                <UserPlus className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Ingresar</span>
               </button>
             )}
 
             <button
+              type="button"
               onClick={() => onNavigateTab('exclusive-offer')}
-              className="px-3.5 py-1 rounded-full bg-gradient-to-r from-[#0066FF] to-[#00F0FF] hover:opacity-90 text-slate-950 font-black text-[11px] shadow-[0_0_15px_rgba(0,240,255,0.6)] flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-[#0066FF] to-[#00F0FF] hover:opacity-95 text-slate-950 font-extrabold text-xs shadow-[0_0_20px_rgba(0,240,255,0.35)] flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 whitespace-nowrap shrink-0"
             >
-              <span>Suscríbete y accede al 50% descuento</span>
-              <ArrowRight className="w-3 h-3 text-slate-950" />
+              <span>Suscribirse 50% OFF</span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ============================================================== */}
-      {/* 2. SUB-BARRA DE NAVEGACIÓN RÁPIDA EN INICIO                   */}
+      {/* CONTENIDO PRINCIPAL: ECOSISTEMA DEPORVERSO                     */}
       {/* ============================================================== */}
-      <div className="bg-[#050B1B]/90 backdrop-blur-xl border-b border-cyan-500/20 px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-base font-black text-white tracking-tight">
-              Depor<span className="text-cyan-400">Verso</span>
-            </span>
-            <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono px-2 py-0.5 rounded-full font-bold">
-              INICIO
-            </span>
-          </div>
-        </div>
-
-        {/* Accesos rápidos dentro de la página */}
-        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-          <button
-            onClick={() => {
-              if (!isAuthenticated && onOpenAuthModal) {
-                onOpenAuthModal('register');
-              } else {
-                handleEnter('league');
-              }
-            }}
-            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/40 text-cyan-300 font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.25)] transform hover:scale-105 active:scale-95"
-            title="Acceder a la demo de la Liga Pichincha y el Club Deporverso"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{isAuthenticated ? 'Demo Liga Pichincha & Club Deporverso' : 'Registrarse para Ver Demo'}</span>
-          </button>
-
-          <button
-            onClick={() => scrollToElement('ecosistema')}
-            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/15 text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1.5"
-          >
-            <Shield className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Ecosistema Multideporte</span>
-          </button>
-
-          <button
-            onClick={() => scrollToElement('video-broadcast')}
-            className="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
-            title="Ver video comercial de DeporVerso"
-          >
-            <Video className="w-3.5 h-3.5 text-blue-400" />
-            <span>Ver Comercial</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTab('exclusive-offer')}
-            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:opacity-95 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(251,191,36,0.5)] transition-all cursor-pointer flex items-center gap-1.5 transform hover:scale-105 active:scale-95"
-          >
-            <Tag className="w-3.5 h-3.5 text-slate-950" />
-            <span>Suscríbete y accede al 50% descuento</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ============================================================== */}
-      {/* 3. CONTENIDO PRINCIPAL: ECOSISTEMA                             */}
-      {/* ============================================================== */}
-      <div className="space-y-16 pb-12">
-
-        {/* ------------------------------------------------------------ */}
-        {/* SECCIÓN A: MANIFIESTO, LOS 4 ACTOS Y ECOSISTEMA DEPORTIVO   */}
-        {/* ------------------------------------------------------------ */}
+      <div className="w-full">
         <section id="ecosistema" className="w-full">
           <UnifiedDeporversoExperience
             onNavigateTab={handleEnter}
@@ -169,9 +151,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
             }}
           />
         </section>
-
       </div>
-
     </div>
   );
 };

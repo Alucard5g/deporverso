@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { getAthletePortrait } from '../../data/cinematicAssets';
 import { 
   Users, 
   Award, 
@@ -509,8 +510,9 @@ export const ClubAndRosterDetail: React.FC<ClubAndRosterDetailProps> = ({
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img 
-                          src={item.player.photo_url || 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=100'} 
+                          src={item.player.photo_url || getAthletePortrait(item.player.id)} 
                           alt={item.player.full_name} 
+                          referrerPolicy="no-referrer"
                           className="w-9 h-9 rounded-xl object-cover border border-amber-400/40 shrink-0"
                         />
                         <div>
@@ -632,8 +634,9 @@ export const ClubAndRosterDetail: React.FC<ClubAndRosterDetailProps> = ({
                       #{idx + 1}
                     </div>
                     <img 
-                      src={item.player.photo_url || 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=100'} 
+                      src={item.player.photo_url || getAthletePortrait(item.player.id)} 
                       alt={item.player.full_name} 
+                      referrerPolicy="no-referrer"
                       className="w-10 h-10 rounded-xl object-cover border border-emerald-500/40"
                     />
                     <div>
@@ -675,8 +678,9 @@ export const ClubAndRosterDetail: React.FC<ClubAndRosterDetailProps> = ({
                       #{idx + 1}
                     </div>
                     <img 
-                      src={item.player.photo_url || 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=100'} 
+                      src={item.player.photo_url || getAthletePortrait(item.player.id)} 
                       alt={item.player.full_name} 
+                      referrerPolicy="no-referrer"
                       className="w-10 h-10 rounded-xl object-cover border border-cyan-500/40"
                     />
                     <div>
