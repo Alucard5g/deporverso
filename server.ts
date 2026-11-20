@@ -10,6 +10,7 @@ import { varHighlightRouter } from "./server/routes/varHighlightRoutes.ts";
 import { pdfReportRouter } from "./server/routes/pdfReportRoutes.ts";
 import { workerRoutes } from "./server/routes/workerRoutes.ts";
 import { openTimestampsRouter } from "./server/routes/openTimestampsRoutes.ts";
+import { authRouter } from "./server/routes/authRoutes.ts";
 import { attachStreamStudioRealtime } from "./server/realtime/streamStudioWs.ts";
 import { 
   antiScrapingMiddleware, 
@@ -37,6 +38,9 @@ async function startServer() {
   const PORT = cliPort || envPort || 3000;
 
   app.use(express.json({ limit: "10mb" }));
+
+  // Autenticación Real & Sincronización de Usuarios CIG en Tiempo Real
+  app.use("/api/auth", authRouter);
 
   // DeporVerso Enterprise Multi-Tenant & Heroes VR API
   app.use("/api/deporverso", deporversoRouter);

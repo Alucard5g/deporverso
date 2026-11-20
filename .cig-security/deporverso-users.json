@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "revision": 11,
+  "updatedAt": "2026-11-20T14:51:20.401Z",
+  "users": [
+    {
+      "id": "u-roly3d",
+      "email": "roly3d.rg@gmail.com",
+      "name": "Roly (Administrador Único CIG)",
+      "role": "SUPER_ADMIN",
+      "status": "ACTIVO",
+      "createdAt": "2026-09-29",
+      "updatedAt": "2026-09-29T00:00:00.000Z",
+      "passwordHash": "b6796318a61ef218afb97b9045a4604c:07a6f4a90c4d72cae4e1f3d1de4dda75b04c5bd9a9269825f308188e524998aa48c3548a67ff37386b216cbad9bec497cbdd91d284b40fbe18d73bebbc0b013f",
+      "passwordEncrypted": "66cc5a8e4af4106144298b4b:0ed7a343d4ec03325a12dc6a54b67b48:3ca55de7"
+    },
+    {
+      "id": "u-operador",
+      "email": "operador@deporverso.com",
+      "name": "Operador de Mesa & Vocalía",
+      "role": "LEAGUE_ADMIN",
+      "status": "ACTIVO",
+      "createdAt": "2026-09-29",
+      "updatedAt": "2026-09-29T00:00:00.000Z",
+      "passwordHash": "831ea36a512b054139b3054ed51633e1:35a3186faa717c66975ae21342d5044572c61b953264ae81feb9a5fadf84d97147e0a15898401eb80061b1b29dce59f93911f92fead91607254f896df3b55bce",
+      "passwordEncrypted": "105b821ae13f37935359afb5:07cb48cf7b6721cc60f6343655952fe7:4eff27be"
+    },
+    {
+      "id": "u-scout",
+      "email": "scouting@deporverso.com",
+      "name": "Ojeador Deportivo",
+      "role": "SCOUT",
+      "status": "ACTIVO",
+      "createdAt": "2026-09-29",
+      "updatedAt": "2026-09-29T00:00:00.000Z",
+      "passwordHash": "a3edde2aa2f54e55e8580e039d326530:b00ddfb24b2313a4e9e3b46c392a8e4dcf2148f657b92173585af7f78d09d102413e0b1408affcfd8148cf6af08d1385644ff3fa7d11733a1c28b9cca2fd14a5",
+      "passwordEncrypted": "b9a52aa348449cc84609dd47:ecf6cc6dde8765c5374d3d03ffca9561:dcc1560f"
+    }
+  ]
+}

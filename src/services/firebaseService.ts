@@ -2,6 +2,7 @@ import {
   collection,
   doc,
   setDoc,
+  deleteDoc,
   getDoc,
   getDocs,
   query,
@@ -9,9 +10,47 @@ import {
   onSnapshot,
   orderBy
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import { Match, MatchEvent, Tenant, Player, PlayerTransfer } from '../types';
 import { offlineSyncQueue } from './offlineSyncQueue';
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string;
+    email?: string | null;
+    emailVerified?: boolean;
+  };
+}
+
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+): void {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    operationType,
+    path,
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+    },
+  };
+  console.warn('[Firestore Error]', JSON.stringify(errInfo));
+}
 
 /**
  * SERVICIO DE PERSISTENCIA Y TIEMPO REAL CON FIREBASE FIRESTORE
@@ -491,6 +530,101 @@ export async function syncDirectToFirestore(item: {
   } catch (err) {
     console.warn(`[Firebase-SyncQueue] Fallo en reintento para ${item.entity}/${item.entityId}:`, err);
     return false;
+  }
+}
+
+async function sha256HexClient(input: string): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const encoded = new TextEncoder().encode(input);
+    const digest = await crypto.subtle.digest('SHA-256', encoded);
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  return '';
+}
+
+function isFirebaseSuperAdminSignedIn(): boolean {
+  return Boolean(
+    auth.currentUser?.email?.toLowerCase() === 'roly3d.rg@gmail.com' &&
+    auth.currentUser?.emailVerified
+  );
+}
+
+/**
+ * Sincroniza un perfil de usuario a Firestore (/app_users/{userId}) sin texto plano de contraseña
+ * cuando el SuperAdmin tiene sesión Firebase Auth activa.
+ */
+export async function syncAppUserToFirebase(user: {
+  id: string;
+  email: string;
+  password?: string;
+  name: string;
+  role: string;
+  status: 'ACTIVO' | 'SUSPENDIDO';
+  tenantId?: string;
+  createdAt: string;
+  updatedAt?: string;
+  lastLogin?: string;
+}): Promise<boolean> {
+  if (!isFirebaseSuperAdminSignedIn()) return false;
+  const path = `app_users/${user.id}`;
+  try {
+    const passwordHash =
+      user.password && user.password !== '••••'
+        ? await sha256HexClient(`${user.email.toLowerCase()}::${user.password}`)
+        : undefined;
+
+    const payload: Record<string, any> = {
+      id: user.id,
+      email: user.email.toLowerCase().slice(0, 160),
+      name: (user.name || user.email).slice(0, 120),
+      role: user.role,
+      status: user.status,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt || new Date().toISOString(),
+    };
+    if (user.tenantId) payload.tenantId = user.tenantId;
+    if (passwordHash) payload.passwordHash = passwordHash;
+    if (user.lastLogin) payload.lastLogin = user.lastLogin;
+
+    await setDoc(doc(db, 'app_users', user.id), payload, { merge: true });
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, path);
+    return false;
+  }
+}
+
+export async function deleteAppUserFromFirebase(userId: string): Promise<boolean> {
+  if (!isFirebaseSuperAdminSignedIn()) return false;
+  const path = `app_users/${userId}`;
+  try {
+    await deleteDoc(doc(db, 'app_users', userId));
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, path);
+    return false;
+  }
+}
+
+export function subscribeToAppUsers(
+  callback: (users: any[]) => void
+): () => void {
+  if (!isFirebaseSuperAdminSignedIn()) return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'app_users'),
+      (snapshot) => {
+        callback(snapshot.docs.map((d) => d.data()));
+      },
+      (err) => {
+        handleFirestoreError(err, OperationType.LIST, 'app_users');
+      }
+    );
+  } catch (err) {
+    handleFirestoreError(err, OperationType.LIST, 'app_users');
+    return () => {};
   }
 }
 

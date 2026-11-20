@@ -45,7 +45,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const trimmedPin = pin.trim();
@@ -57,34 +57,32 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const result = authService.verifyAdminPassword(trimmedPin);
-      if (result.success) {
-        setCreatorStudioKey('1326');
-        setIsSuccess(true);
-        try {
-          localStorage.setItem('deporverso_auth_session', JSON.stringify({
-            authenticated: true,
-            role: 'SUPER_ADMIN',
-            email: result.user?.email || MASTER_ADMIN_EMAIL,
-            isSuperAdmin: true,
-            loginTimestamp: Date.now()
-          }));
-        } catch (e) {}
+    const result = await authService.verifyAdminPasswordAsync(trimmedPin);
+    if (result.success) {
+      setCreatorStudioKey('1326');
+      setIsSuccess(true);
+      try {
+        localStorage.setItem('deporverso_auth_session', JSON.stringify({
+          authenticated: true,
+          role: 'SUPER_ADMIN',
+          email: result.user?.email || MASTER_ADMIN_EMAIL,
+          isSuperAdmin: true,
+          loginTimestamp: Date.now()
+        }));
+      } catch (e) {}
 
-        setTimeout(() => {
-          setIsLoading(false);
-          onAuthorized();
-          onClose();
-        }, 600);
-      } else {
+      setTimeout(() => {
         setIsLoading(false);
-        setError('Clave incorrecta. Verifica tus credenciales de administrador.');
-      }
-    }, 200);
+        onAuthorized();
+        onClose();
+      }, 350);
+    } else {
+      setIsLoading(false);
+      setError(result.message || 'Clave incorrecta. Verifica tus credenciales de administrador.');
+    }
   };
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const trimmedEmail = email.trim().toLowerCase();
@@ -97,34 +95,32 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const result = authService.verifyLogin(trimmedEmail, trimmedPass);
-      if (result.success && result.isSuperAdmin) {
-        setCreatorStudioKey('1326');
-        setIsSuccess(true);
-        try {
-          localStorage.setItem('deporverso_auth_session', JSON.stringify({
-            authenticated: true,
-            role: 'SUPER_ADMIN',
-            email: result.user?.email || trimmedEmail,
-            isSuperAdmin: true,
-            loginTimestamp: Date.now()
-          }));
-        } catch (e) {}
+    const result = await authService.verifyLoginAsync(trimmedEmail, trimmedPass);
+    if (result.success && result.isSuperAdmin) {
+      setCreatorStudioKey('1326');
+      setIsSuccess(true);
+      try {
+        localStorage.setItem('deporverso_auth_session', JSON.stringify({
+          authenticated: true,
+          role: 'SUPER_ADMIN',
+          email: result.user?.email || trimmedEmail,
+          isSuperAdmin: true,
+          loginTimestamp: Date.now()
+        }));
+      } catch (e) {}
 
-        setTimeout(() => {
-          setIsLoading(false);
-          onAuthorized();
-          onClose();
-        }, 600);
-      } else if (result.success && !result.isSuperAdmin) {
+      setTimeout(() => {
         setIsLoading(false);
-        setError('Este usuario no posee privilegios de Super Administrador para operar Streaming, VAR y Crónicas.');
-      } else {
-        setIsLoading(false);
-        setError(result.message || 'Credenciales de administrador no válidas.');
-      }
-    }, 200);
+        onAuthorized();
+        onClose();
+      }, 350);
+    } else if (result.success && !result.isSuperAdmin) {
+      setIsLoading(false);
+      setError('Este usuario no posee privilegios de Super Administrador para operar Streaming, VAR y Crónicas.');
+    } else {
+      setIsLoading(false);
+      setError(result.message || 'Credenciales de administrador no válidas.');
+    }
   };
 
   return (

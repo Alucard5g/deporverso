@@ -74,8 +74,8 @@ export const LoginGate: React.FC<LoginGateProps> = ({
     </button>
   );
 
-  // Manejo de Inicio de Sesión de Usuarios Registrados
-  const handleUserLoginSubmit = (e: React.FormEvent) => {
+  // Manejo de Inicio de Sesión de Usuarios Registrados (verificación en vivo contra servidor)
+  const handleUserLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
@@ -90,8 +90,8 @@ export const LoginGate: React.FC<LoginGateProps> = ({
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const result = authService.verifyLogin(trimmedEmail, trimmedPassword);
+    try {
+      const result = await authService.verifyLoginAsync(trimmedEmail, trimmedPassword);
 
       if (result.success) {
         if (result.isSuperAdmin) {
@@ -107,11 +107,14 @@ export const LoginGate: React.FC<LoginGateProps> = ({
         setIsLoading(false);
         setError(result.message || 'Credenciales no autorizadas. Por favor verifica tus datos.');
       }
-    }, 250);
+    } catch {
+      setIsLoading(false);
+      setError('No se pudo verificar el acceso en este momento. Intenta nuevamente.');
+    }
   };
 
-  // Manejo de Registro Ágil para Interesados (Sin Perfil de Acceso)
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  // Manejo de Registro Ágil para Interesados (persiste inmediatamente en servidor y sincroniza)
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
@@ -135,11 +138,14 @@ export const LoginGate: React.FC<LoginGateProps> = ({
       return;
     }
 
+    setIsLoading(true);
+
     // Si ingresa el correo oficial del Creador en la pestaña de Registro, validar su clave maestra
     if (trimmedEmail === MASTER_ADMIN_EMAIL.toLowerCase()) {
-      const creatorCheck = authService.verifyLogin(trimmedEmail, trimmedPassword);
+      const creatorCheck = await authService.verifyLoginAsync(trimmedEmail, trimmedPassword);
       if (creatorCheck.success && creatorCheck.isSuperAdmin) {
         setCreatorStudioKey('1326');
+        setIsLoading(false);
         setSuccessMsg('✓ Credenciales de Creador verificadas. Accediendo al estudio completo...');
         setTimeout(() => {
           onLoginSuccess({
@@ -147,46 +153,40 @@ export const LoginGate: React.FC<LoginGateProps> = ({
             email: MASTER_ADMIN_EMAIL,
             isSuperAdmin: true,
           });
-        }, 450);
+        }, 300);
         return;
       }
+      setIsLoading(false);
       setError('Esta cuenta oficial del Creador ya existe. Ingresa tu clave de Creador en "Ingresar".');
       return;
     }
 
-    // Verificar si el correo ya existe
-    const existingUsers = authService.getRegisteredUsers();
-    if (existingUsers.some(u => u.email.toLowerCase() === trimmedEmail)) {
-      setError('Este correo ya está registrado. Por favor inicia sesión.');
+    const newUser: AppUser = {
+      id: `u-${Date.now()}`,
+      email: trimmedEmail,
+      password: trimmedPassword,
+      name: trimmedName || trimmedEmail.split('@')[0],
+      role: 'LEAGUE_ADMIN',
+      status: 'ACTIVO',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    const regResult = await authService.registerUserAsync(newUser);
+    setIsLoading(false);
+
+    if (!regResult.success) {
+      setError(regResult.message || 'No se pudo completar el registro.');
       return;
     }
 
-    setIsLoading(true);
+    setSuccessMsg('✓ Cuenta creada y sincronizada en tiempo real. Ingresando a DeporVerso...');
 
     setTimeout(() => {
-      // Todo registro de interesado se crea como usuario activo de liga
-      const newUser: AppUser = {
-        id: `u-${Date.now()}`,
-        email: trimmedEmail,
-        password: trimmedPassword,
-        name: trimmedName || trimmedEmail.split('@')[0],
-        role: 'LEAGUE_ADMIN',
-        status: 'ACTIVO',
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-
-      authService.saveUser(newUser);
-
-      setIsLoading(false);
-      setSuccessMsg('✓ Registro completado exitosamente. Ingresando a DeporVerso...');
-
-      setTimeout(() => {
-        onLoginSuccess({
-          role: newUser.role,
-          email: newUser.email,
-          isSuperAdmin: false,
-        });
-      }, 600);
+      onLoginSuccess({
+        role: regResult.user?.role || newUser.role,
+        email: regResult.user?.email || newUser.email,
+        isSuperAdmin: false,
+      });
     }, 350);
   };
 

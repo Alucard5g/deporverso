@@ -170,6 +170,24 @@
         "createdAt": { "type": "string" }
       },
       "required": ["id", "matchId", "ruling"]
+    },
+    "app_user": {
+      "title": "AppUser",
+      "description": "Registered DeporVerso platform user synced securely by SuperAdmin (stores SHA-256 hash only, never plaintext passwords)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["SUPER_ADMIN", "LEAGUE_ADMIN", "SCOUT", "TEAM_DELEGATE", "REFEREE"] },
+        "status": { "type": "string", "enum": ["ACTIVO", "SUSPENDIDO"] },
+        "tenantId": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "lastLogin": { "type": "string" }
+      },
+      "required": ["id", "email", "name", "role", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -204,6 +222,10 @@
     "/events/{eventId}": {
       "schema": "event",
       "description": "In-game events, goals, penalties, cards recorded via digital vocalia"
+    },
+    "/app_users/{userId}": {
+      "schema": "app_user",
+      "description": "SuperAdmin-managed user directory mirror for cross-session synchronization"
     },
     "/test/{testId}": {
       "schema": "test",

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Users, UserPlus, Key, Shield, Trash2, Copy, Check, Eye, EyeOff, 
   Lock, RefreshCw, AlertCircle, CheckCircle2, Share2, Search, Mail, 
-  UserCheck, UserX, Sparkles 
+  UserCheck, UserX, Sparkles, Cloud, Loader2
 } from 'lucide-react';
 import { authService, AppUser } from '../../services/authService';
 import { UserRole } from '../../types';
@@ -11,6 +11,10 @@ import { copyTextSafely } from '../../utils/safeClipboard';
 export const AdminUserManager: React.FC = () => {
   const [users, setUsers] = useState<AppUser[]>(() => authService.getRegisteredUsers());
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverSynced, setServerSynced] = useState(false);
+  const [syncRevision, setSyncRevision] = useState(0);
   
   // Estados para nuevo usuario añadido personalmente por el Administrador
   const [newName, setNewName] = useState('');
@@ -30,9 +34,46 @@ export const AdminUserManager: React.FC = () => {
   const [editedPassword, setEditedPassword] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const refreshUsersList = () => {
-    setUsers([...authService.getRegisteredUsers()]);
-  };
+  const syncNowWithServer = useCallback(async (showFeedback = false) => {
+    setIsSyncing(true);
+    try {
+      const res = await authService.syncLocalUsersToServer(true);
+      setUsers([...res.users]);
+      if (res.success) {
+        setServerSynced(true);
+        setSyncRevision(res.revision);
+        if (res.importedCount > 0) {
+          setSuccess(`✓ ${res.importedCount} usuario(s) previos guardados y sincronizados en el servidor.`);
+          setTimeout(() => setSuccess(null), 5000);
+        } else if (showFeedback) {
+          setSuccess('✓ Directorio sincronizado en tiempo real con el servidor.');
+          setTimeout(() => setSuccess(null), 3000);
+        }
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  // Migración automática al montar + escucha en tiempo real (< 1s via SSE & BroadcastChannel)
+  useEffect(() => {
+    void syncNowWithServer(false);
+
+    const unsubscribe = authService.subscribeToUserSync(async () => {
+      const latest = await authService.fetchUsersRealTime();
+      if (latest.success) {
+        setUsers([...latest.users]);
+        setServerSynced(true);
+        setSyncRevision(latest.revision);
+      } else {
+        setUsers([...authService.getRegisteredUsers()]);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [syncNowWithServer]);
 
   const generateRandomPassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -43,7 +84,7 @@ export const AdminUserManager: React.FC = () => {
     setNewPassword(pass);
   };
 
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -67,6 +108,7 @@ export const AdminUserManager: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
     const newUser: AppUser = {
       id: `u-${Date.now()}`,
       name: trimmedName || trimmedEmail.split('@')[0],
@@ -77,22 +119,43 @@ export const AdminUserManager: React.FC = () => {
       createdAt: new Date().toISOString().split('T')[0]
     };
 
-    authService.saveUser(newUser);
-    refreshUsersList();
+    try {
+      const res = await authService.saveUserRealTime(newUser);
+      if (!res.success && res.error) {
+        setError(res.error);
+        return;
+      }
 
-    setNewName('');
-    setNewEmail('');
-    setNewPassword('');
-    setSuccess(`✓ Usuario "${newUser.name}" añadido exitosamente con la contraseña asignada.`);
-    setTimeout(() => setSuccess(null), 4000);
+      setUsers([...res.users]);
+      if (res.syncedToServer) {
+        setServerSynced(true);
+        setSyncRevision(res.revision);
+      }
+
+      setNewName('');
+      setNewEmail('');
+      setNewPassword('');
+      setSuccess(
+        res.syncedToServer
+          ? `✓ Usuario "${newUser.name}" guardado y sincronizado en tiempo real. Ya puede ingresar desde cualquier dispositivo.`
+          : `✓ Usuario "${newUser.name}" guardado con respaldo local.`
+      );
+      setTimeout(() => setSuccess(null), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleToggleStatus = (userId: string) => {
-    authService.toggleUserStatus(userId);
-    refreshUsersList();
+  const handleToggleStatus = async (userId: string) => {
+    const res = await authService.toggleUserStatusRealTime(userId);
+    setUsers([...res.users]);
+    if (res.syncedToServer) {
+      setServerSynced(true);
+      setSyncRevision(res.revision);
+    }
   };
 
-  const handleDeleteUser = (user: AppUser) => {
+  const handleDeleteUser = async (user: AppUser) => {
     setError(null);
     if (user.email.toLowerCase() === 'roly3d.rg@gmail.com') {
       setError('La cuenta principal de SuperAdmin (Roly) está blindada y no puede ser eliminada.');
@@ -106,21 +169,29 @@ export const AdminUserManager: React.FC = () => {
       }, 4500);
       return;
     }
-    authService.deleteUser(user.id);
+    const res = await authService.deleteUserRealTime(user.id);
     setConfirmDeleteId(null);
-    refreshUsersList();
-    setSuccess(`Usuario ${user.email} eliminado.`);
+    setUsers([...res.users]);
+    if (res.syncedToServer) {
+      setServerSynced(true);
+      setSyncRevision(res.revision);
+    }
+    setSuccess(`Usuario ${user.email} eliminado y sincronizado.`);
     setTimeout(() => setSuccess(null), 3000);
   };
 
-  const handleSaveEditedPassword = (email: string) => {
+  const handleSaveEditedPassword = async (email: string) => {
     if (!editedPassword.trim()) return;
-    authService.updateUserPassword(email, editedPassword.trim());
-    refreshUsersList();
+    const res = await authService.updateUserPasswordRealTime(email, editedPassword.trim());
+    setUsers([...res.users]);
+    if (res.syncedToServer) {
+      setServerSynced(true);
+      setSyncRevision(res.revision);
+    }
     setEditingUserId(null);
     setEditedPassword('');
-    setSuccess(`Contraseña actualizada para ${email}`);
-    setTimeout(() => setSuccess(null), 3000);
+    setSuccess(`✓ Contraseña actualizada y sincronizada para ${email}`);
+    setTimeout(() => setSuccess(null), 3500);
   };
 
   const copyUserCredentials = (user: AppUser) => {
@@ -146,20 +217,40 @@ export const AdminUserManager: React.FC = () => {
       <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 p-6 rounded-2xl border border-amber-500/30 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
-              <Key className="w-3.5 h-3.5 text-amber-400" />
-              <span>Flujo de Registro Personal CIG</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
+                <Key className="w-3.5 h-3.5 text-amber-400" />
+                <span>Flujo de Registro Personal CIG</span>
+              </div>
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[11px] font-mono font-bold ${
+                serverSynced
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-slate-800/80 border-slate-700 text-slate-300'
+              }`}>
+                <Cloud className="w-3.5 h-3.5" />
+                <span>{serverSynced ? `Guardado Real & Sync Activa${syncRevision ? ` · Rev #${syncRevision}` : ''}` : 'Respaldo Local Activo'}</span>
+              </div>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               Gestión Personal de Usuarios & Contraseñas
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Tú controlas y asignas personalmente la clave de cada usuario. Añade delegados, operadores y ojeadores desde este panel. Al cerrar el panel, el sistema vuelve al inicio al portal de registro.
+              Los usuarios que añades o editas aquí se guardan en el servidor y se sincronizan al instante para que puedan acceder desde cualquier PC, iPhone o Android con su correo y clave asignada.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <div className="px-4 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-right">
+            <button
+              type="button"
+              onClick={() => syncNowWithServer(true)}
+              disabled={isSyncing}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-900 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all disabled:opacity-60"
+              title="Sincronizar todos los usuarios con el servidor ahora"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Sincronizando...' : 'Sincronizar'}</span>
+            </button>
+            <div className="px-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-right">
               <div className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Total Registrados</div>
               <div className="text-xl font-black text-amber-400">{users.length}</div>
             </div>
@@ -273,10 +364,20 @@ export const AdminUserManager: React.FC = () => {
             {/* Botón de Guardado */}
             <button
               type="submit"
-              className="w-full py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 hover:opacity-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] mt-2"
+              disabled={isSubmitting}
+              className="w-full py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 hover:opacity-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] mt-2 disabled:opacity-60"
             >
-              <UserPlus className="w-4 h-4" />
-              <span>Añadir Usuario y Guardar Clave</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Guardando y Sincronizando...</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  <span>Añadir Usuario y Guardar Clave</span>
+                </>
+              )}
             </button>
           </form>
         </div>

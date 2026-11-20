@@ -33,6 +33,7 @@ import { QuickCommandPalette } from './components/Common/QuickCommandPalette';
 import { MobileBottomNav } from './components/Common/MobileBottomNav';
 import { copyTextSafely } from './utils/safeClipboard';
 import { setCreatorStudioKey, clearCreatorStudioKey } from './services/streamStudioClient';
+import { authService, clearCreatorAuthToken } from './services/authService';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -103,15 +104,16 @@ export default function App() {
           setIsSuperAdminAuth(isAdmin);
           if (isAdmin) {
             setCreatorStudioKey('1326');
+            void authService.syncLocalUsersToServer(false);
           } else {
-            clearCreatorStudioKey();
+            clearCreatorAuthToken();
           }
           setUserRole(parsed.role || (isAdmin ? 'SUPER_ADMIN' : 'LEAGUE_ADMIN'));
           setIsPlatformUnlocked(true);
           setActiveTab(isAdmin ? 'master-admin' : 'league');
         } else if (raw) {
           localStorage.removeItem('deporverso_auth_session');
-          clearCreatorStudioKey();
+          clearCreatorAuthToken();
         }
       }
     } catch (e) {
@@ -123,6 +125,7 @@ export default function App() {
     setIsAuthenticated(true);
     setIsSuperAdminAuth(true);
     setCreatorStudioKey('1326');
+    void authService.syncLocalUsersToServer(false);
     setUserRole('SUPER_ADMIN');
     setIsPlatformUnlocked(true);
     setCurrentUserEmail('roly3d.rg@gmail.com');
@@ -156,6 +159,11 @@ export default function App() {
     setCurrentUserEmail(authData.email);
     setShowAuthModal(false);
 
+    if (authData.isSuperAdmin) {
+      setCreatorStudioKey('1326');
+      void authService.syncLocalUsersToServer(false);
+    }
+
     try {
       localStorage.setItem('deporverso_auth_session', JSON.stringify({
         authenticated: true,
@@ -183,7 +191,7 @@ export default function App() {
     try {
       localStorage.removeItem('deporverso_auth_session');
     } catch (e) {}
-    clearCreatorStudioKey();
+    clearCreatorAuthToken();
     setIsAuthenticated(false);
     setIsSuperAdminAuth(false);
     setIsPlatformUnlocked(false);
@@ -193,7 +201,7 @@ export default function App() {
     showToast('🔒 Plataforma bloqueada: Sesión cerrada', 3000);
   };
 
-  // Escucha global de teclado: Cmd/Ctrl+K para Quick Command Palette y clave 1326 fuera de inputs editables
+  // Escucha global de teclado: Cmd/Ctrl+K para Quick Command Palette y clave maestra fuera de inputs editables
   useEffect(() => {
     let keyBuffer = '';
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -229,6 +237,7 @@ export default function App() {
           setIsAuthenticated(true);
           setIsSuperAdminAuth(true);
           setCreatorStudioKey('1326');
+          void authService.syncLocalUsersToServer(false);
           setUserRole('SUPER_ADMIN');
           setIsPlatformUnlocked(true);
           setCurrentUserEmail('roly3d.rg@gmail.com');
