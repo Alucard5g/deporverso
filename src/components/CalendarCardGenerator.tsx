@@ -5,6 +5,7 @@ import {
   Globe, MapPin, Clock, Users, Eye, Sparkle
 } from 'lucide-react';
 import { Tenant, Match, Team } from '../types';
+import { copyTextSafely } from '../utils/safeClipboard';
 
 interface CalendarCardGeneratorProps {
   tenant: Tenant;
@@ -726,14 +727,14 @@ export const CalendarCardGenerator: React.FC<CalendarCardGeneratorProps> = ({
 
     try {
       const dataUrl = canvas.toDataURL('image/png');
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(dataUrl);
+      const copied = await copyTextSafely(dataUrl);
+      if (copied) {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 3000);
       } else {
         handleDownloadJpg();
       }
-    } catch (err) {
+    } catch {
       handleDownloadJpg();
     }
   };

@@ -9,6 +9,7 @@ import {
 import { Tenant, Sport, Match, Team, Player } from '../../types';
 import ligaBarrialPichinchaHero from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface PichinchaExecutiveDemoProps {
   tenant: Tenant;
@@ -18,6 +19,7 @@ interface PichinchaExecutiveDemoProps {
   players: Player[];
   onLaunchTour?: () => void;
   onNavigateSubTab?: (tab: string) => void;
+  isSuperAdminAuth?: boolean;
 }
 
 export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
@@ -27,7 +29,8 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
   teams,
   players,
   onLaunchTour,
-  onNavigateSubTab
+  onNavigateSubTab,
+  isSuperAdminAuth = false
 }) => {
   const [numClubes, setNumClubes] = useState<number>(24);
   const [precioInscripcionLiga, setPrecioInscripcionLiga] = useState<number>(50); // $50 a $100
@@ -61,10 +64,10 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
     window.print();
   };
 
-  const handleCopyProposal = () => {
+  const handleCopyProposal = async () => {
     const text = `📋 *Modelo de Monetización y Cierre Financiero — Liga Barrial Pichincha 2026*\n\nEstimados Dirigentes y Presidentes de Clubes de Liga Barrial Pichincha:\n\nPresentamos la transformación digital y financiera con *DeporVerso*:\n\n1. *Margen de Inscripción:* La Liga cobra su inscripción regular (ej. $${precioInscripcionLiga} USD/club). DeporVerso cobra $35 USD por automatización integral. *La Liga gana $${margenNetoInscripcionPorClub} USD netos por club* ($${gananciaInscripcionLiga.toLocaleString()} USD para los ${numClubes} clubes) sin trabajo manual.\n2. *Garantía Reducida al 50%:* Gracias al Streaming y al VAR oficial, el riesgo de altercados se reduce a niveles mínimos. La garantía pasa de $${garantiaTradicional} a $${garantiaReducida} USD, liberando $${ahorroGarantiaClubes.toLocaleString()} USD en caja para los clubes.\n3. *2% por Venta de Mercadería:* La Liga monetiza con el 2% de comisión en la tienda oficial *heroesdeldeporte.com* por la indumentaria de sus clubes.\n4. *VAR & Streaming Provistos por la App:* Cero inversión en hardware para la Liga; la App opera el VAR y el streaming. El torneo digital con transmisión en vivo y VAR lo ubica en otro nivel, atrayendo más clubes, patrocinadores y nuevos torneos deportivos.\n5. *+$${ahorroPapeleriaAnual.toLocaleString()} USD de Ahorro en Secretaría:* Eliminación total de talonarios y planillas físicas.\n\nDemostración interactiva en vivo disponible en: https://deporverso.app`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedProposal(true);
       setTimeout(() => setCopiedProposal(false), 3000);
     }
@@ -735,22 +738,40 @@ export const PichinchaExecutiveDemo: React.FC<PichinchaExecutiveDemoProps> = ({
               )}
             </div>
 
-            {/* Prueba 2: Solicitud de VAR */}
-            <div className="bg-[#08122a] border border-white/10 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-2 text-rose-400 font-bold text-xs">
-                <Video className="w-4 h-4" />
-                <span>Prueba 2: Solicitud VAR</span>
+            {/* Prueba 2: VAR (solo Creador) o Calendario & Marcadores (Público) */}
+            {isSuperAdminAuth ? (
+              <div className="bg-[#08122a] border border-white/10 rounded-2xl p-5 space-y-3">
+                <div className="flex items-center gap-2 text-rose-400 font-bold text-xs">
+                  <Video className="w-4 h-4" />
+                  <span>Prueba 2: Solicitud VAR</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Revisa el dictamen del fuera de juego en el partido de Atlético San Antonio con cámara de línea.
+                </p>
+                <button
+                  onClick={() => onNavigateSubTab && onNavigateSubTab('var')}
+                  className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition-all cursor-pointer shadow-md"
+                >
+                  Abrir Repetición VAR Oficial
+                </button>
               </div>
-              <p className="text-xs text-slate-400">
-                Revisa el dictamen del fuera de juego en el partido de Atlético San Antonio con cámara de línea.
-              </p>
-              <button
-                onClick={() => onNavigateSubTab && onNavigateSubTab('matches')}
-                className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition-all cursor-pointer shadow-md"
-              >
-                Abrir Repetición VAR Oficial
-              </button>
-            </div>
+            ) : (
+              <div className="bg-[#08122a] border border-white/10 rounded-2xl p-5 space-y-3">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                  <Trophy className="w-4 h-4" />
+                  <span>Prueba 2: Calendario & Marcadores</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Consulta los resultados en tiempo real, programación oficial y actas públicas de la jornada.
+                </p>
+                <button
+                  onClick={() => onNavigateSubTab && onNavigateSubTab('matches')}
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-md"
+                >
+                  Ver Partidos y Marcadores
+                </button>
+              </div>
+            )}
 
             {/* Prueba 3: Carnet QR Holográfico */}
             <div className="bg-[#08122a] border border-white/10 rounded-2xl p-5 space-y-3">

@@ -12,6 +12,7 @@ import { AdminUserManager } from './AdminUserManager';
 import { CampaignBannersGenerator } from '../Marketing/CampaignBannersGenerator';
 import { syncVocaliaReportToFirebase } from '../../services/firebaseService';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface MasterAdminDashboardProps {
   tenants: Tenant[];
@@ -235,14 +236,10 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
       `========================================================================`
     ].join('\n');
 
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      }
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedReportId(report.id);
       setTimeout(() => setCopiedReportId(null), 2500);
-    } catch (e) {
-      console.warn('Clipboard copy error:', e);
     }
   };
 
@@ -319,14 +316,10 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
   };
 
   const handleCopyKey = async (tenantId: string, key: string) => {
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(key);
-      }
+    const copied = await copyTextSafely(key);
+    if (copied) {
       setCopiedTenantKeyId(tenantId);
       setTimeout(() => setCopiedTenantKeyId(null), 2500);
-    } catch (e) {
-      console.warn('Clipboard write prevented:', e);
     }
   };
 
@@ -350,25 +343,15 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
       `======================================================`
     ].join('\n');
 
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      }
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedDeliveryId(tenant.id);
       setTimeout(() => setCopiedDeliveryId(null), 3000);
-    } catch (e) {
-      console.warn('Clipboard write prevented:', e);
     }
   };
 
   const copyToClipboard = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(FULL_SUPABASE_SQL_SCRIPT);
-      }
-    } catch (e) {
-      console.warn('Clipboard write prevented:', e);
-    }
+    await copyTextSafely(FULL_SUPABASE_SQL_SCRIPT);
     setCopiedSql(true);
     setTimeout(() => setCopiedSql(false), 2500);
   };

@@ -19,6 +19,7 @@ import {
   Scissors
 } from 'lucide-react';
 import { Match, Team } from '../../../types';
+import { copyTextSafely } from '../../../utils/safeClipboard';
 
 export interface CapturedClipItem {
   id: string;
@@ -517,21 +518,31 @@ export const HighlightReelsGeneratorModal: React.FC<HighlightReelsGeneratorModal
                   <span>Descargar Video MP4</span>
                 </a>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (navigator.share) {
-                      navigator.share({
-                        title: `Resumen ${homeTeam.name} vs ${awayTeam.name}`,
-                        text: `Mira los mejores momentos del partido ${homeScore}-${awayScore} en Sportia`,
-                        url: window.location.href
-                      }).catch(() => {});
-                    } else {
-                      alert('¡Enlace del resumen copiado para compartir en TikTok y WhatsApp!');
+                      try {
+                        await navigator.share({
+                          title: `Resumen ${homeTeam.name} vs ${awayTeam.name}`,
+                          text: `Mira los mejores momentos del partido ${homeScore}-${awayScore} en DeporVerso`,
+                          url: window.location.href
+                        });
+                        return;
+                      } catch {
+                        // Fallback al portapapeles universal si cancela o falla Share API
+                      }
                     }
+                    await copyTextSafely(window.location.href);
+                    setGeneratedVideoUrl((prev) => prev);
+                    const btn = document.getElementById('highlight-share-feedback');
+                    if (btn) btn.textContent = '¡Enlace copiado para WhatsApp!';
+                    setTimeout(() => {
+                      if (btn) btn.textContent = 'Compartir';
+                    }, 2500);
                   }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all cursor-pointer min-h-[40px]"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>Compartir</span>
+                  <span id="highlight-share-feedback">Compartir</span>
                 </button>
               </div>
             </div>

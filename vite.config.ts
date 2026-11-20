@@ -18,7 +18,7 @@ export default defineConfig(() => {
       watch: null,
     },
     build: {
-      target: 'es2022',
+      target: 'es2020',
       sourcemap: false,
       minify: 'esbuild' as const,
       cssMinify: true,

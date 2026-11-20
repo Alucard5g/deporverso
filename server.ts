@@ -10,6 +10,7 @@ import { varHighlightRouter } from "./server/routes/varHighlightRoutes.ts";
 import { pdfReportRouter } from "./server/routes/pdfReportRoutes.ts";
 import { workerRoutes } from "./server/routes/workerRoutes.ts";
 import { openTimestampsRouter } from "./server/routes/openTimestampsRoutes.ts";
+import { attachStreamStudioRealtime } from "./server/realtime/streamStudioWs.ts";
 import { 
   antiScrapingMiddleware, 
   rateLimiterMiddleware, 
@@ -18,6 +19,7 @@ import {
 
 async function startServer() {
   const app = express();
+  const attachWsUpgradeHandler = attachStreamStudioRealtime(app);
 
   // Endurecimiento Perimetral y Protección CIG
   app.use(securityHeadersMiddleware);
@@ -702,6 +704,7 @@ Extrae el nombre de la liga, la lista de equipos participantes y el calendario d
 
   const listenWithRetry = (portToTry: number, retriesLeft = 15, delayMs = 400) => {
     const mainServer = http.createServer(app);
+    attachWsUpgradeHandler(mainServer);
 
     mainServer.on("error", (err: any) => {
       if (err.code === 'EADDRINUSE') {

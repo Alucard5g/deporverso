@@ -5,6 +5,7 @@ import {
   Calendar, Presentation, Tag, Image as ImageIcon, Star, CheckCircle2
 } from 'lucide-react';
 import { UserRole, Tenant, SportCode } from '../types';
+import { Search, Building2 } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -22,6 +23,10 @@ interface NavbarProps {
   onOpenCheckout?: () => void;
   isAuthenticated?: boolean;
   onOpenAuthModal?: (mode?: 'register' | 'login') => void;
+  mobileMenuOpen?: boolean;
+  setMobileMenuOpen?: (open: boolean) => void;
+  onOpenCommandPalette?: () => void;
+  hideMobileHeader?: boolean;
 }
 
 // Sport-specific theme configurations
@@ -185,10 +190,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasPaidFullAccess = false,
   onOpenCheckout,
   isAuthenticated = false,
-  onOpenAuthModal
+  onOpenAuthModal,
+  mobileMenuOpen: controlledMobileMenuOpen,
+  setMobileMenuOpen: setControlledMobileMenuOpen,
+  onOpenCommandPalette,
+  hideMobileHeader = false
 }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
+  const mobileMenuOpen = controlledMobileMenuOpen ?? internalMobileMenuOpen;
+  const setMobileMenuOpen = setControlledMobileMenuOpen ?? setInternalMobileMenuOpen;
 
   const theme = SPORT_THEMES[activeSport] || SPORT_THEMES.FUTBOL;
   const isFullDeployed = hasPaidFullAccess || isSuperAdminAuth;
@@ -269,35 +280,73 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* MOBILE TOP HEADER BAR */}
-      <header className="lg:hidden bg-[#040810]/95 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-2xl">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('welcome')}>
-          <div className={`w-9 h-9 rounded-xl bg-gradient-to-tr ${theme.bgGradient} p-0.5 shadow-lg`}>
+      {/* MOBILE / TABLET SINGLE-ROW HEADER BAR (h-14 = 56px, respects 15% sticky budget) */}
+      {!hideMobileHeader && (
+      <header className="lg:hidden bg-[#050914]/95 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 h-14 px-3 flex items-center justify-between gap-2 shadow-lg">
+        <div
+          className="flex items-center gap-2.5 cursor-pointer min-w-0"
+          onClick={() => {
+            setActiveTab('welcome');
+            setMobileMenuOpen(false);
+          }}
+        >
+          <div className={`w-9 h-9 shrink-0 rounded-xl bg-gradient-to-tr ${theme.bgGradient} p-0.5 shadow-md`}>
             <div className="w-full h-full bg-[#060a12] rounded-[10px] flex items-center justify-center p-1 overflow-hidden">
               {theme.imageIcon ? (
-                <img src={theme.imageIcon} alt={theme.name} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
+                <img src={theme.imageIcon} alt={theme.name} className="w-full h-full object-contain" />
               ) : (
                 <span className="font-bold text-white text-sm">{theme.icon}</span>
               )}
             </div>
           </div>
-          <div>
-            <span className="font-black text-lg text-white">
-              Depor<span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">verso</span>
-            </span>
-            <span className="ml-1.5 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black px-1.5 py-0.5 rounded-full">
-              MULTIVERSO
-            </span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-black text-base text-white tracking-tight truncate">
+                Depor<span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">verso</span>
+              </span>
+              {isSuperAdminAuth && (
+                <span className="text-[9px] font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase shrink-0">
+                  Admin
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-[#0a0f1d] border border-white/10 text-white hover:bg-white/10 transition-colors"
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenCommandPalette && (
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              aria-label="Buscar módulos, ligas o clubes"
+              className="w-11 h-11 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-200 flex items-center justify-center cursor-pointer transition-colors"
+            >
+              <Search className="w-4 h-4 text-cyan-400" />
+            </button>
+          )}
+
+          {!isAuthenticated && !isSuperAdminAuth && onOpenAuthModal && (
+            <button
+              type="button"
+              onClick={() => onOpenAuthModal('register')}
+              className="min-h-[40px] px-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs whitespace-nowrap cursor-pointer"
+            >
+              Demo
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+            aria-expanded={mobileMenuOpen}
+            className="w-11 h-11 rounded-xl bg-[#0a0f1d] border border-white/10 text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
+      )}
 
       {/* MOBILE DRAWER OVERLAY */}
       {mobileMenuOpen && (
@@ -309,8 +358,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* SIDEBAR CONTAINER (DESKTOP & MOBILE DRAWER) */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#070b14] border-r border-white/[0.07] 
-        flex flex-col justify-between transition-all duration-300 shadow-2xl backdrop-blur-xl
+        fixed lg:sticky top-0 left-0 z-50 h-[100dvh] lg:h-screen bg-[#070b14] border-r border-white/[0.07] 
+        flex flex-col justify-between transition-all duration-300 shadow-2xl backdrop-blur-xl overscroll-contain pb-[env(safe-area-inset-bottom)]
         ${collapsed ? 'lg:w-20' : 'lg:w-72'}
         ${mobileMenuOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -360,6 +409,30 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* NAVIGATION MENUS COLUMN */}
         <div className="flex-1 overflow-y-auto p-3 space-y-5 no-scrollbar">
+          {!collapsed && isSuperAdminAuth && tenants.length > 0 && (
+            <div className="lg:hidden px-1 pb-1">
+              <label className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
+                <Building2 className="w-3 h-3 text-emerald-400" />
+                <span>Liga Activa</span>
+              </label>
+              <select
+                value={activeTenantId}
+                onChange={(e) => {
+                  const t = tenants.find((item) => item.id === e.target.value);
+                  setActiveTenantId(e.target.value);
+                  if (t) setActiveSport(t.sport_code);
+                }}
+                className="w-full bg-[#0d1424] border border-white/10 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:outline-none focus:border-cyan-400"
+              >
+                {tenants.map((t) => (
+                  <option key={t.id} value={t.id} className="bg-[#090e1a] text-white">
+                    {t.name} ({t.sport_code})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {navGroups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-1">
               {!collapsed && (
@@ -413,7 +486,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       title={collapsed ? (isItemLocked ? `${item.label} (Requiere Desbloqueo)` : item.label) : undefined}
                       className={`
-                        w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer group relative
+                        w-full flex items-center gap-3 px-3 py-2.5 lg:py-2 min-h-[42px] lg:min-h-0 rounded-xl text-xs transition-all cursor-pointer group relative
                         ${isActive
                           ? 'bg-gradient-to-r from-cyan-500/15 via-emerald-500/10 to-transparent text-white font-semibold border border-cyan-500/25 shadow-sm'
                           : isItemLocked
@@ -421,7 +494,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                           : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] font-medium border border-transparent'}
                       `}
                     >
-                      {/* Refined Active Edge Pill */}
                       {isActive && (
                         <div className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-emerald-400"></div>
                       )}
@@ -432,7 +504,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <span className="truncate flex-1 text-left tracking-normal flex items-center justify-between gap-1.5">
                           <span className={isItemLocked ? 'opacity-80' : ''}>{item.label}</span>
                           
-                          {/* Badges de Demo Oficial */}
                           {item.badge && isAuthenticated && !isFullDeployed && (
                             <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[9px] font-mono font-bold shrink-0">
                               {item.badge}
@@ -448,10 +519,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                             </span>
                           )}
                         </span>
-                      )}
-
-                      {isActive && !collapsed && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]"></span>
                       )}
                     </button>
                   );

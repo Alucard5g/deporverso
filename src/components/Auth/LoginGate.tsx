@@ -4,8 +4,9 @@ import {
   AlertCircle, UserPlus, LogIn, User, CheckCircle, X
 } from 'lucide-react';
 import { UserRole } from '../../types';
-import { authService, AppUser } from '../../services/authService';
+import { authService, AppUser, MASTER_ADMIN_EMAIL } from '../../services/authService';
 import { googleSignIn } from '../../services/firebaseAuth';
+import { setCreatorStudioKey } from '../../services/streamStudioClient';
 
 interface LoginGateProps {
   onLoginSuccess: (authData: {
@@ -40,14 +41,17 @@ export const LoginGate: React.FC<LoginGateProps> = ({
     try {
       const result = await googleSignIn();
       if (result) {
+        const gEmail = (result.user.email || 'user@example.com').toLowerCase();
+        const isCreator = gEmail === MASTER_ADMIN_EMAIL.toLowerCase();
+        if (isCreator) setCreatorStudioKey('1326');
         onLoginSuccess({
-          role: 'LEAGUE_ADMIN',
+          role: isCreator ? 'SUPER_ADMIN' : 'LEAGUE_ADMIN',
           email: result.user.email || 'user@example.com',
-          isSuperAdmin: false,
+          isSuperAdmin: isCreator,
         });
       }
     } catch (err: any) {
-      setError('Error al iniciar sesión con Google.');
+      setError(err?.message || 'No se pudo iniciar sesión con Google en este navegador. Usa el acceso con correo.');
     } finally {
       setIsLoading(false);
     }
@@ -90,6 +94,9 @@ export const LoginGate: React.FC<LoginGateProps> = ({
       const result = authService.verifyLogin(trimmedEmail, trimmedPassword);
 
       if (result.success) {
+        if (result.isSuperAdmin) {
+          setCreatorStudioKey('1326');
+        }
         setIsLoading(false);
         onLoginSuccess({
           role: result.role,
@@ -125,6 +132,25 @@ export const LoginGate: React.FC<LoginGateProps> = ({
 
     if (trimmedPassword.length < 4) {
       setError('La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+
+    // Si ingresa el correo oficial del Creador en la pestaña de Registro, validar su clave maestra
+    if (trimmedEmail === MASTER_ADMIN_EMAIL.toLowerCase()) {
+      const creatorCheck = authService.verifyLogin(trimmedEmail, trimmedPassword);
+      if (creatorCheck.success && creatorCheck.isSuperAdmin) {
+        setCreatorStudioKey('1326');
+        setSuccessMsg('✓ Credenciales de Creador verificadas. Accediendo al estudio completo...');
+        setTimeout(() => {
+          onLoginSuccess({
+            role: 'SUPER_ADMIN',
+            email: MASTER_ADMIN_EMAIL,
+            isSuperAdmin: true,
+          });
+        }, 450);
+        return;
+      }
+      setError('Esta cuenta oficial del Creador ya existe. Ingresa tu clave de Creador en "Ingresar".');
       return;
     }
 
@@ -165,14 +191,14 @@ export const LoginGate: React.FC<LoginGateProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center px-3 py-6 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto overscroll-contain">
       {/* Fondo decorativo */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#081325_1px,transparent_1px),linear-gradient(to_bottom,#081325_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#081325_1px,transparent_1px),linear-gradient(to_bottom,#081325_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+      <div className="fixed top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Tarjeta de Acceso */}
-      <div className="relative w-full max-w-sm bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 z-10 my-auto">
+      <div className="relative w-full max-w-sm bg-[#080d1a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-5 z-10 my-auto">
         
         {onClose && (
           <button

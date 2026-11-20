@@ -16,7 +16,8 @@ import {
   FileText,
   Film
 } from 'lucide-react';
-import { authService, MASTER_ADMIN_EMAIL, MASTER_ADMIN_PASSWORDS } from '../../services/authService';
+import { authService, MASTER_ADMIN_EMAIL } from '../../services/authService';
+import { setCreatorStudioKey } from '../../services/streamStudioClient';
 
 interface AdminAuthSecurityModalProps {
   isOpen: boolean;
@@ -59,6 +60,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
     setTimeout(() => {
       const result = authService.verifyAdminPassword(trimmedPin);
       if (result.success) {
+        setCreatorStudioKey('1326');
         setIsSuccess(true);
         try {
           localStorage.setItem('deporverso_auth_session', JSON.stringify({
@@ -98,6 +100,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
     setTimeout(() => {
       const result = authService.verifyLogin(trimmedEmail, trimmedPass);
       if (result.success && result.isSuperAdmin) {
+        setCreatorStudioKey('1326');
         setIsSuccess(true);
         try {
           localStorage.setItem('deporverso_auth_session', JSON.stringify({
@@ -125,8 +128,8 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[120000] flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#060a14] border border-amber-500/40 rounded-3xl shadow-[0_0_80px_rgba(245,158,11,0.2)] overflow-hidden text-white flex flex-col animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[120000] flex items-start sm:items-center justify-center px-3 py-6 sm:p-4 bg-black/90 backdrop-blur-xl overflow-y-auto overscroll-contain animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg bg-[#060a14] border border-amber-500/40 rounded-3xl shadow-[0_0_80px_rgba(245,158,11,0.2)] overflow-hidden text-white flex flex-col my-auto animate-in zoom-in-95 duration-200">
         
         {/* Glow Accent Top Bar */}
         <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500" />

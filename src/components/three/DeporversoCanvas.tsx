@@ -24,7 +24,7 @@ interface SportsCardItem {
 export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, activeAct }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { tier, isWebGLAvailable, maxParticles } = usePerformanceMode();
+  const { tier, isWebGLAvailable, isMobile, maxParticles } = usePerformanceMode();
   const [webglFailed, setWebglFailed] = useState(false);
 
   // Store references for animation loop
@@ -39,12 +39,20 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
   }, [progress]);
 
   useEffect(() => {
-    if (!isWebGLAvailable || !canvasRef.current) {
+    // En móviles iOS/Android se evita inicializar 27 texturas WebGL simultáneas para prevenir cierres de pestaña por memoria
+    if (isMobile || !isWebGLAvailable || !canvasRef.current) {
       setWebglFailed(true);
       return;
     }
 
     const canvas = canvasRef.current;
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.warn('[DeporversoCanvas] Contexto WebGL perdido, activando fallback 2D seguro.');
+      setWebglFailed(true);
+    };
+    canvas.addEventListener('webglcontextlost', handleContextLost, false);
+
     const width = window.innerWidth;
     const height = window.innerHeight;
 
@@ -65,13 +73,14 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
         canvas,
         antialias: tier !== 'LOW',
         alpha: true,
-        powerPreference: 'high-performance'
+        powerPreference: tier === 'HIGH' ? 'high-performance' : 'default'
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier === 'HIGH' ? 2 : 1.25));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, tier === 'HIGH' ? 2 : 1.25));
       renderer.setSize(width, height);
       rendererRef.current = renderer;
     } catch (e) {
       console.warn('WebGL initialization failed, falling back to 2D background:', e);
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
       setWebglFailed(true);
       return;
     }
@@ -385,6 +394,7 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       if (animFrameIdRef.current) {
         cancelAnimationFrame(animFrameIdRef.current);
       }
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', onResize);
 
@@ -397,16 +407,25 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
       sportTextures.forEach((tex) => tex.dispose());
       sportMaterials.forEach((mat) => mat.dispose());
     };
-  }, [isWebGLAvailable, tier, maxParticles]);
+  }, [isMobile, isWebGLAvailable, tier, maxParticles]);
 
-  if (webglFailed || !isWebGLAvailable) {
-    // 2D Fallback: CSS 3D Perspective Floating WebP Sports Cards
+  if (isMobile || webglFailed || !isWebGLAvailable) {
+    const glowColor =
+      activeAct === 1
+        ? 'rgba(214, 161, 91, 0.22)'
+        : activeAct === 2
+        ? 'rgba(56, 189, 248, 0.22)'
+        : activeAct === 3
+        ? 'rgba(16, 185, 129, 0.22)'
+        : 'rgba(129, 140, 248, 0.22)';
+
+    // 2D Fallback optimizado para móviles iOS/Android sin sobrecargar memoria GPU
     return (
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden [perspective:1000px]">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div
-          className={`absolute inset-0 transition-all duration-1000 ${
+          className={`absolute inset-0 transition-colors duration-700 ${
             activeAct === 1
-              ? 'bg-gradient-to-b from-[#18110b] via-[#24170d] to-[#080503]'
+              ? 'bg-gradient-to-b from-[#141010] via-[#18141c] to-[#05060a]'
               : activeAct === 2
               ? 'bg-gradient-to-b from-[#0b1020] via-[#0f172a] to-[#04060b]'
               : activeAct === 3
@@ -414,34 +433,29 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
               : 'bg-gradient-to-b from-[#09061c] via-[#110c2e] to-[#030209]'
           }`}
         />
-        {/* Ambient radial glows */}
+        {/* Gradiente radial ligero sin CSS blur filter */}
         <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[140px] opacity-25 pointer-events-none transition-colors duration-1000"
+          className="absolute inset-0 pointer-events-none transition-all duration-700"
           style={{
-            backgroundColor:
-              activeAct === 1
-                ? '#d6a15b'
-                : activeAct === 2
-                ? '#38bdf8'
-                : activeAct === 3
-                ? '#10b981'
-                : '#818cf8'
+            background: `radial-gradient(circle at 50% 25%, ${glowColor} 0%, transparent 60%)`
           }}
         />
 
-        {/* 2D Floating WebP Sports Grid in Perspective */}
-        <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-6 p-8 opacity-45">
-          {SPORTS_WEBP_CATALOG.slice(0, 18).map((sport, i) => (
+        {/* Mosaico deportivo optimizado para pantallas móviles */}
+        <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-4 sm:gap-6 p-6 opacity-35">
+          {SPORTS_WEBP_CATALOG.slice(0, isMobile ? 8 : 18).map((sport, i) => (
             <div
               key={sport.id}
-              className="w-16 h-16 rounded-xl border border-amber-500/40 shadow-lg shadow-amber-950/50 overflow-hidden transition-transform duration-700 animate-pulse"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border border-cyan-500/30 shadow-md overflow-hidden"
               style={{
-                transform: `rotate(${((i % 7) - 3) * 6}deg) translateY(${Math.sin(i) * 12}px)`
+                transform: `rotate(${((i % 7) - 3) * 5}deg) translateY(${Math.round(Math.sin(i) * 10)}px)`
               }}
             >
               <img
                 src={sport.url}
                 alt={sport.name}
+                loading="lazy"
+                decoding="async"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
@@ -449,8 +463,8 @@ export const DeporversoCanvas: React.FC<DeporversoCanvasProps> = ({ progress, ac
           ))}
         </div>
 
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+        {/* Grilla sutil */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-35" />
       </div>
     );
   }

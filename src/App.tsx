@@ -30,6 +30,9 @@ import { MultiversoStepTourModal } from './components/Demo/MultiversoStepTourMod
 import { TerminalCameraBroadcasterModal } from './components/LeaguePortal/streaming/TerminalCameraBroadcasterModal';
 import { IpShieldBadge } from './components/IpShieldBadge';
 import { QuickCommandPalette } from './components/Common/QuickCommandPalette';
+import { MobileBottomNav } from './components/Common/MobileBottomNav';
+import { copyTextSafely } from './utils/safeClipboard';
+import { setCreatorStudioKey, clearCreatorStudioKey } from './services/streamStudioClient';
 import deporversoDarkBg from './assets/images/deporverso_dark_bg_1789426720628.jpg';
 
 export default function App() {
@@ -62,6 +65,7 @@ export default function App() {
   };
 
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
   const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
   const [showCommandPalette, setShowCommandPalette] = useState<boolean>(false);
@@ -69,6 +73,9 @@ export default function App() {
   // Sincronización Remota de Cámara por Código QR (?mode=terminal-camera)
   const [isRemoteTerminalActive, setIsRemoteTerminalActive] = useState<boolean>(false);
   const [remoteTerminalMatchId, setRemoteTerminalMatchId] = useState<string>('');
+  const [remoteTerminalCamId, setRemoteTerminalCamId] = useState<string>('');
+  const [remoteTerminalCamLabel, setRemoteTerminalCamLabel] = useState<string>('');
+  const [remoteTerminalCamAngle, setRemoteTerminalCamAngle] = useState<string>('');
 
   // Modal de Seguridad de Administrador para Streaming, VAR, Videos y Crónicas
   const [showAdminSecurityModal, setShowAdminSecurityModal] = useState<boolean>(false);
@@ -93,11 +100,17 @@ export default function App() {
           setCurrentUserEmail(parsed.email || '');
           const isAdmin = Boolean(parsed.isSuperAdmin);
           setIsSuperAdminAuth(isAdmin);
+          if (isAdmin) {
+            setCreatorStudioKey('1326');
+          } else {
+            clearCreatorStudioKey();
+          }
           setUserRole(parsed.role || (isAdmin ? 'SUPER_ADMIN' : 'LEAGUE_ADMIN'));
           setIsPlatformUnlocked(true);
           setActiveTab(isAdmin ? 'master-admin' : 'league');
         } else if (raw) {
           localStorage.removeItem('deporverso_auth_session');
+          clearCreatorStudioKey();
         }
       }
     } catch (e) {
@@ -108,6 +121,7 @@ export default function App() {
   const handleAdminSecurityAuthorized = () => {
     setIsAuthenticated(true);
     setIsSuperAdminAuth(true);
+    setCreatorStudioKey('1326');
     setUserRole('SUPER_ADMIN');
     setIsPlatformUnlocked(true);
     setCurrentUserEmail('roly3d.rg@gmail.com');
@@ -168,6 +182,7 @@ export default function App() {
     try {
       localStorage.removeItem('deporverso_auth_session');
     } catch (e) {}
+    clearCreatorStudioKey();
     setIsAuthenticated(false);
     setIsSuperAdminAuth(false);
     setIsPlatformUnlocked(false);
@@ -212,6 +227,7 @@ export default function App() {
           keyBuffer = '';
           setIsAuthenticated(true);
           setIsSuperAdminAuth(true);
+          setCreatorStudioKey('1326');
           setUserRole('SUPER_ADMIN');
           setIsPlatformUnlocked(true);
           setCurrentUserEmail('roly3d.rg@gmail.com');
@@ -241,23 +257,31 @@ export default function App() {
   }, []);
 
   // Detección de enlace de Terminal Remoto de Cámara (?mode=terminal-camera)
+  // Seguridad: el celular escaneado transmite únicamente como cámara; NO eleva a SuperAdmin.
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const mode = params.get('mode');
       if (mode === 'terminal-camera' || mode === 'camera') {
+        clearCreatorStudioKey();
         setIsAuthenticated(true);
         setIsPlatformUnlocked(true);
-        setIsSuperAdminAuth(true);
-        setUserRole('LEAGUE_ADMIN');
-        setCurrentUserEmail('camara.remota@deporverso.com');
+        setIsSuperAdminAuth(false);
+        setUserRole('TEAM_DELEGATE');
+        const camIdParam = params.get('camId') || 'cam-1';
+        const camLabelParam = params.get('camLabel') || `CAM ${camIdParam.replace(/[^0-9]/g, '') || '1'} · Celular QR`;
+        const camAngleParam = params.get('angle') || 'Cancha Móvil';
+        setCurrentUserEmail(`camara.${camIdParam}@deporverso.com`);
         const tId = params.get('tenantId');
         if (tId) setActiveTenantId(tId);
         const mId = params.get('matchId');
         if (mId) setRemoteTerminalMatchId(mId);
+        setRemoteTerminalCamId(camIdParam);
+        setRemoteTerminalCamLabel(camLabelParam);
+        setRemoteTerminalCamAngle(camAngleParam);
         setIsRemoteTerminalActive(true);
         setActiveTab('league');
-        showToast('📹 Terminal de Cámara DeporVerso Sincronizado: Conexión Activa', 5000);
+        showToast(`📹 ${camLabelParam} conectada al estudio multicámara en vivo`, 5000);
       }
     } catch (e) {}
   }, []);
@@ -552,9 +576,13 @@ export default function App() {
 
     setIsPlatformUnlocked(true);
     setActiveTab(resolvedTab);
+    try {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } catch {}
   };
 
   const handleLogoutSuperAdmin = () => {
+    clearCreatorStudioKey();
     setIsAuthenticated(false);
     setIsSuperAdminAuth(false);
     setUserRole('LEAGUE_ADMIN');
@@ -568,6 +596,7 @@ export default function App() {
   };
 
   const handleElevateToSuperAdmin = () => {
+    setCreatorStudioKey('1326');
     setIsSuperAdminAuth(true);
     setUserRole('SUPER_ADMIN');
     setCurrentUserEmail('roly3d.rg@gmail.com');
@@ -575,16 +604,18 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-[#050505] text-[#e0e0e0] font-sans antialiased selection:bg-emerald-500 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
       {/* TOAST FLOTANTE DE NOTIFICACIÓN */}
       {adminToast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-5 right-5 z-[160] max-w-md bg-amber-400 text-slate-950 font-bold text-xs pl-4 pr-2 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 border border-amber-200"
+          className="fixed top-[max(0.75rem,env(safe-area-inset-top))] left-3 right-3 sm:left-auto sm:right-5 z-[160] max-w-md bg-amber-400 text-slate-950 font-bold text-xs pl-4 pr-2 py-2.5 rounded-xl shadow-2xl flex items-center justify-between gap-2.5 border border-amber-200"
         >
-          <Sparkles className="w-4 h-4 text-slate-950 shrink-0" />
-          <span className="leading-snug">{adminToast}</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Sparkles className="w-4 h-4 text-slate-950 shrink-0" />
+            <span className="leading-snug">{adminToast}</span>
+          </div>
           <button
             type="button"
             onClick={() => setAdminToast(null)}
@@ -604,11 +635,13 @@ export default function App() {
         initialSport={activeSport}
       />
 
-      {/* Left Column Vertical Sidebar Navigation (Panel Imagen 2) - Se oculta en inicio y se despliega al presionar el botón */}
+      {/* Left Column Vertical Sidebar Navigation - Se oculta en inicio y se despliega en el espacio de trabajo */}
       <div
         className={`transition-all duration-700 ease-in-out shrink-0 z-40 ${
           isPlatformUnlocked
-            ? 'translate-x-0 w-full lg:w-64 opacity-100'
+            ? activeTab === 'welcome'
+              ? 'w-full lg:w-0 lg:overflow-hidden'
+              : 'translate-x-0 w-full lg:w-64 opacity-100'
             : '-translate-x-full w-0 max-w-0 overflow-hidden opacity-0 pointer-events-none fixed lg:static'
         }`}
       >
@@ -631,11 +664,15 @@ export default function App() {
             setAuthModalMode(mode || 'register');
             setShowAuthModal(true);
           }}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
+          hideMobileHeader={activeTab === 'welcome'}
         />
       </div>
 
       {/* Right Column Layout: TopHeader + Main Content Scrollable Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0 bg-[#030610] relative">
+      <div className="flex-1 flex flex-col min-h-[100dvh] lg:h-screen lg:overflow-y-auto min-w-0 bg-[#030610] relative">
         {/* Deporverso Ambient Stadium Texture */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
           <img
@@ -649,13 +686,12 @@ export default function App() {
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col min-h-full">
-          {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (AUTORIZADO CON CREDENCIALES) */}
-          {isSuperAdminAuth && isPlatformUnlocked && (
-            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
+          {/* BARRA SUPERIOR DE MODO ADMINISTRADOR GLOBAL (SOLO DESKTOP LG+ EN WORKSPACE) */}
+          {isSuperAdminAuth && isPlatformUnlocked && activeTab !== 'welcome' && (
+            <div className="hidden lg:flex bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 border-b border-amber-500/30 px-4 py-2 flex-wrap items-center justify-between gap-2 text-xs shadow-xl shrink-0">
               <div className="flex items-center gap-2.5">
-                <span className="inline-flex rounded-full h-2 w-2 bg-amber-400 shrink-0" />
+                <Shield className="w-4 h-4 text-amber-400 shrink-0" />
                 <span className="text-amber-300 font-bold tracking-wide uppercase flex items-center gap-1.5 whitespace-nowrap">
-                  <Shield className="w-4 h-4 text-amber-400" />
                   Modo Administrador Global Activo
                 </span>
                 <span className="hidden md:inline text-slate-400 text-[11px]">
@@ -698,7 +734,7 @@ export default function App() {
           )}
 
           {/* TopHeader - Se oculta en inicio y se despliega en el espacio de trabajo */}
-          {isPlatformUnlocked && (
+          {isPlatformUnlocked && activeTab !== 'welcome' && (
             <div className="z-30 shrink-0">
               <TopHeader
                 activeTab={activeTab}
@@ -730,8 +766,10 @@ export default function App() {
 
           {/* Main App Content View Container */}
           <main className={`flex-1 w-full min-w-0 transition-all duration-500 ${
-            isPlatformUnlocked
-              ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8'
+            isPlatformUnlocked && activeTab !== 'welcome'
+              ? 'max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 lg:py-8'
+              : isPlatformUnlocked
+              ? 'p-0 pb-16 lg:pb-0 w-full'
               : 'p-0 w-full'
           }`}>
             {activeTab === 'club-deporverso' && (
@@ -1078,13 +1116,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={async () => {
-                    try {
-                      if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(FULL_SUPABASE_SQL_SCRIPT);
-                      }
-                    } catch (err) {
-                      console.warn('Clipboard copy prevented:', err);
-                    }
+                    await copyTextSafely(FULL_SUPABASE_SQL_SCRIPT);
                     setCopiedSql(true);
                     setTimeout(() => setCopiedSql(false), 2500);
                   }}
@@ -1181,13 +1213,11 @@ export default function App() {
 
       {/* MODAL DE REGISTRO / AUTENTICACIÓN PARA ACCEDER A LA DEMO */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <LoginGate
-            onLoginSuccess={handleLoginSuccess}
-            onClose={() => setShowAuthModal(false)}
-            initialMode={authModalMode}
-          />
-        </div>
+        <LoginGate
+          onLoginSuccess={handleLoginSuccess}
+          onClose={() => setShowAuthModal(false)}
+          initialMode={authModalMode}
+        />
       )}
 
       {/* MODAL DE SEGURIDAD EXCLUSIVO DE ADMINISTRADOR (CLAVE MAESTRA 1326 O CORREO/CLAVE) */}
@@ -1209,6 +1239,10 @@ export default function App() {
               const url = new URL(window.location.href);
               url.searchParams.delete('mode');
               url.searchParams.delete('matchId');
+              url.searchParams.delete('tenantId');
+              url.searchParams.delete('camId');
+              url.searchParams.delete('camLabel');
+              url.searchParams.delete('angle');
               url.searchParams.delete('auth');
               window.history.replaceState({}, '', url.toString());
             } catch (e) {}
@@ -1235,11 +1269,31 @@ export default function App() {
           homeTeam={teams[0] || ({ id: 'h1', name: 'Atlético Juvenil', primary_color: '#00e5ff' } as unknown as Team)}
           awayTeam={teams[1] || ({ id: 'a1', name: 'Sporting San Pedro', primary_color: '#ff0055' } as unknown as Team)}
           tenant={tenants.find(t => t.id === activeTenantId) || tenants[0] || ({ id: activeTenantId, name: 'Liga Pichincha' } as unknown as Tenant)}
+          camId={remoteTerminalCamId || undefined}
+          camLabel={remoteTerminalCamLabel || undefined}
+          camAngle={remoteTerminalCamAngle || undefined}
           isStandalone={true}
         />
       )}
         </div>
       </div>
+
+      {/* Thumb-Zone Bottom Navigation Bar for Mobile & Small Tablets */}
+      {isPlatformUnlocked && (
+        <MobileBottomNav
+          activeTab={activeTab}
+          onSelectTab={handleTabChange}
+          onOpenMenu={() => setMobileMenuOpen(true)}
+          isSuperAdminAuth={isSuperAdminAuth}
+          isAuthenticated={isAuthenticated}
+          hasPaidFullAccess={hasPaidFullAccess}
+          onOpenAuthModal={(mode) => {
+            setAuthModalMode(mode || 'register');
+            setShowAuthModal(true);
+          }}
+          onOpenCheckout={() => setShowCheckoutOfferModal(true)}
+        />
+      )}
     </div>
   );
 }

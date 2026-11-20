@@ -98,25 +98,44 @@ export const ContinuousQrScannerModal: React.FC<ContinuousQrScannerModalProps> =
         cameraStream.getTracks().forEach(t => t.stop());
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: facingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      });
+      if (typeof navigator === 'undefined' || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        throw new Error('La cámara no está disponible en este navegador o contexto.');
+      }
+
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: facingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        });
+      } catch {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode },
+            audio: false
+          });
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+          });
+        }
+      }
 
       setCameraStream(stream);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.setAttribute('playsinline', 'true');
-        await videoRef.current.play();
+        await videoRef.current.play().catch(() => {});
       }
     } catch (err: any) {
       console.error('Camera access error:', err);
       setCameraError(
-        'No se pudo acceder a la cámara. Asegúrate de conceder permisos en el navegador o usar un dispositivo con cámara.'
+        'No se pudo acceder a la cámara. Asegúrate de conceder permisos en el navegador, usar HTTPS o utilizar un dispositivo compatible.'
       );
     }
   };

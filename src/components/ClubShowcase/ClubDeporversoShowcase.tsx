@@ -26,6 +26,7 @@ import {
   DeporversoPlayer
 } from '../../data/deporversoClubData';
 import { CINEMATIC_ASSETS, getAthletePortrait } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface ClubDeporversoShowcaseProps {
   onUnlockFullPortal?: () => void;
@@ -120,11 +121,11 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
       ? CINEMATIC_ASSETS.stadiumBroadcast
       : club.portadaUrl;
 
-  const handleShareCarnet = (player: DeporversoPlayer) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(
-        `Carnet Oficial ${club.shortName} · ${player.name} (#${player.dorsal}) · ${window.location.href}`
-      );
+  const handleShareCarnet = async (player: DeporversoPlayer) => {
+    const copied = await copyTextSafely(
+      `Carnet Oficial ${club.shortName} · ${player.name} (#${player.dorsal}) · ${window.location.href}`
+    );
+    if (copied) {
       setShowShareToast(`Enlace de carnet copiado: ${player.name} (#${player.dorsal})`);
       setTimeout(() => setShowShareToast(null), 3000);
     }

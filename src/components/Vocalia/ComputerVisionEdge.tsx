@@ -27,6 +27,7 @@ import {
 import { Match } from '../../types';
 import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface ComputerVisionEdgeProps {
   match?: Match;
@@ -666,7 +667,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match, i
                 <span className="font-mono">Configuración de Producción (Cloud Run):</span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText("PORT=8080\nHOST=0.0.0.0\nNODE_ENV=production");
+                    copyTextSafely("PORT=8080\nHOST=0.0.0.0\nNODE_ENV=production");
                     setCopiedDockerfile(true);
                     setTimeout(() => setCopiedDockerfile(false), 2000);
                   }}

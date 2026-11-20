@@ -46,6 +46,12 @@ import { Match, Team, Tenant } from '../../../types';
 import { createVirtualPitchStream, VirtualStreamHandle } from '../../../utils/virtualCameraStream';
 import { syncVarIncidentToFirebase, syncMatchToFirebase } from '../../../services/firebaseService';
 import { offlineSyncQueue } from '../../../services/offlineSyncQueue';
+import { copyTextSafely } from '../../../utils/safeClipboard';
+import {
+  buildQrCameraUrl,
+  createRtcPeerConnection,
+  getStreamStudioWsUrl,
+} from '../../../services/streamStudioClient';
 
 export type CompressionMode = 'auto' | 'ultra_saver' | 'balanced' | 'pro_hd';
 
@@ -56,6 +62,9 @@ export interface TerminalCameraBroadcasterModalProps {
   homeTeam: Team;
   awayTeam: Team;
   tenant: Tenant;
+  camId?: string;
+  camLabel?: string;
+  camAngle?: string;
   onClipCaptured?: (clip: { id: string; url: string; time: string; title: string; type: string }) => void;
   isStandalone?: boolean;
 }
@@ -69,9 +78,16 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   homeTeam,
   awayTeam,
   tenant,
+  camId: propCamId,
+  camLabel: propCamLabel,
+  camAngle: propCamAngle,
   onClipCaptured,
   isStandalone = false
 }) => {
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const resolvedCamId = (propCamId || urlParams?.get('camId') || 'cam-1').trim();
+  const resolvedCamLabel = (propCamLabel || urlParams?.get('camLabel') || `CAM ${resolvedCamId.replace(/[^0-9]/g, '') || '1'} · Celular`).trim();
+  const resolvedCamAngle = (propCamAngle || urlParams?.get('angle') || 'Cancha Móvil').trim();
   // Device selection states
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
@@ -154,10 +170,190 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const recentClipsRef = useRef<Blob[]>([]);
 
-  // Remote Camera Link Generator
-  const remoteCameraUrl = `${window.location.origin}/?mode=terminal-camera&matchId=${encodeURIComponent(match.id)}&tenantId=${encodeURIComponent(tenant.id)}&auth=master-cig`;
+  // Multi-Cam Director Tally & WebSocket + WebRTC States
+  const [isOnAirByDirector, setIsOnAirByDirector] = useState<boolean>(false);
+  const [wsConnected, setWsConnected] = useState<boolean>(false);
+  const [directorOnline, setDirectorOnline] = useState<boolean>(false);
+  const studioWsRef = useRef<WebSocket | null>(null);
+  const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const autoRecordTriggeredRef = useRef<boolean>(false);
 
-  // Sincronización en tiempo real y Heartbeat para el panel central de DeporVerso
+  // Remote Camera Link Generator (for adding a second/next angle quickly)
+  const remoteCameraUrl = buildQrCameraUrl({
+    tenantId: tenant.id,
+    matchId: match.id,
+    camId: resolvedCamId === 'cam-1' ? 'cam-2' : `cam-${Date.now().toString().slice(-2)}`,
+    camLabel: resolvedCamId === 'cam-1' ? 'CAM 2 · Arco Local' : 'Cámara Extra QR',
+    angle: 'Ángulo Adicional',
+  });
+
+  // WebRTC: send local MediaStream to a Director or Spectator peer
+  const createAndSendOfferToPeer = useCallback(async (targetClientId: string) => {
+    const localStream = streamRef.current;
+    if (!localStream || !studioWsRef.current || studioWsRef.current.readyState !== WebSocket.OPEN) return;
+
+    const existing = peerConnectionsRef.current.get(targetClientId);
+    if (existing) {
+      try { existing.close(); } catch {}
+      peerConnectionsRef.current.delete(targetClientId);
+    }
+
+    const pc = createRtcPeerConnection();
+    if (!pc) return;
+    peerConnectionsRef.current.set(targetClientId, pc);
+
+    localStream.getTracks().forEach((track) => {
+      pc.addTrack(track, localStream);
+    });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate && studioWsRef.current?.readyState === WebSocket.OPEN) {
+        studioWsRef.current.send(JSON.stringify({
+          type: 'rtc:ice',
+          targetClientId,
+          camId: resolvedCamId,
+          candidate: event.candidate,
+        }));
+      }
+    };
+
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+        peerConnectionsRef.current.delete(targetClientId);
+      }
+    };
+
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      studioWsRef.current.send(JSON.stringify({
+        type: 'rtc:offer',
+        targetClientId,
+        camId: resolvedCamId,
+        sdp: pc.localDescription,
+      }));
+    } catch (err) {
+      console.warn('Error enviando WebRTC offer:', err);
+    }
+  }, [resolvedCamId]);
+
+  // Real-time WebSocket Studio Connection + Auto-Reconnect
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const deviceLabel = typeof navigator !== 'undefined' && /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent)
+      ? (/iPhone|iPad/i.test(navigator.userAgent) ? 'iPhone / iOS QR' : 'Android / Celular QR')
+      : 'Cámara Web Cancha';
+
+    const connectWs = () => {
+      if (cancelled) return;
+      try {
+        const ws = new WebSocket(getStreamStudioWsUrl());
+        studioWsRef.current = ws;
+
+        ws.onopen = () => {
+          setWsConnected(true);
+          ws.send(JSON.stringify({
+            type: 'studio:join',
+            tenantId: tenant.id,
+            matchId: match.id,
+            role: 'camera',
+            camId: resolvedCamId,
+            camLabel: resolvedCamLabel,
+            angle: resolvedCamAngle,
+            deviceName: deviceLabel,
+            facingMode,
+            isRecording: isRecording || isCameraActive,
+            recordingSeconds: recordedSeconds,
+            recordedBytes,
+            isVirtual: isVirtualFeedActive,
+            fps: currentFps,
+            bitrate: currentBitrate,
+          }));
+        };
+
+        ws.onmessage = async (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'studio:camera_tally') {
+              setIsOnAirByDirector(Boolean(msg.isLiveOnAir));
+              setIsLiveBroadcasting(Boolean(msg.isLiveOnAir));
+              setDirectorOnline(Boolean(msg.directorOnline));
+              if (msg.scoreboard) {
+                if (typeof msg.scoreboard.homeScore === 'number') setLiveHomeScore(msg.scoreboard.homeScore);
+                if (typeof msg.scoreboard.awayScore === 'number') setLiveAwayScore(msg.scoreboard.awayScore);
+              }
+            } else if (msg.type === 'studio:program_changed') {
+              const nowLive = msg.activeProgramCamId === resolvedCamId;
+              setIsOnAirByDirector(nowLive);
+              setIsLiveBroadcasting(nowLive);
+            } else if (msg.type === 'studio:peer_request' && msg.targetClientId) {
+              await createAndSendOfferToPeer(msg.targetClientId);
+            } else if (msg.type === 'rtc:answer' && msg.fromClientId && msg.sdp) {
+              const pc = peerConnectionsRef.current.get(msg.fromClientId);
+              if (pc) {
+                await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+              }
+            } else if (msg.type === 'rtc:ice' && msg.fromClientId && msg.candidate) {
+              const pc = peerConnectionsRef.current.get(msg.fromClientId);
+              if (pc) {
+                await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              }
+            }
+          } catch {}
+        };
+
+        ws.onclose = () => {
+          setWsConnected(false);
+          if (!cancelled) {
+            reconnectTimer = setTimeout(connectWs, 2000);
+          }
+        };
+      } catch {
+        if (!cancelled) reconnectTimer = setTimeout(connectWs, 2500);
+      }
+    };
+
+    connectWs();
+
+    return () => {
+      cancelled = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      peerConnectionsRef.current.forEach((pc) => {
+        try { pc.close(); } catch {}
+      });
+      peerConnectionsRef.current.clear();
+      try { studioWsRef.current?.close(); } catch {}
+      studioWsRef.current = null;
+    };
+  }, [isOpen, tenant.id, match.id, resolvedCamId, resolvedCamLabel, resolvedCamAngle, createAndSendOfferToPeer]);
+
+  // Whenever camera stream becomes ready, update existing WebRTC senders & publish telemetry
+  useEffect(() => {
+    if (!isOpen) return;
+    const interval = setInterval(() => {
+      if (studioWsRef.current?.readyState === WebSocket.OPEN) {
+        studioWsRef.current.send(JSON.stringify({
+          type: 'camera:status_update',
+          isRecording,
+          recordingSeconds: recordedSeconds,
+          recordedBytes,
+          isVirtual: isVirtualFeedActive,
+          facingMode,
+          fps: currentFps,
+          bitrate: currentBitrate,
+          camLabel: resolvedCamLabel,
+        }));
+      }
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [isOpen, isRecording, recordedSeconds, recordedBytes, isVirtualFeedActive, facingMode, currentFps, currentBitrate, resolvedCamLabel]);
+
+  // Also keep lightweight same-browser BroadcastChannel telemetry compatibility
   useEffect(() => {
     let channel: BroadcastChannel | null = null;
     try {
@@ -169,10 +365,14 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
     const interval = setInterval(() => {
       const payload = {
         type: 'CAMERA_HEARTBEAT',
+        camId: resolvedCamId,
+        camLabel: resolvedCamLabel,
         matchId: match.id,
         tenantId: tenant.id,
         isLive: isLiveBroadcasting,
-        isCameraActive: isCameraActive,
+        isRecording,
+        recordingSeconds: recordedSeconds,
+        isCameraActive,
         fps: currentFps,
         bitrate: currentBitrate,
         homeScore: liveHomeScore,
@@ -187,13 +387,13 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
         channel?.postMessage(payload);
         localStorage.setItem('deporverso_camera_active_session', JSON.stringify(payload));
       } catch (err) {}
-    }, 1200);
+    }, 1500);
 
     return () => {
       clearInterval(interval);
       channel?.close();
     };
-  }, [isLiveBroadcasting, isCameraActive, match.id, tenant.id, currentFps, currentBitrate, liveHomeScore, liveAwayScore, homeTeam.name, awayTeam.name]);
+  }, [resolvedCamId, resolvedCamLabel, isLiveBroadcasting, isRecording, recordedSeconds, isCameraActive, match.id, tenant.id, currentFps, currentBitrate, liveHomeScore, liveAwayScore, homeTeam.name, awayTeam.name]);
 
   const triggerToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -959,6 +1159,20 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
     }
   }, [activeTab, remoteCameraUrl]);
 
+  // Auto-start continuous recording once camera stream is active so every connected phone always records
+  useEffect(() => {
+    if (isOpen && isCameraActive && streamRef.current && !isRecording && !autoRecordTriggeredRef.current) {
+      autoRecordTriggeredRef.current = true;
+      const timer = setTimeout(() => {
+        handleStartRecording();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+    if (!isOpen) {
+      autoRecordTriggeredRef.current = false;
+    }
+  }, [isOpen, isCameraActive, isRecording]);
+
   // Initial connect when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -986,6 +1200,7 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
       setIsCameraActive(false);
       setIsLiveBroadcasting(false);
       setIsRecording(false);
+      autoRecordTriggeredRef.current = false;
     }
   }, [isOpen]);
 
@@ -993,7 +1208,7 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
 
   return (
     <div className={`fixed inset-0 z-[100000] flex items-center justify-center ${isStandalone ? 'p-0' : 'p-2 sm:p-4'} bg-black/95 backdrop-blur-2xl animate-in fade-in duration-200 select-none font-sans`}>
-      <div className={`relative w-full ${isStandalone ? 'h-full max-w-none rounded-none border-0' : 'max-w-5xl h-[95vh] rounded-3xl border border-cyan-500/40'} bg-[#030712] shadow-[0_0_80px_rgba(0,240,255,0.25)] flex flex-col overflow-hidden text-white`}>
+      <div className={`relative w-full ${isStandalone ? 'h-full max-w-none rounded-none border-0' : 'max-w-5xl h-[95vh] rounded-3xl border'} ${isOnAirByDirector ? 'border-rose-500 shadow-[0_0_80px_rgba(244,63,94,0.35)]' : 'border-cyan-500/40 shadow-[0_0_80px_rgba(0,240,255,0.25)]'} bg-[#030712] flex flex-col overflow-hidden text-white`}>
         
         {/* ======================================================== */}
         {/* TOAST FLOTANTE DE ACCIÓN                                 */}
@@ -1014,16 +1229,31 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
               <Camera className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-sm sm:text-base font-black text-white tracking-wide uppercase font-mono">
-                  TERMINAL DE CÁMARA & BROADCASTER CIG
+                  {resolvedCamLabel}
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
-                  DISPOSITIVO ACTIVO
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black border ${
+                    isOnAirByDirector
+                      ? 'bg-rose-600 border-rose-400 text-white animate-pulse'
+                      : 'bg-amber-500/20 border-amber-400/50 text-amber-300'
+                  }`}
+                >
+                  {isOnAirByDirector ? '🔴 AL AIRE EN VIVO' : '🟡 EN ESPERA · GRABANDO'}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                    wsConnected
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                      : 'bg-slate-800 border-white/10 text-slate-400'
+                  }`}
+                >
+                  {wsConnected ? (directorOnline ? 'DIRECTOR CONECTADO' : 'SALA CONECTADA') : 'RECONECTANDO...'}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium">
-                {tenant.name} • Cancha Oficial • {homeTeam.name} vs {awayTeam.name}
+                {tenant.name} · {resolvedCamAngle} ({resolvedCamId.toUpperCase()}) · {homeTeam.name} vs {awayTeam.name}
               </p>
             </div>
           </div>
@@ -1113,9 +1343,9 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                   {/* Marcador Oficial Superpuesto */}
                   {showOverlayScore ? (
                     <div className="flex items-center gap-2 bg-black/85 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20 text-xs sm:text-sm font-mono shadow-2xl">
-                      <span className={`w-2.5 h-2.5 rounded-full ${isLiveBroadcasting ? 'bg-rose-500 animate-ping' : 'bg-slate-500'}`} />
-                      <span className={`font-black text-[10px] tracking-wider uppercase ${isLiveBroadcasting ? 'text-rose-400' : 'text-slate-400'}`}>
-                        {isLiveBroadcasting ? 'LIVE BROADCAST' : 'TERMINAL LOCAL'}
+                      <span className={`w-2.5 h-2.5 rounded-full ${isOnAirByDirector ? 'bg-rose-500 animate-ping' : 'bg-amber-400 animate-pulse'}`} />
+                      <span className={`font-black text-[10px] tracking-wider uppercase ${isOnAirByDirector ? 'text-rose-400' : 'text-amber-300'}`}>
+                        {isOnAirByDirector ? `${resolvedCamId.toUpperCase()} · AL AIRE` : `${resolvedCamId.toUpperCase()} · GRABANDO`}
                       </span>
                       <span className="text-white/30">|</span>
                       <span className="font-bold text-white truncate max-w-[100px] sm:max-w-none">{homeTeam.name}</span>
@@ -1896,7 +2126,7 @@ export const TerminalCameraBroadcasterModal: React.FC<TerminalCameraBroadcasterM
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(remoteCameraUrl);
+                    copyTextSafely(remoteCameraUrl);
                     setCopiedLink(true);
                     triggerToast('✓ Enlace copiado al portapapeles');
                     setTimeout(() => setCopiedLink(false), 2500);

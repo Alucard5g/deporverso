@@ -5,6 +5,7 @@ import {
   X, ExternalLink, ArrowRight, Clock, DollarSign, Download, Share2, 
   Smartphone, Eye, Layers, Compass, BarChart3, Check
 } from 'lucide-react';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 export interface MultiversoStepTourModalProps {
   isOpen: boolean;
@@ -337,10 +338,10 @@ export const MultiversoStepTourModal: React.FC<MultiversoStepTourModalProps> = (
     onClose();
   };
 
-  const handleShareSummary = () => {
+  const handleShareSummary = async () => {
     const text = `🏆 *Propuesta Oficial DeporVerso para Dirigentes de Liga Barrial Pichincha*\n\nEstación ${activeStation.stationNumber}/8: *${activeStation.title}*\n\n✅ Beneficio: ${activeStation.dirigenteBenefit}\n⏱️ Ahorro: 14 hrs/semana en secretaría y tablas automáticas.\n🛡️ Cero papel con Vocalía Digital y Carnet QR inviolable.\n\nVer demostración completa en vivo: https://deporverso.app`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 3000);
     }

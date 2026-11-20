@@ -3,6 +3,7 @@ import {
   Download, Copy, Check, Sparkles, Tag, Smartphone, Monitor, Square, 
   ChevronRight, Trophy, Video, ShieldCheck, Flame, ArrowRight, Share2 
 } from 'lucide-react';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface CampaignBannersGeneratorProps {
   onOpenCheckout?: () => void;
@@ -79,7 +80,7 @@ export const CampaignBannersGenerator: React.FC<CampaignBannersGeneratorProps> =
   const bannerCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleCopyAdCopy = () => {
-    navigator.clipboard.writeText(selectedTemplate.adCopy);
+    copyTextSafely(selectedTemplate.adCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };

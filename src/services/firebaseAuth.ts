@@ -51,13 +51,23 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken) {
-      throw new Error('Failed to get access token from Firebase Auth');
+      throw new Error('No se pudo obtener el token de acceso de Google.');
     }
 
     cachedAccessToken = credential.accessToken;
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {
-    console.error('Sign in error:', error);
+    const code = error?.code || '';
+    if (code === 'auth/popup-blocked') {
+      throw new Error('Tu navegador móvil bloqueó la ventana de Google. Habilita ventanas emergentes o regístrate con tu correo justo arriba.');
+    }
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      throw new Error('Se cerró la ventana de Google antes de completar el ingreso.');
+    }
+    if (code === 'auth/operation-not-supported-in-this-environment' || code === 'auth/unauthorized-domain') {
+      throw new Error('Este navegador o vista integrada no permite Google Sign-In aquí. Usa el registro rápido con correo y contraseña.');
+    }
+    console.warn('Google sign-in notice:', error?.message || error);
     throw error;
   } finally {
     isSigningIn = false;

@@ -6,6 +6,7 @@ import {
   Activity, ExternalLink, Calendar, ChevronDown, Layers
 } from 'lucide-react';
 import { MULTIVERSO_STATIONS } from './MultiversoStepTourModal';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface MultiversoExecutiveDemoProps {
   onNavigateTab: (tabId: string) => void;
@@ -48,7 +49,7 @@ export const MultiversoExecutiveDemo: React.FC<MultiversoExecutiveDemoProps> = (
     });
   };
 
-  const handleCopyProposal = () => {
+  const handleCopyProposal = async () => {
     const text = `🏆 *DOSSIER EJECUTIVO OFICIAL · LIGA BARRIAL PICHINCHA & CLUB DEPORVERSO*\n\n` +
       `Estimados Señores Dirigentes y Presidentes de Clubes Filiales:\n\n` +
       `Presentamos la plataforma tecnológica integral *DeporVerso*, desarrollada para profesionalizar al 100% nuestra liga barrial:\n\n` +
@@ -63,8 +64,8 @@ export const MultiversoExecutiveDemo: React.FC<MultiversoExecutiveDemoProps> = (
       `📌 *Inversión oficial de lanzamiento:* $35 USD por club y por torneo (Precio real: $70 USD • 50% de descuento).\n` +
       `Demostración interactiva en vivo: https://deporverso.app`;
 
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedProposal(true);
       setTimeout(() => setCopiedProposal(false), 3000);
     }

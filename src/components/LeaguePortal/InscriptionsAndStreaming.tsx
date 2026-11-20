@@ -8,6 +8,7 @@ import {
   ChevronRight, Lock, Users, Award, RefreshCw, UploadCloud, Info
 } from 'lucide-react';
 import { Tenant, Sport, Match, Team, Player } from '../../types';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface InscriptionsAndStreamingProps {
   tenant: Tenant;
@@ -18,6 +19,7 @@ interface InscriptionsAndStreamingProps {
   onRegisterTeamSuccess?: (newTeam: Partial<Team>) => void;
   initialSubTab?: 'inscriptions' | 'rules' | 'streaming';
   initialSelectedMatchId?: string;
+  isSuperAdminAuth?: boolean;
 }
 
 export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> = ({
@@ -28,10 +30,12 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
   players,
   onRegisterTeamSuccess,
   initialSubTab = 'inscriptions',
-  initialSelectedMatchId
+  initialSelectedMatchId,
+  isSuperAdminAuth = false
 }) => {
-  // Navigation between Inscriptions, Rules, and Open Source Streaming
-  const [subTab, setSubTab] = useState<'inscriptions' | 'rules' | 'streaming'>(initialSubTab);
+  // Navigation between Inscriptions, Rules, and Open Source Streaming (Creator-only)
+  const safeInitialSubTab = !isSuperAdminAuth && initialSubTab === 'streaming' ? 'inscriptions' : initialSubTab;
+  const [subTab, setSubTab] = useState<'inscriptions' | 'rules' | 'streaming'>(safeInitialSubTab);
 
   // ----------------------------------------------------
   // SECTION 1: INSCRIPCIONES & PASARELA DE PAGO STATE
@@ -55,6 +59,8 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
     paymentMethod: string;
     paidAt: string;
   } | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [receiptFeedback, setReceiptFeedback] = useState<string | null>(null);
 
   // Bank Transfer receipt input
   const [bankRefNumber, setBankRefNumber] = useState('');
@@ -76,12 +82,13 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
   // Handle payment execution
   const handleProcessPayment = (e: React.FormEvent) => {
     e.preventDefault();
+    setPaymentError(null);
     if (!acceptRegulations) {
-      alert('Debes leer y aceptar el Reglamento Oficial de la Liga para formalizar la inscripción.');
+      setPaymentError('Debes leer y aceptar el Reglamento Oficial de la Liga para formalizar la inscripción.');
       return;
     }
     if (!teamName.trim() || !delegateName.trim() || !delegatePhone.trim()) {
-      alert('Por favor completa todos los datos requeridos del club y delegado.');
+      setPaymentError('Por favor completa todos los datos requeridos del club y delegado.');
       return;
     }
 
@@ -140,7 +147,7 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
   const awayTeam = teams.find(t => t.id === activeMatch?.away_team_id) || { name: 'Visitante SC', primary_color: '#ff0055' };
 
   const copyToClipboard = (text: string, fieldName: string) => {
-    navigator.clipboard.writeText(text);
+    copyTextSafely(text);
     setCopiedField(fieldName);
     setTimeout(() => setCopiedField(null), 2500);
   };
@@ -215,17 +222,19 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
               <span>Reglamento Oficial</span>
             </button>
 
-            <button
-              onClick={() => setSubTab('streaming')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                subTab === 'streaming'
-                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-black shadow-lg shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Radio className="w-4 h-4" />
-              <span>Streaming Open Source</span>
-            </button>
+            {isSuperAdminAuth && (
+              <button
+                onClick={() => setSubTab('streaming')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  subTab === 'streaming'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-black shadow-lg shadow-cyan-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Radio className="w-4 h-4" />
+                <span>Streaming Open Source</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -276,9 +285,30 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                   <button
                     onClick={() => {
-                      alert(`Descargando Acta Digital Oficial (${paymentSuccessData.receiptId}.pdf) con firma digital y código QR de validación.`);
+                      const receiptTxt = [
+                        `ACTA DIGITAL DE INSCRIPCIÓN OFICIAL - ${tenant.name}`,
+                        `===================================================`,
+                        `Código de Recibo: ${paymentSuccessData.receiptId}`,
+                        `Club Registrado: ${paymentSuccessData.teamName}`,
+                        `Categoría: ${selectedCategory}`,
+                        `Total Abonado: $${paymentSuccessData.totalPaid.toFixed(2)} USD`,
+                        `Método de Cobro: ${paymentSuccessData.paymentMethod}`,
+                        `Fecha de Emisión: ${paymentSuccessData.paidAt}`,
+                        `Validación QR: https://${tenant.domain || 'deporverso.app'}/verify/${paymentSuccessData.receiptId}`
+                      ].join('\n');
+                      const blob = new Blob([receiptTxt], { type: 'text/plain;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${paymentSuccessData.receiptId}_Acta.txt`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                      setReceiptFeedback(`Acta Digital (${paymentSuccessData.receiptId}) descargada con código de validación QR.`);
+                      setTimeout(() => setReceiptFeedback(null), 4000);
                     }}
-                    className="py-3 px-5 bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center justify-center gap-2"
+                    className="py-3 px-5 bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
                   >
                     <Download className="w-4 h-4" />
                     <span>Descargar Acta Digital & QR</span>
@@ -287,20 +317,43 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
                   <button
                     onClick={() => {
                       setPaymentSuccessData(null);
+                      setReceiptFeedback(null);
                       setTeamName('');
                       setDelegateName('');
                       setDelegatePhone('');
                     }}
-                    className="py-3 px-5 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="py-3 px-5 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>Registrar Otro Equipo</span>
                   </button>
                 </div>
+
+                {receiptFeedback && (
+                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>{receiptFeedback}</span>
+                  </div>
+                )}
               </div>
             ) : (
               /* FORMULARIO DE INSCRIPCIÓN Y CHECKOUT */
               <form onSubmit={handleProcessPayment} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {paymentError && (
+                  <div className="lg:col-span-12 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/35 text-rose-200 text-xs flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{paymentError}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentError(null)}
+                      className="text-rose-300 hover:text-white font-bold px-2 py-1 rounded-lg bg-rose-500/10 cursor-pointer"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                )}
                 {/* Columna Izquierda: Datos del Club y Nómina (7 Cols) */}
                 <div className="lg:col-span-7 space-y-6">
                   <div className="bg-slate-900/50 rounded-2xl border border-white/10 p-6 space-y-4">
@@ -738,9 +791,9 @@ export const InscriptionsAndStreaming: React.FC<InscriptionsAndStreamingProps> =
         )}
 
         {/* ---------------------------------------------------- */}
-        {/* SUBTAB 3: STREAMING OPEN SOURCE (RTMP + YOUTUBE LIVE) */}
+        {/* SUBTAB 3: STREAMING OPEN SOURCE (EXCLUSIVO CREADOR)  */}
         {/* ---------------------------------------------------- */}
-        {subTab === 'streaming' && (
+        {subTab === 'streaming' && isSuperAdminAuth && (
           <div className="pt-6 space-y-8">
             {/* Banner Explicativo de la Arquitectura Híbrida Open Source */}
             <div className="bg-gradient-to-r from-cyan-950/80 via-slate-900 to-black p-6 rounded-2xl border border-cyan-500/30 space-y-3 relative overflow-hidden">

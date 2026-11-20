@@ -9,6 +9,7 @@ import { Match, MatchEvent, Player, Sport, Tenant, Team, PlayerMatchStat, VocalR
 import { TradingCardCarnet } from '../LeaguePortal/TradingCardCarnet';
 import { ContinuousQrScannerModal } from './ContinuousQrScannerModal';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { useViewportProfile } from '../../hooks/useViewportProfile';
 
 interface VocaliaDigitalProps {
   matches: Match[];
@@ -44,12 +45,30 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
   onUpdateScore,
   onSaveVocalia
 }) => {
+  const { isMobile } = useViewportProfile();
   const [selectedMatchId, setSelectedMatchId] = useState<string>(matches?.[0]?.id || '');
   const activeMatch = matches?.find(m => m.id === selectedMatchId) || matches?.[0];
 
-  // View layout mode for player panels: 'DUAL' (both teams side-by-side) or 'TABS' (toggle tabs)
-  const [panelViewMode, setPanelViewMode] = useState<'DUAL' | 'TABS'>('DUAL');
+  // View layout mode for player panels: 'TABS' on phones for zero cramming, 'DUAL' on tablet/desktop
+  const [panelViewMode, setPanelViewMode] = useState<'DUAL' | 'TABS'>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'TABS' : 'DUAL'
+  );
+  const [hasManualViewToggle, setHasManualViewToggle] = useState(false);
   const [activeTeamTab, setActiveTeamTab] = useState<'HOME' | 'AWAY'>('HOME');
+
+  useEffect(() => {
+    if (!hasManualViewToggle) {
+      setPanelViewMode(isMobile ? 'TABS' : 'DUAL');
+    }
+  }, [isMobile, hasManualViewToggle]);
+
+  // Undo stack for quick mistakes in live match recording
+  const [actionHistory, setActionHistory] = useState<Array<{
+    type: 'GOAL' | 'YELLOW' | 'RED';
+    playerId: string;
+    label: string;
+  }>>([]);
+  const [inlineErrorNotification, setInlineErrorNotification] = useState<string | null>(null);
 
   // Timer state
   const [timerSeconds, setTimerSeconds] = useState(1200); // 20 mins default
@@ -228,7 +247,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
   const totalRedCards = Object.values(playerStats).reduce((sum, s) => sum + s.red_cards, 0);
 
   // Increments & Decrements for Player Stats
-  const updatePlayerGoals = (playerId: string, delta: number) => {
+  const updatePlayerGoals = (playerId: string, delta: number, skipHistory = false) => {
     const current = playerStats[playerId];
     if (!current) return;
     const newGoals = Math.max(0, current.goals + delta);
@@ -244,7 +263,11 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     setPlayerStats(updated);
     onUpdateScore(activeMatch.id, newHomeScore, newAwayScore);
 
-    if (delta > 0) {
+    if (delta > 0 && !skipHistory) {
+      setActionHistory(prev => [
+        { type: 'GOAL', playerId, label: `Gol de ${current.player_name} (#${current.jersey_number})` },
+        ...prev.slice(0, 14)
+      ]);
       onAddEvent({
         tenant_id: activeMatch.tenant_id,
         match_id: activeMatch.id,
@@ -260,7 +283,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     }
   };
 
-  const updatePlayerYellowCards = (playerId: string, delta: number) => {
+  const updatePlayerYellowCards = (playerId: string, delta: number, skipHistory = false) => {
     const current = playerStats[playerId];
     if (!current) return;
     const newYellow = Math.max(0, current.yellow_cards + delta);
@@ -273,7 +296,11 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     const updated = { ...playerStats, [playerId]: { ...current, yellow_cards: newYellow, red_cards: newRed } };
     setPlayerStats(updated);
 
-    if (delta > 0) {
+    if (delta > 0 && !skipHistory) {
+      setActionHistory(prev => [
+        { type: 'YELLOW', playerId, label: `Amarilla a ${current.player_name} (#${current.jersey_number})` },
+        ...prev.slice(0, 14)
+      ]);
       onAddEvent({
         tenant_id: activeMatch.tenant_id,
         match_id: activeMatch.id,
@@ -289,14 +316,18 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     }
   };
 
-  const updatePlayerRedCards = (playerId: string, delta: number) => {
+  const updatePlayerRedCards = (playerId: string, delta: number, skipHistory = false) => {
     const current = playerStats[playerId];
     if (!current) return;
     const newRed = Math.max(0, current.red_cards + delta);
     const updated = { ...playerStats, [playerId]: { ...current, red_cards: newRed } };
     setPlayerStats(updated);
 
-    if (delta > 0) {
+    if (delta > 0 && !skipHistory) {
+      setActionHistory(prev => [
+        { type: 'RED', playerId, label: `Roja a ${current.player_name} (#${current.jersey_number})` },
+        ...prev.slice(0, 14)
+      ]);
       onAddEvent({
         tenant_id: activeMatch.tenant_id,
         match_id: activeMatch.id,
@@ -310,6 +341,15 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
         details: { jersey_number: current.jersey_number }
       });
     }
+  };
+
+  const handleUndoLastAction = () => {
+    const last = actionHistory[0];
+    if (!last) return;
+    if (last.type === 'GOAL') updatePlayerGoals(last.playerId, -1, true);
+    if (last.type === 'YELLOW') updatePlayerYellowCards(last.playerId, -1, true);
+    if (last.type === 'RED') updatePlayerRedCards(last.playerId, -1, true);
+    setActionHistory(prev => prev.slice(1));
   };
 
   // Add custom player on the fly
@@ -396,9 +436,11 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     e.preventDefault();
     const found = players.find(p => p.qr_code.toLowerCase() === qrCodeInput.trim().toLowerCase());
     if (found) {
+      setInlineErrorNotification(null);
       handlePlayerScannedContinuous(found, found.team_id || activeMatch.home_team_id);
     } else {
-      alert('Carnet QR no encontrado en la base de datos de esta liga.');
+      setInlineErrorNotification('Carnet QR no encontrado en la base de datos de esta liga.');
+      setTimeout(() => setInlineErrorNotification(null), 4500);
     }
   };
 
@@ -422,6 +464,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
   // Confirm and Save Vocalia to Firebase
   const handleConfirmSaveFirebase = async () => {
     setIsSavingFirebase(true);
+    setInlineErrorNotification(null);
 
     const payload = {
       matchId: activeMatch.id,
@@ -469,7 +512,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
       setTimeout(() => setSaveSuccessNotification(null), 6000);
     } catch (err) {
       console.error(err);
-      alert('Error al sincronizar con Firebase. Intente nuevamente.');
+      setInlineErrorNotification('No se pudo sincronizar el acta con Firebase. Verifica la conexión e intenta nuevamente.');
     } finally {
       setIsSavingFirebase(false);
     }
@@ -611,16 +654,143 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           </form>
         )}
 
-        {/* Player Roster Table */}
-        <div className="overflow-x-auto">
+        {/* Mobile Touch-Friendly Player Cards (< 640px) */}
+        <div className="sm:hidden space-y-2.5">
+          {playerList.length === 0 ? (
+            <div className="py-6 text-center text-[#A0A0A0] text-xs bg-[#141414] rounded-xl border border-white/10">
+              Sin jugadores registrados. Escanea sus carnets QR o inscríbelos manualmente.
+            </div>
+          ) : (
+            playerList.map((stat) => {
+              const hasRed = stat.red_cards > 0;
+              const isVerified = verifiedQrPlayers.has(stat.player_id);
+
+              return (
+                <div
+                  key={`mobile-${stat.player_id}`}
+                  className={`p-3 rounded-xl border space-y-2.5 ${
+                    hasRed ? 'bg-red-500/10 border-red-500/30' : 'bg-[#121212] border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-[#1d222f] border border-white/15 text-white font-mono font-black text-xs flex items-center justify-center shrink-0">
+                        {stat.jersey_number || '-'}
+                      </div>
+                      <div className="min-w-0">
+                        <span className={`font-bold block text-xs truncate ${hasRed ? 'text-red-300 line-through' : 'text-white'}`}>
+                          {stat.player_name}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          {isVerified && (
+                            <span className="px-1.5 py-0.5 rounded bg-[#00ff66]/15 text-[#00ff66] text-[9px] font-bold border border-[#00ff66]/30 inline-flex items-center gap-0.5">
+                              <CheckCircle className="w-2.5 h-2.5" /> QR OK
+                            </span>
+                          )}
+                          {hasRed && (
+                            <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-black border border-red-500/30">
+                              EXPULSADO
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    {/* Goles */}
+                    <div className="bg-[#0b0b0b] border border-white/10 rounded-xl p-1.5 text-center space-y-1">
+                      <span className="text-[9px] font-mono text-slate-400 uppercase block">Goles</span>
+                      <div className="flex items-center justify-between gap-1">
+                        <button
+                          type="button"
+                          disabled={stat.goals <= 0}
+                          onClick={() => updatePlayerGoals(stat.player_id, -1)}
+                          className="w-9 h-9 rounded-lg bg-white/5 text-white disabled:opacity-30 flex items-center justify-center cursor-pointer"
+                          aria-label={`Restar gol a ${stat.player_name}`}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="font-mono font-black text-sm text-[#00ff66]">{stat.goals}</span>
+                        <button
+                          type="button"
+                          onClick={() => updatePlayerGoals(stat.player_id, 1)}
+                          className={`w-9 h-9 rounded-lg ${btnPlusClass} flex items-center justify-center cursor-pointer`}
+                          aria-label={`Sumar gol a ${stat.player_name}`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Amarillas */}
+                    <div className="bg-[#0b0b0b] border border-white/10 rounded-xl p-1.5 text-center space-y-1">
+                      <span className="text-[9px] font-mono text-amber-400/90 uppercase block">Amarilla</span>
+                      <div className="flex items-center justify-between gap-1">
+                        <button
+                          type="button"
+                          disabled={stat.yellow_cards <= 0}
+                          onClick={() => updatePlayerYellowCards(stat.player_id, -1)}
+                          className="w-9 h-9 rounded-lg bg-white/5 text-white disabled:opacity-30 flex items-center justify-center cursor-pointer"
+                          aria-label={`Restar amarilla a ${stat.player_name}`}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="font-mono font-black text-sm text-amber-400">{stat.yellow_cards}</span>
+                        <button
+                          type="button"
+                          disabled={stat.yellow_cards >= 2}
+                          onClick={() => updatePlayerYellowCards(stat.player_id, 1)}
+                          className="w-9 h-9 rounded-lg bg-amber-500 text-black flex items-center justify-center cursor-pointer disabled:opacity-30"
+                          aria-label={`Sumar amarilla a ${stat.player_name}`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rojas */}
+                    <div className="bg-[#0b0b0b] border border-white/10 rounded-xl p-1.5 text-center space-y-1">
+                      <span className="text-[9px] font-mono text-red-400/90 uppercase block">Roja</span>
+                      <div className="flex items-center justify-between gap-1">
+                        <button
+                          type="button"
+                          disabled={stat.red_cards <= 0}
+                          onClick={() => updatePlayerRedCards(stat.player_id, -1)}
+                          className="w-9 h-9 rounded-lg bg-white/5 text-white disabled:opacity-30 flex items-center justify-center cursor-pointer"
+                          aria-label={`Restar roja a ${stat.player_name}`}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="font-mono font-black text-sm text-red-400">{stat.red_cards}</span>
+                        <button
+                          type="button"
+                          disabled={stat.red_cards >= 1}
+                          onClick={() => updatePlayerRedCards(stat.player_id, 1)}
+                          className="w-9 h-9 rounded-lg bg-red-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-30"
+                          aria-label={`Sumar roja a ${stat.player_name}`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Tablet & Desktop Player Roster Table (>= 640px) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 text-[9px] uppercase font-black tracking-wider text-[#A0A0A0] bg-[#141414]">
                 <th className="py-2.5 px-2 text-center w-12">Nº</th>
                 <th className="py-2.5 px-3">JUGADOR</th>
-                <th className="py-2.5 px-2 text-center">GOLES (⚽)</th>
-                <th className="py-2.5 px-2 text-center">AMARILLA (🟨)</th>
-                <th className="py-2.5 px-2 text-center">ROJA (🟥)</th>
+                <th className="py-2.5 px-2 text-center">GOLES</th>
+                <th className="py-2.5 px-2 text-center">AMARILLA</th>
+                <th className="py-2.5 px-2 text-center">ROJA</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs">
@@ -640,14 +810,12 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                       key={stat.player_id}
                       className={`hover:bg-white/5 transition-colors ${hasRed ? 'bg-red-500/5' : ''}`}
                     >
-                      {/* Dorsal */}
                       <td className="py-2.5 px-2 text-center">
                         <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 text-white font-mono font-black text-xs flex items-center justify-center mx-auto shadow-sm">
                           {stat.jersey_number || '-'}
                         </div>
                       </td>
 
-                      {/* Nombre & Badge */}
                       <td className="py-2.5 px-3">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className={`font-bold block text-xs ${hasRed ? 'text-red-300 line-through' : 'text-white'}`}>
@@ -666,13 +834,12 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                         </div>
                       </td>
 
-                      {/* GOLES +/- */}
                       <td className="py-2.5 px-2 text-center">
                         <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
                             disabled={stat.goals <= 0}
                             onClick={() => updatePlayerGoals(stat.player_id, -1)}
-                            className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar gol"
                           >
                             <Minus className="w-3 h-3" />
@@ -684,7 +851,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
 
                           <button
                             onClick={() => updatePlayerGoals(stat.player_id, 1)}
-                            className={`w-6 h-6 rounded ${btnPlusClass} flex items-center justify-center font-black cursor-pointer shadow-sm transition-all`}
+                            className={`w-7 h-7 rounded ${btnPlusClass} flex items-center justify-center font-black cursor-pointer shadow-sm transition-all`}
                             title="Sumar gol"
                           >
                             <Plus className="w-3 h-3" />
@@ -692,13 +859,12 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                         </div>
                       </td>
 
-                      {/* AMARILLAS +/- */}
                       <td className="py-2.5 px-2 text-center">
                         <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
                             disabled={stat.yellow_cards <= 0}
                             onClick={() => updatePlayerYellowCards(stat.player_id, -1)}
-                            className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar tarjeta amarilla"
                           >
                             <Minus className="w-3 h-3" />
@@ -711,7 +877,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                           <button
                             disabled={stat.yellow_cards >= 2}
                             onClick={() => updatePlayerYellowCards(stat.player_id, 1)}
-                            className="w-6 h-6 rounded bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
+                            className="w-7 h-7 rounded bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
                             title="Sumar tarjeta amarilla"
                           >
                             <Plus className="w-3 h-3" />
@@ -719,13 +885,12 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                         </div>
                       </td>
 
-                      {/* ROJAS +/- */}
                       <td className="py-2.5 px-2 text-center">
                         <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
                             disabled={stat.red_cards <= 0}
                             onClick={() => updatePlayerRedCards(stat.player_id, -1)}
-                            className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar tarjeta roja"
                           >
                             <Minus className="w-3 h-3" />
@@ -738,7 +903,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                           <button
                             disabled={stat.red_cards >= 1}
                             onClick={() => updatePlayerRedCards(stat.player_id, 1)}
-                            className="w-6 h-6 rounded bg-red-500 hover:bg-red-400 text-white flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
+                            className="w-7 h-7 rounded bg-red-500 hover:bg-red-400 text-white flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
                             title="Sumar tarjeta roja (expulsión)"
                           >
                             <Plus className="w-3 h-3" />
@@ -771,6 +936,22 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           <button 
             onClick={() => setSaveSuccessNotification(null)}
             className="text-xs text-[#00ff66] underline font-bold cursor-pointer"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
+      {inlineErrorNotification && (
+        <div className="bg-rose-500/15 border border-rose-500/40 p-3.5 rounded-2xl flex items-center justify-between gap-3 text-rose-200 text-xs">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span className="font-semibold">{inlineErrorNotification}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setInlineErrorNotification(null)}
+            className="text-xs text-rose-300 underline font-bold cursor-pointer shrink-0"
           >
             Cerrar
           </button>
@@ -923,7 +1104,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => setIsTimerRunning(!isTimerRunning)}
-                className={`px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg ${
+                className={`min-h-[40px] px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg ${
                   isTimerRunning
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                     : 'bg-[#00ff66] text-black hover:bg-[#00ff66]/90'
@@ -934,12 +1115,49 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
               </button>
 
               <button
+                type="button"
+                onClick={() => setTimerSeconds(prev => prev + 60)}
+                title="Añadir +1 minuto de adición"
+                className="min-h-[40px] px-3 py-2 bg-black/50 hover:bg-white/10 text-amber-300 rounded-xl border border-amber-500/25 font-mono text-xs font-bold cursor-pointer transition-colors"
+              >
+                +1m
+              </button>
+
+              <button
                 onClick={() => setTimerSeconds(0)}
                 title="Reiniciar cronómetro"
-                className="p-2.5 bg-black/50 hover:bg-white/10 text-white/60 hover:text-white rounded-xl border border-white/10 cursor-pointer transition-colors"
+                className="min-h-[40px] min-w-[40px] p-2.5 bg-black/50 hover:bg-white/10 text-white/60 hover:text-white rounded-xl border border-white/10 cursor-pointer transition-colors flex items-center justify-center"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 flex-wrap text-[10px] font-mono">
+              {[
+                { label: '15m', sec: 900 },
+                { label: '20m', sec: 1200 },
+                { label: '35m', sec: 2100 },
+                { label: '45m', sec: 2700 }
+              ].map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => setTimerSeconds(preset.sec)}
+                  className="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-white/10 text-slate-300 border border-white/10 cursor-pointer transition-colors"
+                >
+                  {preset.label}
+                </button>
+              ))}
+              {actionHistory.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleUndoLastAction}
+                  title={actionHistory[0].label}
+                  className="px-2.5 py-1 rounded-md bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 font-bold cursor-pointer transition-colors"
+                >
+                  Deshacer ({actionHistory.length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -1019,7 +1237,10 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           <div className="deporverso-segmented-nav flex items-center p-1 text-xs self-start sm:self-auto">
             <button
               type="button"
-              onClick={() => setPanelViewMode('DUAL')}
+              onClick={() => {
+                setHasManualViewToggle(true);
+                setPanelViewMode('DUAL');
+              }}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                 panelViewMode === 'DUAL' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}
@@ -1029,7 +1250,10 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setPanelViewMode('TABS')}
+              onClick={() => {
+                setHasManualViewToggle(true);
+                setPanelViewMode('TABS');
+              }}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                 panelViewMode === 'TABS' ? 'deporverso-tab-pill-active font-semibold' : 'deporverso-tab-pill-inactive'
               }`}

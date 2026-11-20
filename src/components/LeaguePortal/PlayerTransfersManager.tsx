@@ -51,6 +51,7 @@ export const PlayerTransfersManager: React.FC<PlayerTransfersManagerProps> = ({
   const [newJerseyNumber, setNewJerseyNumber] = useState<string>('');
   const [transferNotes, setTransferNotes] = useState<string>('');
   const [playerAgreed, setPlayerAgreed] = useState<boolean>(true);
+  const [transferFormError, setTransferFormError] = useState<string | null>(null);
 
   // Signature canvas
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -358,8 +359,9 @@ export const PlayerTransfersManager: React.FC<PlayerTransfersManagerProps> = ({
   // Create New Transfer Request
   const handleCreateTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTransferFormError(null);
     if (!selectedPlayer || !selectedDestinationTeamId) {
-      alert('Por favor selecciona un jugador y el club de destino.');
+      setTransferFormError('Por favor selecciona un jugador y el club de destino.');
       return;
     }
 
@@ -367,7 +369,7 @@ export const PlayerTransfersManager: React.FC<PlayerTransfersManagerProps> = ({
     if (!destinationTeam) return;
 
     if (destinationTeam.id === selectedPlayer.team_id) {
-      alert('El club de destino debe ser diferente al club actual del jugador.');
+      setTransferFormError('El club de destino debe ser diferente al club actual del jugador.');
       return;
     }
 
@@ -824,6 +826,12 @@ export const PlayerTransfersManager: React.FC<PlayerTransfersManagerProps> = ({
             </div>
 
             <form onSubmit={handleCreateTransfer} className="space-y-4">
+              {transferFormError && (
+                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/35 text-rose-200 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{transferFormError}</span>
+                </div>
+              )}
               {/* Seleccionar Jugador */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">

@@ -27,6 +27,7 @@ import {
   Eye,
   Clock
 } from 'lucide-react';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface SecurityStatusData {
   entity: string;
@@ -179,7 +180,7 @@ export const CigSecurityPanel: React.FC = () => {
   const copyMasterHash = () => {
     const hash = otsStatus?.masterHash || status?.manifest?.merkle_master_root_hash;
     if (hash) {
-      navigator.clipboard.writeText(hash);
+      copyTextSafely(hash);
       setCopiedHash(true);
       setTimeout(() => setCopiedHash(false), 2000);
     }
@@ -187,7 +188,7 @@ export const CigSecurityPanel: React.FC = () => {
 
   const copyGitCommands = () => {
     const cmd = `git config --global gpg.format ssh && git config --global user.signingkey .cig-security/cig-public.pem && git config --global commit.gpgsign true`;
-    navigator.clipboard.writeText(cmd);
+    copyTextSafely(cmd);
     setCopiedGitCmd(true);
     setTimeout(() => setCopiedGitCmd(false), 2000);
   };

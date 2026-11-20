@@ -7,6 +7,7 @@ import {
   HelpCircle, ChevronRight, Hash, Eye
 } from 'lucide-react';
 import { SportCode, Tenant } from '../../types';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 export interface AffiliationModalProps {
   isOpen: boolean;
@@ -169,11 +170,18 @@ export const AffiliationModal: React.FC<AffiliationModalProps> = ({
       `🤝 *Solicito contacto directo por WhatsApp para asesoría y propuesta económica a la medida.*`;
   };
 
-  // Open WhatsApp to admin
+  // Open WhatsApp to admin safely across iFrame & mobile WebViews
   const handleOpenAdminWhatsapp = (message: string) => {
     const encoded = encodeURIComponent(message);
     const url = `https://wa.me/${ADMIN_WHATSAPP_INTERNATIONAL}?text=${encoded}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    copyTextSafely(message);
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Trigger SMS app
@@ -185,7 +193,7 @@ export const AffiliationModal: React.FC<AffiliationModalProps> = ({
 
   // Copy message to clipboard
   const handleCopyMessage = (message: string) => {
-    navigator.clipboard.writeText(message);
+    copyTextSafely(message);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 3000);
   };

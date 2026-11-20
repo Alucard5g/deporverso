@@ -7,13 +7,33 @@
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior-x: none;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: #030610;
     color: #F3F4F6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-x: none;
+    min-height: 100dvh;
     letter-spacing: 0.005em;
+  }
+
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Evita el auto-zoom forzado de iOS Safari al enfocar campos de formulario */
+  @media (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 
   h1, h2 {
@@ -390,8 +410,10 @@
   pointer-events: none;
 }
 
-.cyber-sheen-effect:hover::after {
-  transform: translateX(100%) rotate(25deg);
+@media (hover: hover) and (pointer: fine) {
+  .cyber-sheen-effect:hover::after {
+    transform: translateX(100%) rotate(25deg);
+  }
 }
 
 /* 3D Interactive Card with Dynamic Lighting */
@@ -400,10 +422,12 @@
   transform-style: preserve-3d;
 }
 
-.card-3d-interactive:hover {
-  transform: translateY(-6px) scale(1.015);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px -5px rgba(16, 185, 129, 0.25);
-  border-color: rgba(16, 185, 129, 0.5);
+@media (hover: hover) and (pointer: fine) {
+  .card-3d-interactive:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px -5px rgba(16, 185, 129, 0.25);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
 }
 
 /* Multiverse Orbit Animation */

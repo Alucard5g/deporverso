@@ -11,6 +11,7 @@ import {
   FolderDown, AlertOctagon, ShieldAlert
 } from 'lucide-react';
 import { Tenant, Match, MatchEvent, Team, Sport } from '../../types';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface LeagueAnalyticsProps {
   tenant: Tenant;
@@ -447,7 +448,7 @@ export const LeagueAnalytics: React.FC<LeagueAnalyticsProps> = ({
       `\n\n🔗 *Ver estadísticas completas en vivo:* https://deporverso.app\n` +
       `⚡ *DeporVerso CIG Telemetry Engine*`;
 
-    navigator.clipboard.writeText(text);
+    copyTextSafely(text);
     setCopiedWhatsapp(true);
     setTimeout(() => setCopiedWhatsapp(false), 3000);
   };

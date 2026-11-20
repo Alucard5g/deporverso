@@ -107,12 +107,36 @@ export const PresentationTourControl: React.FC<PresentationTourControlProps> = (
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
+    try {
+      const docEl = document.documentElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+      };
+      const doc = document as Document & {
+        webkitFullscreenElement?: Element | null;
+        webkitExitFullscreen?: () => Promise<void> | void;
+      };
+      const activeFullscreen = Boolean(document.fullscreenElement || doc.webkitFullscreenElement);
+
+      if (!activeFullscreen) {
+        if (typeof docEl.requestFullscreen === 'function') {
+          docEl.requestFullscreen().catch(() => {});
+          setIsFullscreen(true);
+        } else if (typeof docEl.webkitRequestFullscreen === 'function') {
+          docEl.webkitRequestFullscreen();
+          setIsFullscreen(true);
+        } else {
+          setIsFullscreen((prev) => !prev);
+        }
+      } else {
+        if (typeof document.exitFullscreen === 'function' && document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if (typeof doc.webkitExitFullscreen === 'function' && doc.webkitFullscreenElement) {
+          doc.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch {
+      setIsFullscreen((prev) => !prev);
     }
   };
 

@@ -11,6 +11,7 @@ import {
   Info,
   KeyRound
 } from 'lucide-react';
+import { copyTextSafely } from '../utils/safeClipboard';
 
 /**
  * ============================================================================
@@ -54,10 +55,10 @@ export const IpShieldBadge = ({ className = '', onOpenAdminPanel = null }) => {
       });
   }, []);
 
-  const handleCopyHash = (e) => {
+  const handleCopyHash = async (e) => {
     e.stopPropagation();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(masterHash);
+    const ok = await copyTextSafely(masterHash);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }

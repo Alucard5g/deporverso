@@ -158,10 +158,10 @@ export const ThematicSportsGallery: React.FC<ThematicSportsGalleryProps> = ({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => onNavigateTab('vocalia')}
+                onClick={() => onNavigateTab('league')}
                 className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs transition-all cursor-pointer shadow-lg shadow-emerald-500/20 flex items-center gap-2"
               >
-                <span>Abrir Mesa de Vocalía</span>
+                <span>Ver Portal del Torneo</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -223,11 +223,11 @@ export const ThematicSportsGallery: React.FC<ThematicSportsGalleryProps> = ({
                 <button
                   onClick={() => {
                     setSelectedPhoto(null);
-                    onNavigateTab('vocalia');
+                    onNavigateTab('league');
                   }}
                   className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs transition-all cursor-pointer flex items-center gap-2"
                 >
-                  <span>Iniciar Partido de este Deporte</span>
+                  <span>Explorar Liga de este Deporte</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

@@ -38,7 +38,12 @@ import {
   X,
   Lock,
   Shield,
-  KeyRound
+  KeyRound,
+  Smartphone,
+  Users,
+  Plus,
+  Monitor,
+  Video
 } from 'lucide-react';
 import { Tenant, Sport, Match, Team, Player } from '../../types';
 import { RtmpQrModal } from './streaming/RtmpQrModal';
@@ -49,6 +54,46 @@ import { HighlightReelsGeneratorModal } from './streaming/HighlightReelsGenerato
 import { TerminalCameraBroadcasterModal } from './streaming/TerminalCameraBroadcasterModal';
 import { createVirtualPitchStream, VirtualStreamHandle } from '../../utils/virtualCameraStream';
 import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
+import { copyTextSafely } from '../../utils/safeClipboard';
+import {
+  CameraSlotPreset,
+  DEFAULT_CAMERA_SLOTS,
+  StudioStateSnapshot,
+  createRtcPeerConnection,
+  getCreatorStudioKey,
+  getStreamStudioWsUrl,
+} from '../../services/streamStudioClient';
+
+const RemoteVideoTile: React.FC<{
+  stream?: MediaStream | null;
+  muted?: boolean;
+  className?: string;
+}> = ({ stream, muted = true, className = '' }) => {
+  const ref = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (stream && el.srcObject !== stream) {
+      el.srcObject = stream;
+    } else if (!stream && el.srcObject) {
+      el.srcObject = null;
+    }
+    if (stream) {
+      el.play().catch(() => {});
+    }
+  }, [stream]);
+
+  return (
+    <video
+      ref={ref}
+      autoPlay
+      playsInline
+      muted={muted}
+      className={className}
+    />
+  );
+};
 
 export interface LiveStreamingPanelProps {
   tenant: Tenant;
@@ -272,8 +317,17 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   const [showHighlightReelsModal, setShowHighlightReelsModal] = useState<boolean>(false);
   const [showSponsorOverlay, setShowSponsorOverlay] = useState<boolean>(true);
   const [showTerminalCameraModal, setShowTerminalCameraModal] = useState<boolean>(false);
+  const [cameraSlots, setCameraSlots] = useState<CameraSlotPreset[]>(DEFAULT_CAMERA_SLOTS);
+  const [selectedTerminalSlot, setSelectedTerminalSlot] = useState<CameraSlotPreset | null>(null);
 
-  // Sincronización en Tiempo Real de Cámara de Celular / Terminal QR
+  // Consola Multicámara Director (WebSocket + WebRTC en tiempo real)
+  const [studioState, setStudioState] = useState<StudioStateSnapshot | null>(null);
+  const [wsDirectorConnected, setWsDirectorConnected] = useState<boolean>(false);
+  const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
+  const wsDirectorRef = useRef<WebSocket | null>(null);
+  const directorPeersRef = useRef<Map<string, { pc: RTCPeerConnection; camId: string }>>(new Map());
+
+  // Fallback legacy local BroadcastChannel + Real Studio Camera Check
   const [isRemoteCameraSynced, setIsRemoteCameraSynced] = useState<boolean>(false);
   const [remoteCameraInfo, setRemoteCameraInfo] = useState<{ matchId?: string; mode?: string; isStreaming?: boolean; timestamp?: number } | null>(null);
 
@@ -347,6 +401,209 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
   useEffect(() => {
     setStreamMode(defaultMode);
   }, [defaultMode]);
+
+  // Director Multi-Cam WebSocket + WebRTC connection (Creator-only)
+  const isCreatorAuthorized = isAdminAuthorized || isSuperAdminAuth;
+
+  useEffect(() => {
+    if (!isCreatorAuthorized) return;
+    let stopped = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let attempt = 0;
+
+    const cleanupPeers = () => {
+      directorPeersRef.current.forEach(({ pc }) => {
+        try {
+          pc.close();
+        } catch {}
+      });
+      directorPeersRef.current.clear();
+      setRemoteStreams({});
+    };
+
+    const connectDirector = () => {
+      if (stopped) return;
+      try {
+        const ws = new WebSocket(getStreamStudioWsUrl());
+        wsDirectorRef.current = ws;
+
+        ws.onopen = () => {
+          attempt = 0;
+          setWsDirectorConnected(true);
+          ws.send(
+            JSON.stringify({
+              type: 'studio:join',
+              tenantId: tenant.id,
+              matchId: activeMatchId,
+              role: 'director',
+              creatorEmail: 'roly3d.rg@gmail.com',
+              creatorKey: getCreatorStudioKey(),
+              scoreboard: {
+                homeTeam: homeTeam.name,
+                awayTeam: awayTeam.name,
+                homeScore,
+                awayScore,
+                minutes: matchMinutes,
+                seconds: matchSeconds,
+                period: '2T',
+              },
+            })
+          );
+        };
+
+        ws.onmessage = async (event) => {
+          let msg: any;
+          try {
+            msg = JSON.parse(event.data);
+          } catch {
+            return;
+          }
+          if (!msg || typeof msg.type !== 'string') return;
+
+          if (msg.type === 'studio:state') {
+            const snapshot = msg as StudioStateSnapshot;
+            setStudioState(snapshot);
+            if (Array.isArray(snapshot.cameras) && snapshot.cameras.length > 0) {
+              setIsRemoteCameraSynced(true);
+            }
+            // Prune disconnected streams
+            const activeCamIds = new Set((snapshot.cameras || []).map((c) => c.camId));
+            setRemoteStreams((prev) => {
+              let changed = false;
+              const next: Record<string, MediaStream> = {};
+              Object.entries(prev).forEach(([cId, st]) => {
+                if (activeCamIds.has(cId)) {
+                  next[cId] = st;
+                } else {
+                  changed = true;
+                }
+              });
+              return changed ? next : prev;
+            });
+          } else if (msg.type === 'studio:program_changed') {
+            setStudioState((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    activeProgramCamId: msg.activeProgramCamId ?? null,
+                    layoutMode: msg.layoutMode || prev.layoutMode,
+                    updatedAt: msg.updatedAt || Date.now(),
+                  }
+                : prev
+            );
+          } else if (msg.type === 'studio:reaction') {
+            const rxId = msg.id || `rx-${Date.now()}`;
+            setFanReactions((prev) => [...prev.slice(-6), { id: rxId, emoji: msg.emoji || '🔥', text: msg.text || '¡Vamos!' }]);
+            setTimeout(() => {
+              setFanReactions((prev) => prev.filter((r) => r.id !== rxId));
+            }, 3000);
+          } else if (msg.type === 'rtc:offer' && msg.fromClientId && msg.sdp) {
+            const camId = String(msg.camId || msg.fromClientId);
+            const peerKey = msg.fromClientId;
+            try {
+              const existing = directorPeersRef.current.get(peerKey);
+              if (existing) {
+                try {
+                  existing.pc.close();
+                } catch {}
+              }
+              const pc = createRtcPeerConnection();
+              if (!pc) return;
+              directorPeersRef.current.set(peerKey, { pc, camId });
+
+              pc.ontrack = (trackEv) => {
+                if (trackEv.streams && trackEv.streams[0]) {
+                  const incomingStream = trackEv.streams[0];
+                  setRemoteStreams((prev) => ({
+                    ...prev,
+                    [camId]: incomingStream,
+                  }));
+                }
+              };
+
+              pc.onicecandidate = (iceEv) => {
+                if (iceEv.candidate && ws.readyState === WebSocket.OPEN) {
+                  ws.send(
+                    JSON.stringify({
+                      type: 'rtc:ice',
+                      targetClientId: msg.fromClientId,
+                      camId,
+                      candidate: iceEv.candidate,
+                    })
+                  );
+                }
+              };
+
+              await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(
+                  JSON.stringify({
+                    type: 'rtc:answer',
+                    targetClientId: msg.fromClientId,
+                    camId,
+                    sdp: answer,
+                  })
+                );
+              }
+            } catch (err) {
+              console.warn('Error negociando WebRTC en Director Multicámara:', err);
+            }
+          } else if (msg.type === 'rtc:ice' && msg.fromClientId && msg.candidate) {
+            const entry = directorPeersRef.current.get(msg.fromClientId);
+            if (entry) {
+              try {
+                await entry.pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              } catch {}
+            }
+          }
+        };
+
+        ws.onclose = () => {
+          setWsDirectorConnected(false);
+          if (!stopped) {
+            attempt += 1;
+            const delay = Math.min(8000, 1200 * Math.pow(1.4, attempt));
+            reconnectTimer = setTimeout(connectDirector, delay);
+          }
+        };
+      } catch {
+        setWsDirectorConnected(false);
+      }
+    };
+
+    connectDirector();
+
+    return () => {
+      stopped = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      cleanupPeers();
+      if (wsDirectorRef.current) {
+        try {
+          wsDirectorRef.current.close();
+        } catch {}
+        wsDirectorRef.current = null;
+      }
+    };
+  }, [isCreatorAuthorized, tenant.id, activeMatchId]);
+
+  const handleSwitchProgramCamera = useCallback(
+    (camId: string | 'external-youtube') => {
+      if (!wsDirectorRef.current || wsDirectorRef.current.readyState !== WebSocket.OPEN) return;
+      wsDirectorRef.current.send(
+        JSON.stringify({
+          type: 'director:switch_camera',
+          camId,
+          layoutMode: 'single',
+        })
+      );
+      if (camId !== 'external-youtube' && videoSourceType === 'webcam') {
+        setVideoSourceType('youtube');
+      }
+    },
+    [videoSourceType]
+  );
 
   // Dynamic Clock incrementing & Recording seconds counter (Stable timer without re-triggering video pipeline)
   useEffect(() => {
@@ -716,6 +973,28 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
     handleCaptureRiskClip(newEv.title, type === 'goal' ? 'goal' : 'card');
   };
 
+  // Sync scoreboard changes to spectators & camera tally overlays
+  useEffect(() => {
+    if (!wsDirectorConnected || !wsDirectorRef.current || wsDirectorRef.current.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    wsDirectorRef.current.send(
+      JSON.stringify({
+        type: 'director:update_scoreboard',
+        fallbackVideoId: youtubeVideoId,
+        scoreboard: {
+          homeTeam: homeTeam.name,
+          awayTeam: awayTeam.name,
+          homeScore,
+          awayScore,
+          minutes: matchMinutes,
+          seconds: matchSeconds,
+          period: '2T',
+        },
+      })
+    );
+  }, [wsDirectorConnected, homeTeam.name, awayTeam.name, homeScore, awayScore, youtubeVideoId, matchMinutes]);
+
   // Trigger VAR Decision
   const handleTriggerVar = (decision: string) => {
     playSoundEffect('var');
@@ -1040,6 +1319,160 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
       </div>
 
       {/* ============================================================ */}
+      {/* CONSOLA DE DIRECCIÓN MULTICÁMARA (EXCLUSIVO CREADOR)           */}
+      {/* ============================================================ */}
+      {streamMode !== 'var' && (
+        <div className="bg-[#070c18]/95 border border-cyan-500/30 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-[10px] uppercase">
+                  <Monitor className="w-3 h-3" />
+                  Director Multicámara en Vivo
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 font-mono font-bold text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {studioState?.cameras?.length || 0} Celulares Conectados (Todos Grabando)
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-slate-300">
+                  <Users className="w-3 h-3 text-cyan-400" />
+                  {studioState?.spectatorCount ?? 0} espectadores en canal
+                </span>
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-white">
+                Selecciona qué cámara sale al aire en los canales públicos
+              </h3>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => requireAdminAction(
+                  () => setShowRtmpQrModal(true),
+                  'Conectar Varios Celulares por QR',
+                  'Genera códigos QR independientes para conectar tantos celulares como necesites en cancha.'
+                )}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 hover:brightness-110 text-slate-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/20"
+              >
+                <QrCode className="w-3.5 h-3.5" />
+                <span>+ Conectar Celulares (QR)</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Tarjeta de cada cámara móvil conectada por QR */}
+            {(studioState?.cameras || []).map((cam) => {
+              const isLive = studioState?.activeProgramCamId === cam.camId;
+              const previewStream = remoteStreams[cam.camId];
+
+              return (
+                <div
+                  key={cam.camId}
+                  className={`rounded-2xl overflow-hidden border transition-all bg-black/70 flex flex-col ${
+                    isLive
+                      ? 'border-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.28)]'
+                      : 'border-white/15 hover:border-cyan-400/50'
+                  }`}
+                >
+                  <div className="relative aspect-video bg-slate-950 flex items-center justify-center overflow-hidden">
+                    {previewStream ? (
+                      <RemoteVideoTile
+                        stream={previewStream}
+                        muted={true}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-1 text-slate-400 text-[11px] p-3 text-center">
+                        <Smartphone className="w-5 h-5 text-cyan-400 animate-pulse" />
+                        <span className="font-mono font-bold text-white">{cam.label}</span>
+                        <span className="text-[10px] text-slate-400">Sincronizando vista previa WebRTC...</span>
+                      </div>
+                    )}
+
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                      <span
+                        className={`px-2 py-0.5 rounded-md font-mono font-black text-[9px] uppercase ${
+                          isLive
+                            ? 'bg-rose-600 text-white shadow'
+                            : 'bg-black/80 text-emerald-300 border border-emerald-500/40'
+                        }`}
+                      >
+                        {isLive ? '🔴 AL AIRE' : '🟡 EN ESPERA'}
+                      </span>
+                    </div>
+
+                    {cam.isRecording && (
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-red-950/90 border border-red-500/50 text-red-300 font-mono text-[9px] font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                        REC {Math.floor((cam.recordingSeconds || 0) / 60)}:
+                        {String((cam.recordingSeconds || 0) % 60).padStart(2, '0')}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-2.5 flex items-center justify-between gap-2 text-xs">
+                    <div className="min-w-0">
+                      <p className="font-bold text-white truncate">{cam.label}</p>
+                      <p className="text-[10px] text-slate-400 truncate">
+                        {cam.angle} · {cam.deviceName}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchProgramCamera(cam.camId)}
+                      className={`px-2.5 py-1.5 rounded-xl font-black text-[10px] shrink-0 cursor-pointer transition-all ${
+                        isLive
+                          ? 'bg-rose-600 text-white'
+                          : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950'
+                      }`}
+                    >
+                      {isLive ? 'EN VIVO' : 'Poner En Vivo'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Tarjeta de Canal Externo / YouTube / RTMP Fallback */}
+            <div
+              className={`rounded-2xl overflow-hidden border transition-all bg-black/70 flex flex-col justify-between p-3.5 ${
+                !studioState?.activeProgramCamId
+                  ? 'border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
+                  : 'border-white/10 hover:border-white/25'
+              }`}
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                    Señal Master
+                  </span>
+                  {!studioState?.activeProgramCamId && (
+                    <span className="text-[10px] font-mono font-black text-rose-400">🔴 AL AIRE</span>
+                  )}
+                </div>
+                <p className="text-xs font-black text-white">YouTube Live / RTMP Externo</p>
+                <p className="text-[11px] text-slate-400">
+                  Emite la señal configurada por URL o OBS cuando no uses cámaras QR en pantalla principal.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSwitchProgramCamera('external-youtube')}
+                className={`mt-3 w-full py-1.5 rounded-xl font-black text-[11px] cursor-pointer transition-all ${
+                  !studioState?.activeProgramCamId
+                    ? 'bg-cyan-500 text-slate-950'
+                    : 'bg-white/10 hover:bg-white/20 text-white'
+                }`}
+              >
+                {!studioState?.activeProgramCamId ? 'Transmitiendo Señal Externa' : 'Cambiar a Señal Externa'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
       {/* ÁREA CENTRAL: REPRODUCTOR REAL + CONTROLES INTERACTIVOS */}
       {/* ============================================================ */}
       {streamMode === 'var' ? (
@@ -1205,7 +1638,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </div>
             )}
 
-            {/* REPRODUCTOR REAL 1: WEBCAM / CÁMARA CELULAR EN CANCHA (CON ACELERACIÓN GPU AISLADA) */}
+            {/* REPRODUCTOR REAL 1: CÁMARA QR MULTICÁMARA EN VIVO O WEBCAM LOCAL */}
             {videoSourceType === 'webcam' ? (
               <div className="w-full h-full relative flex items-center justify-center bg-black">
                 <video
@@ -1239,7 +1672,6 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                   </div>
                 )}
 
-                {/* Error Banner with clear recovery actions */}
                 {/* Error Banner with clear recovery actions */}
                 {cameraError && (
                   isVirtualFeedActive ? (
@@ -1283,6 +1715,44 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                       </div>
                     </div>
                   )
+                )}
+              </div>
+            ) : studioState?.activeProgramCamId ? (
+              /* REPRODUCTOR PROGRAMA MULTICÁMARA: SEÑAL EN VIVO DE CÁMARA QR DIRIGIDA POR CREADOR */
+              <div className="w-full h-full relative flex items-center justify-center bg-black">
+                {remoteStreams[studioState.activeProgramCamId] ? (
+                  <RemoteVideoTile
+                    stream={remoteStreams[studioState.activeProgramCamId]}
+                    muted={isMuted}
+                    className={`w-full h-full select-none pointer-events-none transition-all ${
+                      isFullscreen ? 'object-contain max-h-[100dvh] max-w-full' : 'object-cover'
+                    }`}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 text-center p-6">
+                    <Smartphone className="w-10 h-10 text-cyan-400 animate-pulse" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-black text-white">
+                        Recibiendo señal de {studioState.cameras.find((c) => c.camId === studioState.activeProgramCamId)?.label || studioState.activeProgramCamId}...
+                      </p>
+                      <p className="text-xs text-slate-400 font-mono">
+                        Negociando enlace WebRTC P2P con el celular en cancha
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {!isFullscreen && (
+                  <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                    <div className="bg-black/85 backdrop-blur-md px-3 py-1 rounded-xl border border-rose-500/50 text-[11px] font-mono text-rose-300 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                      <span>
+                        AL AIRE:{' '}
+                        {studioState.cameras.find((c) => c.camId === studioState.activeProgramCamId)?.label ||
+                          studioState.activeProgramCamId.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
                 )}
               </div>
             ) : (
@@ -1763,7 +2233,7 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
               </span>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText('rtmp://live.deporverso.com:1935/live');
+                  copyTextSafely('rtmp://live.deporverso.com:1935/live');
                   setCopiedKey(true);
                   setTimeout(() => setCopiedKey(false), 2000);
                 }}
@@ -1812,7 +2282,13 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
           matchTitle={`${homeTeam.name} vs ${awayTeam.name}`}
           tenantName={tenant.name}
           tenantId={tenant.id}
-          onOpenTerminalStudio={() => {
+          connectedCameras={studioState?.cameras}
+          activeProgramCamId={studioState?.activeProgramCamId}
+          cameraSlots={cameraSlots}
+          onUpdateCameraSlots={setCameraSlots}
+          onSelectCameraLive={(camId) => handleSwitchProgramCamera(camId)}
+          onOpenTerminalStudio={(slot) => {
+            setSelectedTerminalSlot(slot || null);
             setShowRtmpQrModal(false);
             setShowTerminalCameraModal(true);
           }}
@@ -1849,11 +2325,17 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
       {showTerminalCameraModal && (
         <TerminalCameraBroadcasterModal
           isOpen={showTerminalCameraModal}
-          onClose={() => setShowTerminalCameraModal(false)}
+          onClose={() => {
+            setShowTerminalCameraModal(false);
+            setSelectedTerminalSlot(null);
+          }}
           match={activeMatch}
           homeTeam={homeTeam}
           awayTeam={awayTeam}
           tenant={tenant}
+          camId={selectedTerminalSlot?.camId}
+          camLabel={selectedTerminalSlot?.label}
+          camAngle={selectedTerminalSlot?.angle}
           onClipCaptured={(newClip) => {
             setCapturedClips(prev => [{
               id: newClip.id,

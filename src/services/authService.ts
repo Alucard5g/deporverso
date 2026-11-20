@@ -198,7 +198,7 @@ export const authService = {
 
   /**
    * Valida credenciales de acceso para usuarios interesados y registrados:
-   * Requiere correo y contraseña.
+   * Requiere correo y contraseña. El creador (roly3d.rg@gmail.com) desbloquea Studio Multicámara y VAR.
    */
   verifyLogin(email: string, password: string): {
     success: boolean;
@@ -221,25 +221,38 @@ export const authService = {
 
     const users = this.getRegisteredUsers();
 
-    // Verificación si inicia sesión con el correo oficial de administración
-    if (trimmedEmail === MASTER_ADMIN_EMAIL.toLowerCase() && (trimmedPass === '1326' || trimmedPass === '0000' || MASTER_ADMIN_PASSWORDS.includes(trimmedPass.toLowerCase()))) {
-      return {
-        success: true,
-        isSuperAdmin: true,
-        role: 'SUPER_ADMIN',
-        user: {
-          id: 'u-roly3d',
-          email: MASTER_ADMIN_EMAIL,
-          password: '••••',
-          name: 'Roly (Administrador CIG)',
+    // Verificación si inicia sesión con el correo oficial de administración / creador
+    if (trimmedEmail === MASTER_ADMIN_EMAIL.toLowerCase()) {
+      const adminUser = users.find(u => u.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase());
+      const matchesMaster =
+        MASTER_ADMIN_PASSWORDS.includes(trimmedPass.toLowerCase()) ||
+        (adminUser && adminUser.password === trimmedPass);
+
+      if (matchesMaster) {
+        return {
+          success: true,
+          isSuperAdmin: true,
           role: 'SUPER_ADMIN',
-          status: 'ACTIVO',
-          createdAt: '2026-09-29'
-        }
+          user: {
+            id: adminUser?.id || 'u-roly3d',
+            email: MASTER_ADMIN_EMAIL,
+            password: '••••',
+            name: adminUser?.name || 'Roly (Creador & Administrador CIG)',
+            role: 'SUPER_ADMIN',
+            status: 'ACTIVO',
+            createdAt: adminUser?.createdAt || '2026-09-29'
+          }
+        };
+      }
+      return {
+        success: false,
+        isSuperAdmin: false,
+        role: 'LEAGUE_ADMIN',
+        message: 'Contraseña incorrecta para la cuenta del Creador.'
       };
     }
 
-    // Búsqueda en la lista general de usuarios
+    // Búsqueda en la lista general de usuarios (usuarios normales nunca reciben privilegios de Creador)
     const matchedUser = users.find(u => u.email.toLowerCase() === trimmedEmail);
 
     if (matchedUser) {
@@ -253,11 +266,10 @@ export const authService = {
       }
 
       if (matchedUser.password === trimmedPass) {
-        const isSuper = matchedUser.role === 'SUPER_ADMIN' || matchedUser.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
         return {
           success: true,
-          isSuperAdmin: isSuper,
-          role: matchedUser.role,
+          isSuperAdmin: false,
+          role: matchedUser.role === 'SUPER_ADMIN' ? 'LEAGUE_ADMIN' : matchedUser.role,
           user: matchedUser
         };
       } else {

@@ -28,7 +28,15 @@ export const usePerformanceMode = (): PerformanceMode => {
       hasWebGL = false;
     }
 
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth < 768);
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const isIpadDesktopMode =
+      typeof navigator !== 'undefined' &&
+      navigator.platform === 'MacIntel' &&
+      (navigator.maxTouchPoints || 0) > 1;
+    const isMobileDevice =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
+      isIpadDesktopMode ||
+      window.innerWidth < 768;
     const hardwareConcurrency = navigator.hardwareConcurrency || 4;
     // @ts-ignore
     const deviceMemory = navigator.deviceMemory || 4;
@@ -36,10 +44,10 @@ export const usePerformanceMode = (): PerformanceMode => {
     let tier: PerformanceTier = 'HIGH';
     let maxParticles = 3500;
 
-    if (!hasWebGL) {
+    if (!hasWebGL || isMobileDevice) {
       tier = 'LOW';
       maxParticles = 0;
-    } else if (isMobileDevice || hardwareConcurrency < 4 || deviceMemory < 4) {
+    } else if (hardwareConcurrency < 4 || deviceMemory < 4) {
       tier = 'MEDIUM';
       maxParticles = 1200;
     } else if (hardwareConcurrency >= 8 && deviceMemory >= 8) {

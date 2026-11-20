@@ -80,7 +80,7 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
   onAddTenant,
   onOpenStepTour
 }) => {
-  const { progress, activeAct } = useScrollProgress();
+  const { progress, scrollY, activeAct } = useScrollProgress();
   const [showCheckoutOfferModal, setShowCheckoutOfferModal] = useState<boolean>(false);
   const [selectedClubModal, setSelectedClubModal] = useState<ClubData | null>(null);
   const [activeDiscipline, setActiveDiscipline] = useState<string>('futbol');
@@ -95,7 +95,7 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
   const currentScene = ACT_SCENE_INFO[activeAct] || ACT_SCENE_INFO[1];
 
   return (
-    <div className="relative min-h-screen bg-[#020617] text-slate-100 overflow-x-hidden selection:bg-[#00F0FF] selection:text-black">
+    <div className="relative min-h-[100dvh] bg-[#020617] text-slate-100 overflow-x-hidden selection:bg-[#00F0FF] selection:text-black">
       
       {/* 0. FONDO AMBIENTAL: Canvas de Vórtice 3D y Escenas Cinemáticas de los 4 Actos */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
@@ -113,7 +113,7 @@ export const UnifiedDeporversoExperience: React.FC<UnifiedDeporversoExperiencePr
         
         {/* Dynamic Act Scene Images with Smooth Crossfade */}
         {ACT_BACKGROUND_SCENES.map((scene) => {
-          const isActive = activeAct === scene.act && window.scrollY > 600;
+          const isActive = activeAct === scene.act && scrollY > 600;
           return (
             <div
               key={scene.act}

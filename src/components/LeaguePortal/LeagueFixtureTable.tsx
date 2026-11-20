@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Match, Tenant, Sport, Team, Player } from '../../types';
 import { SPORT_VISUAL_THEMES, SportVisualTheme } from '../../data/sportThemesData';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface LeagueFixtureTableProps {
   tenant: Tenant;
@@ -184,13 +185,13 @@ export const LeagueFixtureTable: React.FC<LeagueFixtureTableProps> = ({
   };
 
   // Handle Copy share link
-  const handleCopyMatchShare = (m: Match) => {
+  const handleCopyMatchShare = async (m: Match) => {
     const hName = m.home_team?.name || teams.find(t => t.id === m.home_team_id)?.name || 'Local';
     const aName = m.away_team?.name || teams.find(t => t.id === m.away_team_id)?.name || 'Visitante';
     const text = `🏆 ${hName} vs ${aName} en ${tenant.name} (${getCategoryName(m)}). Vocal: ${getVocalName(m)}. Consulta el fixture oficial en vivo: https://${tenant.domain || 'deporverso.com'}`;
     
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text);
+    const copied = await copyTextSafely(text);
+    if (copied) {
       setCopiedId(m.id);
       setTimeout(() => setCopiedId(null), 3000);
     }

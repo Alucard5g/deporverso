@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users, Sparkles, Download, Play, RefreshCw, Shield, Zap, 
   ArrowRight, FileText, Check, Layout, Eye, Move, Info, Trophy,
-  Sliders, Award
+  Sliders, Award, PenTool, Trash2, Copy
 } from 'lucide-react';
 import { SportCode, Sport, Tenant } from '../../types';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface TacticalBoardProps {
   sport: Sport;
@@ -420,6 +421,11 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
   const [showRivalTeam, setShowRivalTeam] = useState(true);
   const [draggedTokenId, setDraggedTokenId] = useState<string | null>(null);
   const [tacticalPhase, setTacticalPhase] = useState<'BASE' | 'OFENSIVA' | 'REPLIEGUE'>('BASE');
+  const [boardToolMode, setBoardToolMode] = useState<'MOVE' | 'ARROW'>('MOVE');
+  const [ballPos, setBallPos] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
+  const [tacticalArrows, setTacticalArrows] = useState<Array<{ id: string; x1: number; y1: number; x2: number; y2: number }>>([]);
+  const [draftArrow, setDraftArrow] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const [copiedBoard, setCopiedBoard] = useState(false);
 
   // Filter presets for active modality
   const currentPresets = TACTICAL_PRESETS.filter(p => p.modality === activeModality);
@@ -464,6 +470,23 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
       setHomeTokens(p.homeTokens);
       setAwayTokens(p.awayTokens);
       setTacticalPhase('BASE');
+      setBallPos({ x: 50, y: 50 });
+      setTacticalArrows([]);
+    }
+  };
+
+  const handleCopyTacticalSummary = async () => {
+    const p = TACTICAL_PRESETS.find(pr => pr.id === selectedPresetId) || activePresetObj;
+    const summary =
+      `📋 *Pizarra Táctica Deporverso* (${sportName})\n` +
+      `• Esquema: *${p.name}* · Fase: ${tacticalPhase}\n` +
+      `• Jugadores en Cancha: ${homeTokens.map(t => `#${t.number} ${t.name} (${t.role})`).join(', ')}\n` +
+      (tacticalArrows.length > 0 ? `• Jugadas Trazadas: ${tacticalArrows.length} trayectorias activas\n` : '') +
+      (aiReport ? `\n${aiReport}` : '');
+    const ok = await copyTextSafely(summary);
+    if (ok) {
+      setCopiedBoard(true);
+      setTimeout(() => setCopiedBoard(false), 2500);
     }
   };
 
@@ -485,25 +508,140 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
     );
   };
 
-  // Dragging / Moving token logic
+  // Dragging / Moving token logic (mouse + touch pointer drag & click-to-place)
   const boardRef = useRef<HTMLDivElement>(null);
+  const activePointerDragRef = useRef<{
+    tokenId: string;
+    startX: number;
+    startY: number;
+    hasMoved: boolean;
+  } | null>(null);
+  const suppressNextClickRef = useRef(false);
+
+  const updateTokenPositionFromClient = (tokenId: string, clientX: number, clientY: number) => {
+    if (!boardRef.current) return;
+    const rect = boardRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const x = Math.max(4, Math.min(96, Math.round(((clientX - rect.left) / rect.width) * 100)));
+    const y = Math.max(5, Math.min(95, Math.round(((clientY - rect.top) / rect.height) * 100)));
+
+    if (tokenId === 'ball') {
+      setBallPos({ x, y });
+    } else if (tokenId.startsWith('h')) {
+      setHomeTokens(prev => prev.map(t => t.id === tokenId ? { ...t, x, y } : t));
+    } else {
+      setAwayTokens(prev => prev.map(t => t.id === tokenId ? { ...t, x, y } : t));
+    }
+  };
+
+  const getBoardPct = (clientX: number, clientY: number) => {
+    if (!boardRef.current) return { x: 50, y: 50 };
+    const rect = boardRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return { x: 50, y: 50 };
+    return {
+      x: Math.max(2, Math.min(98, +(((clientX - rect.left) / rect.width) * 100).toFixed(1))),
+      y: Math.max(3, Math.min(97, +(((clientY - rect.top) / rect.height) * 100).toFixed(1)))
+    };
+  };
+
+  const handleBoardPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (boardToolMode !== 'ARROW') return;
+    const pt = getBoardPct(e.clientX, e.clientY);
+    setDraftArrow({ x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y });
+    try {
+      boardRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleTokenPointerDown = (e: React.PointerEvent<HTMLDivElement>, tokenId: string) => {
+    if (boardToolMode === 'ARROW') return;
+    e.stopPropagation();
+    activePointerDragRef.current = {
+      tokenId,
+      startX: e.clientX,
+      startY: e.clientY,
+      hasMoved: false
+    };
+    setDraggedTokenId(tokenId);
+    try {
+      boardRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore on browsers where pointer capture is unavailable
+    }
+  };
+
+  const handleBoardPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (boardToolMode === 'ARROW' && draftArrow) {
+      const pt = getBoardPct(e.clientX, e.clientY);
+      setDraftArrow(prev => prev ? { ...prev, x2: pt.x, y2: pt.y } : null);
+      return;
+    }
+
+    const drag = activePointerDragRef.current;
+    if (!drag) return;
+    const dx = Math.abs(e.clientX - drag.startX);
+    const dy = Math.abs(e.clientY - drag.startY);
+    if (dx > 4 || dy > 4) {
+      drag.hasMoved = true;
+    }
+    if (drag.hasMoved) {
+      updateTokenPositionFromClient(drag.tokenId, e.clientX, e.clientY);
+    }
+  };
+
+  const handleBoardPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (boardToolMode === 'ARROW' && draftArrow) {
+      const pt = getBoardPct(e.clientX, e.clientY);
+      const dist = Math.hypot(pt.x - draftArrow.x1, pt.y - draftArrow.y1);
+      if (dist > 4) {
+        setTacticalArrows(prev => [...prev, { id: `arr-${Date.now()}`, ...draftArrow, x2: pt.x, y2: pt.y }]);
+      }
+      setDraftArrow(null);
+      try {
+        if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        // Ignore
+      }
+      return;
+    }
+
+    const drag = activePointerDragRef.current;
+    if (!drag) return;
+    if (drag.hasMoved) {
+      updateTokenPositionFromClient(drag.tokenId, e.clientX, e.clientY);
+      suppressNextClickRef.current = true;
+      setDraggedTokenId(null);
+    }
+    activePointerDragRef.current = null;
+    try {
+      if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Ignore
+    }
+  };
 
   const handleBoardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!draggedTokenId || !boardRef.current) return;
-    const rect = boardRef.current.getBoundingClientRect();
-    const x = Math.max(4, Math.min(96, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
-    const y = Math.max(5, Math.min(95, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
-
-    if (draggedTokenId.startsWith('h')) {
-      setHomeTokens(prev => prev.map(t => t.id === draggedTokenId ? { ...t, x, y } : t));
-    } else {
-      setAwayTokens(prev => prev.map(t => t.id === draggedTokenId ? { ...t, x, y } : t));
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
     }
+    if (!draggedTokenId || !boardRef.current) return;
+    updateTokenPositionFromClient(draggedTokenId, e.clientX, e.clientY);
     setDraggedTokenId(null);
   };
 
   const handleTokenClick = (e: React.MouseEvent, tokenId: string) => {
     e.stopPropagation();
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
     if (draggedTokenId === tokenId) {
       setDraggedTokenId(null);
     } else {
@@ -741,10 +879,48 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
         </div>
 
         {/* CONTROLES DE LA PIZARRA */}
-        <div className="flex items-center gap-3 self-end md:self-auto">
+        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+          <div className="inline-flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs font-mono">
+            <button
+              type="button"
+              onClick={() => setBoardToolMode('MOVE')}
+              className={`min-h-[34px] px-2.5 py-1 rounded-lg flex items-center gap-1 cursor-pointer transition-colors ${
+                boardToolMode === 'MOVE'
+                  ? 'bg-cyan-400 text-slate-950 font-black'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <Move className="w-3.5 h-3.5" />
+              <span>Mover</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setBoardToolMode('ARROW')}
+              className={`min-h-[34px] px-2.5 py-1 rounded-lg flex items-center gap-1 cursor-pointer transition-colors ${
+                boardToolMode === 'ARROW'
+                  ? 'bg-amber-400 text-slate-950 font-black'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <PenTool className="w-3.5 h-3.5" />
+              <span>Trazar Jugada</span>
+            </button>
+          </div>
+
+          {tacticalArrows.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setTacticalArrows([])}
+              className="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 cursor-pointer flex items-center gap-1.5 font-mono"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Limpiar ({tacticalArrows.length})</span>
+            </button>
+          )}
+
           <button
             onClick={() => setShowRivalTeam(!showRivalTeam)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 font-mono ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 font-mono ${
               showRivalTeam
                 ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                 : 'bg-slate-900 text-slate-400 border border-slate-700 hover:text-white'
@@ -755,8 +931,17 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
           </button>
 
           <button
+            type="button"
+            onClick={handleCopyTacticalSummary}
+            className="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/35 transition-all cursor-pointer flex items-center gap-1.5 font-mono"
+          >
+            {copiedBoard ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copiedBoard ? 'Copiado' : 'Copiar'}</span>
+          </button>
+
+          <button
             onClick={handleResetPositions}
-            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5 font-mono"
+            className="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5 font-mono"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Restablecer</span>
@@ -823,7 +1008,13 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
             <div
               ref={boardRef}
               onClick={handleBoardClick}
-              className={`relative w-full aspect-[16/9] ${court.bg} border-2 ${court.border} rounded-2xl overflow-hidden shadow-2xl select-none cursor-crosshair`}
+              onPointerDown={handleBoardPointerDown}
+              onPointerMove={handleBoardPointerMove}
+              onPointerUp={handleBoardPointerUp}
+              onPointerCancel={handleBoardPointerUp}
+              className={`relative w-full aspect-[16/9] ${court.bg} border-2 ${court.border} rounded-2xl overflow-hidden shadow-2xl select-none touch-none ${
+                boardToolMode === 'ARROW' ? 'cursor-crosshair' : 'cursor-pointer'
+              }`}
             >
               <div className="cine-vignette" />
 
@@ -883,19 +1074,71 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
                 </div>
               )}
 
+              {/* FLECHAS TÁCTICAS DE TRAYECTORIA */}
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none z-20">
+                <defs>
+                  <marker id="deporversoArrowHead" markerWidth="4" markerHeight="4" refX="3.2" refY="2" orient="auto">
+                    <path d="M0,0 L4,2 L0,4 Z" fill="#facc15" />
+                  </marker>
+                </defs>
+                {tacticalArrows.map((arr) => (
+                  <line
+                    key={arr.id}
+                    x1={arr.x1}
+                    y1={arr.y1}
+                    x2={arr.x2}
+                    y2={arr.y2}
+                    stroke="#facc15"
+                    strokeWidth="0.9"
+                    strokeDasharray="2 1.2"
+                    markerEnd="url(#deporversoArrowHead)"
+                  />
+                ))}
+                {draftArrow && (
+                  <line
+                    x1={draftArrow.x1}
+                    y1={draftArrow.y1}
+                    x2={draftArrow.x2}
+                    y2={draftArrow.y2}
+                    stroke="#22d3ee"
+                    strokeWidth="0.9"
+                    strokeDasharray="1.5 1"
+                    markerEnd="url(#deporversoArrowHead)"
+                  />
+                )}
+              </svg>
+
+              {/* BALÓN MÓVIL DE REFERENCIA TÁCTICA */}
+              <div
+                onPointerDown={(e) => handleTokenPointerDown(e, 'ball')}
+                onClick={(e) => handleTokenClick(e, 'ball')}
+                style={{ left: `${ballPos.x}%`, top: `${ballPos.y}%` }}
+                title="Arrastra el balón a la zona de jugada"
+                className={`absolute -translate-x-1/2 -translate-y-1/2 z-40 cursor-grab active:cursor-grabbing touch-none p-1 ${
+                  draggedTokenId === 'ball' ? 'scale-125' : 'hover:scale-110'
+                }`}
+              >
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-slate-950 font-black text-xs flex items-center justify-center border-2 shadow-xl ${
+                  draggedTokenId === 'ball' ? 'border-amber-400' : 'border-slate-900'
+                }`}>
+                  ⚽
+                </div>
+              </div>
+
               {/* FICHAS LOCALES (CIAN / ESMERALDA) */}
               {homeTokens.map((t) => {
                 const isSelected = draggedTokenId === t.id;
                 return (
                   <div
                     key={t.id}
+                    onPointerDown={(e) => handleTokenPointerDown(e, t.id)}
                     onClick={(e) => handleTokenClick(e, t.id)}
                     style={{ left: `${t.x}%`, top: `${t.y}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer z-30 transition-transform ${
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing z-30 transition-transform touch-none ${
                       isSelected ? 'scale-125' : 'hover:scale-110'
                     }`}
                   >
-                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-cyan-400 via-teal-300 to-[#00ff66] text-black font-black text-xs flex items-center justify-center border-2 ${
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-cyan-400 via-teal-300 to-[#00ff66] text-black font-black text-xs flex items-center justify-center border-2 ${
                       isSelected ? 'border-yellow-300 shadow-[0_0_20px_#eab308]' : 'border-white shadow-[0_0_15px_rgba(34,211,238,0.6)]'
                     }`}>
                       {t.number}
@@ -913,13 +1156,14 @@ export const TacticalBoard: React.FC<TacticalBoardProps> = ({ sport, tenant }) =
                 return (
                   <div
                     key={t.id}
+                    onPointerDown={(e) => handleTokenPointerDown(e, t.id)}
                     onClick={(e) => handleTokenClick(e, t.id)}
                     style={{ left: `${t.x}%`, top: `${t.y}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer z-30 transition-transform ${
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing z-30 transition-transform touch-none ${
                       isSelected ? 'scale-125' : 'hover:scale-110'
                     }`}
                   >
-                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 text-white font-black text-xs flex items-center justify-center border-2 ${
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 text-white font-black text-xs flex items-center justify-center border-2 ${
                       isSelected ? 'border-yellow-300 shadow-[0_0_20px_#eab308]' : 'border-white/80 shadow-[0_0_15px_rgba(244,63,94,0.6)]'
                     }`}>
                       {t.number}

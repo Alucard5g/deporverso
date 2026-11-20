@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Video, 
   DollarSign, 
   CheckCircle, 
   AlertTriangle, 
   Play, 
+  Pause,
   Shield, 
   RefreshCw, 
   Scissors, 
@@ -18,7 +19,8 @@ import {
   Lock,
   KeyRound,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Crosshair
 } from 'lucide-react';
 import { Match, VarRequest } from '../../types';
 import { AdminAuthSecurityModal } from '../Auth/AdminAuthSecurityModal';
@@ -87,6 +89,43 @@ export const VarModule: React.FC<VarModuleProps> = ({
   const [playbackSpeed, setPlaybackSpeed] = useState<'0.25x' | '0.5x' | '1.0x'>('0.5x');
   const [activeVarView, setActiveVarView] = useState<VarRequest | null>(varRequests[0] || null);
   const [refereeNotes, setRefereeNotes] = useState('');
+
+  // Video player & Offside Calibrator refs/state
+  const varVideoRef = useRef<HTMLVideoElement>(null);
+  const [isVarPlaying, setIsVarPlaying] = useState(false);
+  const [currentVarTime, setCurrentVarTime] = useState(0);
+  const [showOffsideLines, setShowOffsideLines] = useState(false);
+  const [defenderLinePct, setDefenderLinePct] = useState(44);
+  const [attackerLinePct, setAttackerLinePct] = useState(48);
+
+  useEffect(() => {
+    const rate = parseFloat(playbackSpeed.replace('x', '')) || 1;
+    if (varVideoRef.current) {
+      varVideoRef.current.playbackRate = rate;
+    }
+  }, [playbackSpeed, activeVarView?.video_url]);
+
+  const handleStepVarTime = (deltaSec: number) => {
+    const video = varVideoRef.current;
+    if (!video) return;
+    const next = Math.max(0, (video.currentTime || 0) + deltaSec);
+    video.currentTime = next;
+    setCurrentVarTime(next);
+  };
+
+  const handleToggleVarPlay = () => {
+    const video = varVideoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      const rate = parseFloat(playbackSpeed.replace('x', '')) || 1;
+      video.playbackRate = rate;
+      video.play().catch(() => {});
+      setIsVarPlaying(true);
+    } else {
+      video.pause();
+      setIsVarPlaying(false);
+    }
+  };
 
   // AutoHighlightGenerator 9:16 state
   const [eventSec, setEventSec] = useState<number>(45.5);
@@ -327,11 +366,18 @@ export const VarModule: React.FC<VarModuleProps> = ({
           <div className="relative rounded-xl overflow-hidden bg-slate-950 border border-white/[0.08] aspect-video flex items-center justify-center">
             {activeVarView?.video_url ? (
               <video
+                ref={varVideoRef}
                 src={activeVarView.video_url}
                 poster={CINEMATIC_ASSETS.varBooth}
                 controls
                 loop
                 playsInline
+                onPlay={() => setIsVarPlaying(true)}
+                onPause={() => setIsVarPlaying(false)}
+                onTimeUpdate={(e) => setCurrentVarTime(e.currentTarget.currentTime)}
+                onLoadedMetadata={(e) => {
+                  e.currentTarget.playbackRate = parseFloat(playbackSpeed.replace('x', '')) || 1;
+                }}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -350,9 +396,121 @@ export const VarModule: React.FC<VarModuleProps> = ({
               </div>
             )}
 
-            <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-mono font-semibold text-slate-200 border border-white/15 tabular-nums">
-              {cameraAngle} · Vel {playbackSpeed}
+            {/* Calibrador Visual de Líneas de Fuera de Juego */}
+            {showOffsideLines && (
+              <div className="absolute inset-0 pointer-events-none z-10">
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
+                  style={{ left: `${defenderLinePct}%` }}
+                >
+                  <span className="absolute top-2 left-1.5 bg-cyan-500 text-slate-950 font-mono font-black text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap">
+                    DEFENSOR {defenderLinePct}%
+                  </span>
+                </div>
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.9)]"
+                  style={{ left: `${attackerLinePct}%` }}
+                >
+                  <span className="absolute bottom-2 left-1.5 bg-rose-500 text-white font-mono font-black text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap">
+                    ATACANTE {attackerLinePct}%
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg text-[11px] font-mono font-semibold text-slate-200 border border-white/15 tabular-nums z-20">
+              {cameraAngle} · Vel {playbackSpeed} · {currentVarTime.toFixed(1)}s
             </div>
+          </div>
+
+          {/* Controles Cuadro a Cuadro + Calibrador Fuera de Juego */}
+          <div className="bg-black/40 border border-white/[0.08] rounded-xl p-3 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleStepVarTime(-1)}
+                  className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-200 border border-white/10 font-mono text-xs font-bold cursor-pointer"
+                >
+                  -1.0s
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepVarTime(-0.2)}
+                  className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-200 border border-white/10 font-mono text-xs font-bold cursor-pointer"
+                >
+                  -0.2s
+                </button>
+                <button
+                  type="button"
+                  onClick={handleToggleVarPlay}
+                  className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isVarPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                  <span>{isVarPlaying ? 'Pausar' : 'Reproducir'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepVarTime(0.2)}
+                  className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-200 border border-white/10 font-mono text-xs font-bold cursor-pointer"
+                >
+                  +0.2s
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepVarTime(1)}
+                  className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/10 text-slate-200 border border-white/10 font-mono text-xs font-bold cursor-pointer"
+                >
+                  +1.0s
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowOffsideLines(!showOffsideLines)}
+                className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer border transition-colors ${
+                  showOffsideLines
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50'
+                    : 'bg-white/[0.04] text-slate-300 border-white/10 hover:text-white'
+                }`}
+              >
+                <Crosshair className="w-3.5 h-3.5" />
+                <span>{showOffsideLines ? 'Ocultar Líneas VAR' : 'Calibrar Fuera de Juego'}</span>
+              </button>
+            </div>
+
+            {showOffsideLines && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10 text-xs font-mono">
+                <label className="space-y-1">
+                  <span className="flex justify-between text-cyan-300 text-[11px]">
+                    <span>Línea Azul (Último Defensor)</span>
+                    <strong>{defenderLinePct}%</strong>
+                  </span>
+                  <input
+                    type="range"
+                    min={10}
+                    max={90}
+                    value={defenderLinePct}
+                    onChange={(e) => setDefenderLinePct(Number(e.target.value))}
+                    className="w-full accent-cyan-400 cursor-pointer"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="flex justify-between text-rose-300 text-[11px]">
+                    <span>Línea Roja (Atacante) · {attackerLinePct <= defenderLinePct ? 'HABILITADO' : 'POSIBLE OFFSIDE'}</span>
+                    <strong>{attackerLinePct}%</strong>
+                  </span>
+                  <input
+                    type="range"
+                    min={10}
+                    max={90}
+                    value={attackerLinePct}
+                    onChange={(e) => setAttackerLinePct(Number(e.target.value))}
+                    className="w-full accent-rose-500 cursor-pointer"
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Camera Angles Switcher (4 Angles) */}
@@ -489,6 +647,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
                     src={generated916Clip.url}
                     controls
                     loop
+                    playsInline
                     className="w-full h-full object-cover"
                   />
                 </div>

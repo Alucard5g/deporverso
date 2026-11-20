@@ -18,6 +18,7 @@ import { SPORT_VISUAL_THEMES } from '../../data/sportThemesData';
 import { Sport3DExperience } from '../ThreeD/Sport3DExperience';
 import { InscriptionsAndStreaming } from './InscriptionsAndStreaming';
 import { LiveStreamingPanel } from './LiveStreamingPanel';
+import { PublicStreamingChannels } from './streaming/PublicStreamingChannels';
 import pichinchaPortadaImg from '../../assets/images/pichincha_portada.jpg';
 import ligaBarrialPichinchaHero from '../../assets/images/liga_barrial_pichincha_hero_1791927900990.jpg';
 import heroBannerImg from '../../assets/images/league_cover_premium_1791927270491.jpg';
@@ -25,6 +26,7 @@ import basketballHeroImg from '../../assets/images/basketball_hero_bg_1785854264
 import volleyballHeroImg from '../../assets/images/volleyball_hero_bg_1785854282070.jpg';
 import { PichinchaExecutiveDemo } from './PichinchaExecutiveDemo';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface LeagueDashboardProps {
   tenant: Tenant;
@@ -156,13 +158,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
   const handleShareMatch = (matchTitle: string) => {
     handleRequireFanAction(`Compartir partido: ${matchTitle}`, async () => {
       const shareText = `⚽ ${matchTitle} en ${tenant?.name || 'Liga'}. Sigue el marcador en vivo en Deporverso: https://${tenant?.domain || 'deporverso.com'}`;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(shareText);
-        }
-      } catch (e) {
-        console.warn('Clipboard write error:', e);
-      }
+      await copyTextSafely(shareText);
       setShareSuccessMsg('¡Enlace de partido copiado para compartir por WhatsApp!');
       setTimeout(() => setShareSuccessMsg(''), 4000);
     });
@@ -171,13 +167,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
   const handleShareStandings = () => {
     handleRequireFanAction('Compartir Tabla de Posiciones', async () => {
       const shareText = `🏆 Tabla de Posiciones Oficial - ${tenant?.name || 'Liga'} (${selectedCategory}). Revisa los puntos en tiempo real: https://${tenant?.domain || 'deporverso.com'}`;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(shareText);
-        }
-      } catch (e) {
-        console.warn('Clipboard write error:', e);
-      }
+      await copyTextSafely(shareText);
       setShareSuccessMsg('¡Enlace de la tabla de posiciones copiado!');
       setTimeout(() => setShareSuccessMsg(''), 4000);
     });
@@ -450,79 +440,96 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             Blog & Crónicas
           </button>
 
-          {/* En Línea Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowOnlineDropdown(!showOnlineDropdown)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium whitespace-nowrap ${
-                activeTab === 'online'
-                  ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>En Vivo</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+          {/* En Vivo: Creador (Vocalía/VAR/Director Multicámara) vs Usuario Normal (Solo Canales de Streaming) */}
+          {isSuperAdminAuth ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowOnlineDropdown(!showOnlineDropdown)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium whitespace-nowrap ${
+                  activeTab === 'online'
+                    ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
+                    : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>En Vivo</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
 
-            {showOnlineDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-60 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 space-y-0.5">
-                <button
-                  onClick={() => { 
-                    setActiveTab('online'); 
-                    setStreamingMode('vocalia'); 
-                    setShowOnlineDropdown(false); 
-                  }}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
-                    activeTab === 'online' && streamingMode === 'vocalia'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <Radio className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <div>
-                    <span className="block">Vocalía Digital Live</span>
-                    <span className="text-[10px] text-slate-400 font-normal">Marcador y acta en vivo</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => { 
-                    setActiveTab('online'); 
-                    setStreamingMode('var'); 
-                    setShowOnlineDropdown(false); 
-                  }}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
-                    activeTab === 'online' && streamingMode === 'var'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <Activity className="w-4 h-4 text-rose-400 shrink-0" />
-                  <div>
-                    <span className="block">Transmisión VAR Local</span>
-                    <span className="text-[10px] text-slate-400 font-normal">Repetición & señales de cancha</span>
-                  </div>
-                </button>
-                <div className="pt-1 mt-1 border-t border-white/5">
+              {showOnlineDropdown && (
+                <div className="absolute top-full right-0 mt-2 w-60 bg-[#090e1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 space-y-0.5">
                   <button
                     onClick={() => { 
                       setActiveTab('online'); 
-                      setStreamingMode('tv'); 
+                      setStreamingMode('vocalia'); 
                       setShowOnlineDropdown(false); 
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
-                      activeTab === 'online' && streamingMode === 'tv'
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      activeTab === 'online' && streamingMode === 'vocalia'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : 'text-slate-200 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <Tv className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span>Streaming TV Oficial (SRS/RTMP)</span>
+                    <Radio className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div>
+                      <span className="block">Vocalía Digital Live</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Marcador y acta en vivo</span>
+                    </div>
                   </button>
+                  <button
+                    onClick={() => { 
+                      setActiveTab('online'); 
+                      setStreamingMode('var'); 
+                      setShowOnlineDropdown(false); 
+                    }}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      activeTab === 'online' && streamingMode === 'var'
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                        : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Activity className="w-4 h-4 text-rose-400 shrink-0" />
+                    <div>
+                      <span className="block">Transmisión VAR Local</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Repetición & señales de cancha</span>
+                    </div>
+                  </button>
+                  <div className="pt-1 mt-1 border-t border-white/5">
+                    <button
+                      onClick={() => { 
+                        setActiveTab('online'); 
+                        setStreamingMode('tv'); 
+                        setShowOnlineDropdown(false); 
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        activeTab === 'online' && streamingMode === 'tv'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                          : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <Tv className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <span>Director Multicámara & TV</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setActiveTab('online');
+                setShowOnlineDropdown(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium whitespace-nowrap ${
+                activeTab === 'online'
+                  ? 'bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/35'
+                  : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+              <span>Canales En Vivo</span>
+            </button>
+          )}
         </nav>
 
         {/* Mobile Quick Controls */}
@@ -536,12 +543,13 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             Tabla
           </button>
           <button 
-            onClick={() => setActiveTab('matches')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer whitespace-nowrap ${
-              activeTab === 'matches' ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-white/10 border-white/15 text-white'
+            onClick={() => setActiveTab('online')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+              activeTab === 'online' ? 'bg-rose-500/20 border-rose-500/40 text-rose-300' : 'bg-white/10 border-white/15 text-white'
             }`}
           >
-            Partidos
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+            <span>En Vivo</span>
           </button>
           <button 
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
@@ -694,18 +702,22 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             <FileText className="w-3.5 h-3.5 text-rose-400" /> Blog & Crónicas
           </button>
 
-          {isSuperAdminAuth && (
-            <button
-              onClick={() => { setActiveTab('online'); setStreamingMode('vocalia'); }}
-              className={`whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'online' 
-                  ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
-                  : 'deporverso-tab-pill-inactive'
-              }`}
-            >
-              <Radio className="w-3.5 h-3.5 text-emerald-400" /> En Vivo ({streamingMode === 'var' ? 'VAR' : streamingMode === 'tv' ? 'TV' : 'Vocalía'})
-            </button>
-          )}
+          <button
+            onClick={() => {
+              setActiveTab('online');
+              if (isSuperAdminAuth) setStreamingMode('tv');
+            }}
+            className={`whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'online' 
+                ? 'deporverso-tab-pill-active font-semibold text-emerald-300' 
+                : 'deporverso-tab-pill-inactive'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5 text-emerald-400" />
+            {isSuperAdminAuth
+              ? `En Vivo (${streamingMode === 'var' ? 'VAR' : streamingMode === 'tv' ? 'Multicámara' : 'Vocalía'})`
+              : 'Canales En Vivo'}
+          </button>
 
           <button
             onClick={() => setActiveTab('rules')}
@@ -1355,20 +1367,30 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
           </div>
         )}
 
-        {/* SECTION: STREAMING EN VIVO REAL (VOCALÍA DIGITAL & VAR LOCAL) - SOLO ADMINISTRADOR */}
-        {activeTab === 'online' && isSuperAdminAuth && (
-          <LiveStreamingPanel
-            tenant={tenant}
-            sport={sport}
-            matches={matches}
-            teams={teams}
-            players={players}
-            defaultMode={streamingMode}
-            isSuperAdminAuth={isSuperAdminAuth}
-          />
+        {/* SECTION: EN VIVO - DIRECTOR MULTICÁMARA & VAR (SOLO CREADOR) vs CANALES DE STREAMING (PÚBLICO) */}
+        {activeTab === 'online' && (
+          isSuperAdminAuth ? (
+            <LiveStreamingPanel
+              tenant={tenant}
+              sport={sport}
+              matches={matches}
+              teams={teams}
+              players={players}
+              defaultMode={streamingMode}
+              isSuperAdminAuth={isSuperAdminAuth}
+            />
+          ) : (
+            <PublicStreamingChannels
+              tenant={tenant}
+              sport={sport}
+              matches={matches}
+              teams={teams}
+              events={events}
+            />
+          )
         )}
 
-        {/* SECTION: INSCRIPCIONES, REGLAMENTO & STREAMING EN VIVO */}
+        {/* SECTION: INSCRIPCIONES & REGLAMENTO (STREAMING ESTUDIO SOLO CREADOR) */}
         {activeTab === 'rules' && (
           <InscriptionsAndStreaming
             tenant={tenant}
@@ -1376,6 +1398,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
             matches={matches}
             teams={teams}
             players={players}
+            isSuperAdminAuth={isSuperAdminAuth}
           />
         )}
 
@@ -1423,6 +1446,7 @@ export const LeagueDashboard: React.FC<LeagueDashboardProps> = ({
               matches={matches}
               teams={teams}
               players={players}
+              isSuperAdminAuth={isSuperAdminAuth}
               onLaunchTour={onOpenStepTour ? () => onOpenStepTour(0) : undefined}
               onNavigateSubTab={(tab) => {
                 if (tab === 'standings') setActiveTab('standings');

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { authService, AppUser } from '../../services/authService';
 import { UserRole } from '../../types';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 export const AdminUserManager: React.FC = () => {
   const [users, setUsers] = useState<AppUser[]>(() => authService.getRegisteredUsers());
@@ -24,9 +25,10 @@ export const AdminUserManager: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
 
-  // Edición rápida de contraseña en línea
+  // Edición rápida de contraseña en línea y confirmación segura de borrado
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editedPassword, setEditedPassword] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const refreshUsersList = () => {
     setUsers([...authService.getRegisteredUsers()]);
@@ -91,16 +93,24 @@ export const AdminUserManager: React.FC = () => {
   };
 
   const handleDeleteUser = (user: AppUser) => {
+    setError(null);
     if (user.email.toLowerCase() === 'roly3d.rg@gmail.com') {
-      alert('La cuenta principal de SuperAdmin (Roly) está blindada y no puede ser eliminada.');
+      setError('La cuenta principal de SuperAdmin (Roly) está blindada y no puede ser eliminada.');
+      setTimeout(() => setError(null), 4000);
       return;
     }
-    if (window.confirm(`¿Estás seguro de eliminar el usuario "${user.name}" (${user.email})?`)) {
-      authService.deleteUser(user.id);
-      refreshUsersList();
-      setSuccess(`Usuario ${user.email} eliminado.`);
-      setTimeout(() => setSuccess(null), 3000);
+    if (confirmDeleteId !== user.id) {
+      setConfirmDeleteId(user.id);
+      setTimeout(() => {
+        setConfirmDeleteId((prev) => (prev === user.id ? null : prev));
+      }, 4500);
+      return;
     }
+    authService.deleteUser(user.id);
+    setConfirmDeleteId(null);
+    refreshUsersList();
+    setSuccess(`Usuario ${user.email} eliminado.`);
+    setTimeout(() => setSuccess(null), 3000);
   };
 
   const handleSaveEditedPassword = (email: string) => {
@@ -115,7 +125,7 @@ export const AdminUserManager: React.FC = () => {
 
   const copyUserCredentials = (user: AppUser) => {
     const text = `🏆 *DEPORVERSO - CREDENCIALES OFICIALES*\nHola *${user.name}*, el administrador te ha otorgado acceso:\n📧 *Correo:* ${user.email}\n🔑 *Contraseña:* ${user.password}\n🛡️ *Rol:* ${user.role}\n🌐 *Plataforma:* ${window.location.origin}`;
-    navigator.clipboard.writeText(text);
+    copyTextSafely(text);
     setCopiedId(user.id);
     setTimeout(() => setCopiedId(null), 2500);
   };
@@ -433,10 +443,15 @@ export const AdminUserManager: React.FC = () => {
                           {user.email.toLowerCase() !== 'roly3d.rg@gmail.com' && (
                             <button
                               onClick={() => handleDeleteUser(user)}
-                              className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all cursor-pointer"
-                              title="Eliminar usuario"
+                              className={`px-2 py-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold ${
+                                confirmDeleteId === user.id
+                                  ? 'bg-rose-500 text-white border-rose-400 shadow-sm shadow-rose-500/30'
+                                  : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border-rose-500/30'
+                              }`}
+                              title={confirmDeleteId === user.id ? 'Pulsa nuevamente para confirmar eliminación' : 'Eliminar usuario'}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
+                              {confirmDeleteId === user.id && <span>¿Confirmar?</span>}
                             </button>
                           )}
                         </div>

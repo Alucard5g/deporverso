@@ -7,6 +7,7 @@ import {
 import { Match, SportCode, Team, Tenant } from '../../types';
 import { SPORT_THEMES } from '../Navbar';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface MultiSportCalendarProps {
   matches: Match[];
@@ -528,10 +529,28 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
                   </button>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const homeName = home?.name || 'Local';
+                        const awayName = away?.name || 'Visitante';
+                        const msg = `⚽ *${homeName} vs ${awayName}* (${theme.name}) · ${match.field_location} · Consulta el calendario en Deporverso.`;
+                        const ok = await copyTextSafely(msg);
+                        if (ok) {
+                          setCopySuccess(`Enlace de ${homeName} vs ${awayName} copiado para compartir`);
+                          setTimeout(() => setCopySuccess(null), 3500);
+                        }
+                      }}
+                      className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                      title="Compartir convocatoria del partido"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-cyan-400" />
+                    </button>
+
                     {isLive ? (
                       <button
                         onClick={() => onNavigateTab('vocalia')}
-                        className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                        className="min-h-[36px] px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
                       >
                         <Zap className="w-3.5 h-3.5" />
                         <span>Mesa Vocalía</span>
@@ -564,7 +583,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
                           setCopySuccess(`Recordatorio guardado para ${homeName} vs ${awayName}`);
                           setTimeout(() => setCopySuccess(null), 3500);
                         }}
-                        className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                        className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                         title="Guardar evento en calendario"
                       >
                         <CalendarIcon className="w-3.5 h-3.5 text-cyan-400" />
@@ -743,7 +762,7 @@ export const MultiSportCalendar: React.FC<MultiSportCalendarProps> = ({
           onClick={() => setSelectedMatchModal(null)}
         >
           <div 
-            className="cine-surface border border-cyan-500/40 rounded-2xl p-6 sm:p-8 max-w-xl w-full space-y-6 relative overflow-hidden tabular-nums"
+            className="cine-surface border border-cyan-500/40 rounded-2xl p-5 sm:p-8 max-w-xl w-full max-h-[90dvh] overflow-y-auto overscroll-contain space-y-6 relative tabular-nums"
             onClick={(e) => e.stopPropagation()}
           >
 

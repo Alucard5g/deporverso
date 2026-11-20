@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Award,
@@ -7,10 +7,13 @@ import {
   FileText,
   Zap,
   Check,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Share2,
+  Edit3
 } from 'lucide-react';
 import { Player, Team, SportCode, ScoutingMetadata } from '../../types';
 import { CINEMATIC_ASSETS, getAthletePortrait } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface ScoutingHubProps {
   players: Player[];
@@ -109,6 +112,25 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
   const [comparePlayerId, setComparePlayerId] = useState<string>('');
   const [scoutProUnlocked, setScoutProUnlocked] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [copiedScoutShare, setCopiedScoutShare] = useState(false);
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteDraft, setNoteDraft] = useState('');
+  const [customNotes, setCustomNotes] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('deporverso_scout_notes');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('deporverso_scout_notes', JSON.stringify(customNotes));
+    } catch {
+      // Ignore storage error
+    }
+  }, [customNotes]);
 
   const filteredPlayers = useMemo(() => {
     return players.filter((p) => {
@@ -139,7 +161,24 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
   const comparePlayer = players.find((p) => p.id === comparePlayerId && p.id !== selectedPlayer.id) || null;
   const selectedTeam = teams.find((t) => t.id === selectedPlayer.team_id) || { name: 'Deportivo Quito Barrial' };
   const metadata = getMetadataForPlayer(selectedPlayer);
+  const activeScoutNote = customNotes[selectedPlayer.id] ?? metadata.scout_notes;
   const compareMeta = comparePlayer ? getMetadataForPlayer(comparePlayer) : null;
+
+  const handleShareScoutSheet = async () => {
+    const shareText =
+      `🏅 *Ficha Técnica Deporverso Scouting* (${activeSport})\n` +
+      `• Jugador: *${selectedPlayer.full_name}* (#${selectedPlayer.jersey_number || '10'})\n` +
+      `• Club: ${selectedTeam.name} · ${selectedPlayer.position || 'Polivalente'}\n` +
+      `• Deporverso Index: *${metadata.sportia_index}/10.0*\n` +
+      `• Métricas: RIT ${metadata.pace} | TIR ${metadata.shooting} | PAS ${metadata.passing} | REG ${metadata.dribbling} | DEF ${metadata.defending} | FÍS ${metadata.physical}\n` +
+      `• Valor Estimado: $${metadata.market_value_usd} USD\n` +
+      `• Nota Scout: "${activeScoutNote}"`;
+    const ok = await copyTextSafely(shareText);
+    if (ok) {
+      setCopiedScoutShare(true);
+      setTimeout(() => setCopiedScoutShare(false), 2500);
+    }
+  };
 
   const radarAxes = [
     { label: 'RIT', a: metadata.pace, b: compareMeta?.pace ?? 0 },
@@ -269,7 +308,7 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
             </div>
           </div>
 
-          <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1 tabular-nums">
+          <div className="space-y-2 max-h-[260px] lg:max-h-[560px] overflow-y-auto pr-1 tabular-nums">
             {filteredPlayers.map((p) => {
               const meta = getMetadataForPlayer(p);
               const isSelected = p.id === selectedPlayer.id;
@@ -349,7 +388,7 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2.5 flex-wrap shrink-0">
                 <div className="text-right bg-black/55 border border-amber-400/35 px-3.5 py-2 rounded-xl font-mono">
                   <span className="text-[9px] text-amber-300 font-bold uppercase tracking-wider block">Deporverso Index</span>
                   <strong className="text-2xl font-black text-amber-400">{metadata.sportia_index}</strong>
@@ -358,9 +397,18 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
 
                 <button
                   type="button"
+                  onClick={handleShareScoutSheet}
+                  className="min-h-[40px] px-3.5 py-2.5 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 rounded-xl border border-cyan-500/35 transition-colors cursor-pointer text-xs font-bold flex items-center gap-2 whitespace-nowrap"
+                >
+                  {copiedScoutShare ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
+                  <span className="font-mono">{copiedScoutShare ? 'Copiado' : 'Compartir'}</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleExportPdfSheet}
                   disabled={downloadingPdf}
-                  className="px-3.5 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] text-white rounded-xl border border-white/10 transition-colors cursor-pointer text-xs font-bold flex items-center gap-2 whitespace-nowrap"
+                  className="min-h-[40px] px-3.5 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] text-white rounded-xl border border-white/10 transition-colors cursor-pointer text-xs font-bold flex items-center gap-2 whitespace-nowrap"
                 >
                   <Download className="w-4 h-4 text-amber-400" />
                   <span className="font-mono">{downloadingPdf ? 'Exportando...' : 'Ficha TXT'}</span>
@@ -481,20 +529,64 @@ export const ScoutingHub: React.FC<ScoutingHubProps> = ({ players, teams, active
               </div>
             </div>
 
-            {/* REPORTE SCOUT PRO */}
-            <div className="p-4 sm:p-5 rounded-xl bg-amber-950/20 border border-amber-500/25 space-y-2">
-              <div className="flex items-center justify-between">
+            {/* REPORTE SCOUT PRO EDITABLE */}
+            <div className="p-4 sm:p-5 rounded-xl bg-amber-950/20 border border-amber-500/25 space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5 font-mono">
                   <FileText className="w-4 h-4" />
                   <span>Informe Táctico Oficial de Ojeador</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                  <Award className="w-3 h-3 text-amber-400" /> Certificado
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!editingNote) {
+                        setNoteDraft(activeScoutNote);
+                        setEditingNote(true);
+                      } else {
+                        setEditingNote(false);
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-mono font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>{editingNote ? 'Cancelar' : 'Editar Nota'}</span>
+                  </button>
+                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                    <Award className="w-3 h-3 text-amber-400" /> Certificado
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed italic">
-                &quot;{metadata.scout_notes}&quot;
-              </p>
+
+              {editingNote ? (
+                <div className="space-y-2">
+                  <textarea
+                    rows={3}
+                    value={noteDraft}
+                    onChange={(e) => setNoteDraft(e.target.value)}
+                    placeholder="Añade evaluación biomecánica, perfil técnico y recomendación..."
+                    className="w-full bg-black/60 border border-amber-500/40 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (noteDraft.trim()) {
+                          setCustomNotes(prev => ({ ...prev, [selectedPlayer.id]: noteDraft.trim() }));
+                        }
+                        setEditingNote(false);
+                      }}
+                      className="px-3.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs cursor-pointer"
+                    >
+                      Guardar Evaluación
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-200 leading-relaxed italic">
+                  &quot;{activeScoutNote}&quot;
+                </p>
+              )}
             </div>
           </div>
         </div>

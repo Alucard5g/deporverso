@@ -3,6 +3,7 @@ import { RefreshCw, FileText, Sparkles, CheckCircle, Award, Copy, Check } from '
 import { Match, MatchEvent, AiChronicle } from '../../types';
 import { apiService } from '../../services/apiService';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface AiChronicleGeneratorProps {
   matches: Match[];
@@ -61,14 +62,10 @@ export const AiChronicleGenerator: React.FC<AiChronicleGeneratorProps> = ({ matc
       '— Redacción Oficial Deporverso'
     ].filter(Boolean).join('\n');
 
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(pressText);
-      }
+    const copied = await copyTextSafely(pressText);
+    if (copied) {
       setCopiedPress(true);
       setTimeout(() => setCopiedPress(false), 2500);
-    } catch {
-      // clipboard fallback
     }
   };
 

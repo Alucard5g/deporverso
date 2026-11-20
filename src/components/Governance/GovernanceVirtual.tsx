@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Video, CheckCircle, Vote, Send, Users, Shield, Clock, FileCheck2 } from 'lucide-react';
+import { MessageSquare, Video, CheckCircle, Vote, Send, Users, Shield, Clock, FileCheck2, Plus, Copy, Check, Download } from 'lucide-react';
 import { Tenant } from '../../types';
 import { CINEMATIC_ASSETS } from '../../data/cinematicAssets';
+import { copyTextSafely } from '../../utils/safeClipboard';
 
 interface GovernanceVirtualProps {
   tenant: Tenant;
@@ -67,6 +68,10 @@ export const GovernanceVirtual: React.FC<GovernanceVirtualProps> = ({ tenant }) 
   });
 
   const [selectedResId, setSelectedResId] = useState<string>(DEFAULT_RESOLUTIONS[0].id);
+  const [showNewResForm, setShowNewResForm] = useState(false);
+  const [newResTitle, setNewResTitle] = useState('');
+  const [newResSummary, setNewResSummary] = useState('');
+  const [copiedMinutes, setCopiedMinutes] = useState(false);
   const [waMessage, setWaMessage] = useState('');
   const [waSent, setWaSent] = useState(false);
   const [broadcastHistory, setBroadcastHistory] = useState<BroadcastLogItem[]>([
@@ -105,6 +110,56 @@ export const GovernanceVirtual: React.FC<GovernanceVirtualProps> = ({ tenant }) 
           : r
       )
     );
+  };
+
+  const handleCreateResolution = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newResTitle.trim() || !newResSummary.trim()) return;
+    const created: ResolutionItem = {
+      id: `res-${Date.now()}`,
+      title: newResTitle.trim(),
+      summary: newResSummary.trim(),
+      yes: 1,
+      no: 0,
+      userVote: 'YES'
+    };
+    setResolutions(prev => [created, ...prev]);
+    setSelectedResId(created.id);
+    setNewResTitle('');
+    setNewResSummary('');
+    setShowNewResForm(false);
+  };
+
+  const buildMinutesText = () => {
+    const lines = [
+      `ACTA OFICIAL DE ASAMBLEA · ${safeTenant.name.toUpperCase()}`,
+      `Sala: ${jitsiRoom} · Fecha: ${new Date().toLocaleDateString('es-EC')}`,
+      `----------------------------------------------------------`,
+      ...resolutions.map((r, i) => {
+        const tot = r.yes + r.no;
+        const pct = tot > 0 ? Math.round((r.yes / tot) * 100) : 0;
+        return `Punto #${i + 1}: ${r.title}\nResumen: ${r.summary}\nEscrutinio: ${r.yes} A favor / ${r.no} En contra (${pct}% Aprobación)\n`;
+      })
+    ];
+    return lines.join('\n');
+  };
+
+  const handleCopyMinutes = async () => {
+    const ok = await copyTextSafely(buildMinutesText());
+    if (ok) {
+      setCopiedMinutes(true);
+      setTimeout(() => setCopiedMinutes(false), 2500);
+    }
+  };
+
+  const handleExportMinutes = () => {
+    const blob = new Blob([buildMinutesText()], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Acta_Asamblea_${safeTenant.slug || 'liga'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleSendWaNotification = (e: React.FormEvent) => {
@@ -218,16 +273,70 @@ export const GovernanceVirtual: React.FC<GovernanceVirtualProps> = ({ tenant }) 
         <div className="space-y-6">
           {/* Active Voting Box */}
           <div className="cine-surface rounded-2xl p-6 space-y-4 tabular-nums">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Vote className="w-5 h-5 text-amber-400" />
                 Votación Oficial de Dirigencia
               </h3>
-              <span className="text-[11px] font-mono text-slate-400">{totalVotes} votos emitidos</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewResForm(!showNewResForm)}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{showNewResForm ? 'Cancelar' : 'Nueva Moción'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyMinutes}
+                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  {copiedMinutes ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-cyan-400" />}
+                  <span>{copiedMinutes ? 'Copiada' : 'Acta'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportMinutes}
+                  title="Descargar Acta TXT"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-cyan-400" />
+                </button>
+              </div>
             </div>
 
+            {showNewResForm && (
+              <form onSubmit={handleCreateResolution} className="bg-black/60 border border-amber-500/30 rounded-xl p-3.5 space-y-2.5">
+                <input
+                  type="text"
+                  required
+                  value={newResTitle}
+                  onChange={(e) => setNewResTitle(e.target.value)}
+                  placeholder="Título de la moción o resolución..."
+                  className="w-full bg-[#090d16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                />
+                <textarea
+                  rows={2}
+                  required
+                  value={newResSummary}
+                  onChange={(e) => setNewResSummary(e.target.value)}
+                  placeholder="Detalle técnico o alcance reglamentario de la votación..."
+                  className="w-full bg-[#090d16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs cursor-pointer"
+                  >
+                    Abrir Votación
+                  </button>
+                </div>
+              </form>
+            )}
+
             {/* Resolution Tabs */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {resolutions.map((res, idx) => (
                 <button
                   key={res.id}
