@@ -220,7 +220,7 @@ export const CampaignBannersGenerator: React.FC<CampaignBannersGeneratorProps> =
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8 animate-fade-in text-white">
+    <div className="w-full max-w-none px-2 sm:px-4 lg:px-6 py-8 space-y-8 animate-fade-in text-white">
       
       {/* HEADER SECCIÓN */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">

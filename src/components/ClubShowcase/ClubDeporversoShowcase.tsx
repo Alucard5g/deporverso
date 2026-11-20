@@ -172,8 +172,8 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
   return (
     <div className="min-h-screen bg-[#050914] text-slate-100 font-sans pb-24 selection:bg-cyan-500 selection:text-black">
       {/* BARRA SUPERIOR DE MODO DEMO OFICIAL */}
-      <section className="w-full border-b border-white/[0.08] bg-[#070c1a]/95 backdrop-blur-md px-4 py-3 sm:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <section className="w-full border-b border-white/[0.08] bg-[#070c1a]/95 backdrop-blur-md px-3 py-3 sm:px-6">
+        <div className="w-full max-w-none flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/35 flex items-center justify-center text-cyan-300 shrink-0">
               <Sparkles className="w-4 h-4" />
@@ -218,7 +218,7 @@ export const ClubDeporversoShowcase: React.FC<ClubDeporversoShowcaseProps> = ({
         </div>
       </section>
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div className="relative w-full max-w-none px-2 sm:px-4 lg:px-6 pt-5">
         {/* HERO PORTADA CINEMATOGRÁFICA */}
         <div className="cine-stage-frame bg-[#03060f]">
           <div className="relative h-72 sm:h-88 md:h-[420px] w-full overflow-hidden">

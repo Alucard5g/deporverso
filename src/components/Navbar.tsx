@@ -27,6 +27,8 @@ interface NavbarProps {
   setMobileMenuOpen?: (open: boolean) => void;
   onOpenCommandPalette?: () => void;
   hideMobileHeader?: boolean;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
 // Sport-specific theme configurations
@@ -194,9 +196,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   mobileMenuOpen: controlledMobileMenuOpen,
   setMobileMenuOpen: setControlledMobileMenuOpen,
   onOpenCommandPalette,
-  hideMobileHeader = false
+  hideMobileHeader = false,
+  collapsed: controlledCollapsed,
+  onToggleCollapsed
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const collapsed = controlledCollapsed ?? internalCollapsed;
+  const toggleCollapsed = onToggleCollapsed ?? (() => setInternalCollapsed((prev) => !prev));
   const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const mobileMenuOpen = controlledMobileMenuOpen ?? internalMobileMenuOpen;
   const setMobileMenuOpen = setControlledMobileMenuOpen ?? setInternalMobileMenuOpen;
@@ -365,8 +371,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       `}>
         
         {/* TOP SECTION: BRAND */}
-        <div className="p-4 border-b border-white/[0.06] bg-[#090e1a]/70">
-          <div className="flex items-center justify-between">
+        <div className={`border-b border-white/[0.06] bg-[#090e1a]/70 ${collapsed ? 'px-2.5 py-3' : 'p-4'}`}>
+          <div className={`flex ${collapsed ? 'flex-col items-center gap-2.5' : 'items-center justify-between gap-2'}`}>
             <div 
               className="flex items-center gap-3 cursor-pointer overflow-hidden group" 
               onClick={() => { setActiveTab('welcome'); setMobileMenuOpen(false); }}
@@ -382,7 +388,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               
               {!collapsed && (
-                <div className="transition-opacity duration-200">
+                <div className="transition-opacity duration-200 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="font-extrabold text-lg tracking-tight text-white">
                       Depor<span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">verso</span>
@@ -391,16 +397,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                       PRO
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">Plataforma Multideporte</p>
+                  <p className="text-[10px] text-slate-400 font-medium tracking-wide truncate">Plataforma Multideporte</p>
                 </div>
               )}
             </div>
 
             {/* Desktop Collapse Button */}
             <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="hidden lg:flex p-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] text-slate-400 hover:text-white transition-colors cursor-pointer"
+              type="button"
+              onClick={toggleCollapsed}
+              className={`hidden lg:flex items-center justify-center rounded-lg bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0 ${
+                collapsed ? 'w-9 h-7' : 'p-1.5'
+              }`}
               title={collapsed ? 'Expandir Menú' : 'Colapsar Menú'}
+              aria-label={collapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>

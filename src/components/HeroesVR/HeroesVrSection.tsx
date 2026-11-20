@@ -165,7 +165,7 @@ export const HeroesVrSection: React.FC<HeroesVrSectionProps> = ({
   };
 
   return (
-    <div className={`space-y-8 ${standalone ? 'p-4 sm:p-8 max-w-7xl mx-auto' : ''}`}>
+    <div className={`space-y-8 ${standalone ? 'p-3 sm:p-6 w-full max-w-none' : ''}`}>
       {/* 1. HERO BANNER PRÓXIMAMENTE CON ASOCIACIÓN */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#06141a] via-[#050c14] to-[#12081f] border border-cyan-500/30 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl">
         {/* Glow visual effects */}

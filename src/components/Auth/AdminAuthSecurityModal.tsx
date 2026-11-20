@@ -51,7 +51,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
     const trimmedPin = pin.trim();
 
     if (!trimmedPin) {
-      setError('Por favor digita la clave maestra de administrador.');
+      setError('Por favor digita tu clave de administrador.');
       return;
     }
 
@@ -79,7 +79,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
         }, 600);
       } else {
         setIsLoading(false);
-        setError('Clave maestra incorrecta. Verifica tu PIN de administrador.');
+        setError('Clave incorrecta. Verifica tus credenciales de administrador.');
       }
     }, 200);
   };
@@ -202,7 +202,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
-              <span>Clave Maestra (PIN)</span>
+              <span>Clave de Administrador</span>
             </button>
 
             <button
@@ -241,14 +241,14 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
             <form onSubmit={handlePinSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 font-mono">
-                  Digita la Clave Maestra de Administrador:
+                  Digita tu Clave de Administrador:
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="Ej. 1326 o tu clave oficial"
+                    placeholder="••••••••"
                     autoFocus
                     autoComplete="off"
                     className="w-full bg-black/60 border border-white/20 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 rounded-2xl px-4 py-3 text-base font-mono tracking-widest text-white placeholder-slate-500 outline-hidden transition-all text-center"
@@ -262,7 +262,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
                   </button>
                 </div>
                 <p className="text-[10px] text-slate-400 mt-1.5 text-center">
-                  Acceso directo con credencial maestra CIG autorizada.
+                  Acceso directo exclusivo con credencial oficial autorizada.
                 </p>
               </div>
 
@@ -273,7 +273,7 @@ export const AdminAuthSecurityModal: React.FC<AdminAuthSecurityModalProps> = ({
                   className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 transition-all cursor-pointer transform active:scale-95 disabled:opacity-50"
                 >
                   <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>{isLoading ? 'Verificando...' : 'Desbloquear con Clave Maestra'}</span>
+                  <span>{isLoading ? 'Verificando...' : 'Desbloquear Acceso Administrador'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

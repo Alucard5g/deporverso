@@ -275,7 +275,7 @@ export const ComputerVisionEdge: React.FC<ComputerVisionEdgeProps> = ({ match, i
                   type="button"
                   onClick={() => {
                     setSecurityModalTitle('Desbloquear Visión & Cámaras en Cancha');
-                    setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para operar las cámaras de visión y clips.');
+                    setSecurityModalDesc('Ingresa con tu clave de acceso o con tu correo y contraseña de administrador para operar las cámaras de visión y clips.');
                     setShowSecurityModal(true);
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[11px] font-bold cursor-pointer transition-all"

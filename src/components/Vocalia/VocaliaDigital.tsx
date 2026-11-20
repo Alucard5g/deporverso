@@ -554,47 +554,49 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
     const btnPlusClass = isCyan ? 'bg-cyan-500 hover:bg-cyan-400 text-black' : 'bg-teal-500 hover:bg-teal-400 text-black';
 
     return (
-      <div className="bg-[#0e0e0e] border border-white/10 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl flex-1">
+      <div className="bg-[#0e0e0e] border border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl w-full min-w-0 overflow-hidden">
         {/* Header of team panel */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${isCyan ? 'bg-cyan-400' : 'bg-teal-400'} shadow-[0_0_8px_currentColor]`}></div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-base font-black text-white truncate">{team?.name || (teamType === 'HOME' ? 'Local' : 'Visitante')}</h4>
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${accentClass} bg-white/5`}>
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3 border-b border-white/10 pb-3.5">
+          <div className="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+            <div className={`w-3 h-3 rounded-full shrink-0 mt-1 sm:mt-0 ${isCyan ? 'bg-cyan-400' : 'bg-teal-400'} shadow-[0_0_8px_currentColor]`}></div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-sm sm:text-base font-black text-white truncate max-w-full">
+                  {team?.name || (teamType === 'HOME' ? 'Local' : 'Visitante')}
+                </h4>
+                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border shrink-0 ${accentClass} bg-white/5`}>
                   {teamType === 'HOME' ? 'LOCAL' : 'VISITANTE'}
                 </span>
               </div>
-              <p className="text-[11px] text-[#A0A0A0]">
+              <p className="text-[11px] text-[#A0A0A0] mt-0.5 truncate">
                 {playerList.length} Jugadores en Nómina • {teamType === 'HOME' ? homeGoalsFromStats : awayGoalsFromStats} Goles Totales
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto shrink-0">
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
             {/* Team Specific QR Camera Scanner Button */}
             <button
               type="button"
               onClick={() => handleOpenQrScannerForTeam(teamType)}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 cursor-pointer transition-all shadow-md ${
+              className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-black flex items-center gap-1.5 cursor-pointer transition-all shadow-md whitespace-nowrap shrink-0 ${
                 teamType === 'HOME'
                   ? 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border-cyan-500/40 hover:border-cyan-400'
                   : 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border-teal-500/40 hover:border-teal-400'
               }`}
               title={`Escanear carnets QR asignando a ${team?.name || (teamType === 'HOME' ? 'Local' : 'Visitante')}`}
             >
-              <Camera className="w-3.5 h-3.5" />
-              <span>📷 QR {teamType === 'HOME' ? 'Local' : 'Visitante'}</span>
+              <Camera className="w-3.5 h-3.5 shrink-0" />
+              <span>QR {teamType === 'HOME' ? 'Local' : 'Visitante'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-1.5 bg-[#181818] hover:bg-white/10 text-white rounded-xl border border-white/10 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              className="px-2.5 py-1.5 bg-[#181818] hover:bg-white/10 text-white rounded-xl border border-white/10 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-colors"
             >
-              <UserPlus className="w-3.5 h-3.5 text-[#00ff66]" />
-              <span>+ Inscribir</span>
+              <UserPlus className="w-3.5 h-3.5 text-[#00ff66] shrink-0" />
+              <span>Inscribir</span>
             </button>
           </div>
         </div>
@@ -781,16 +783,23 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
           )}
         </div>
 
-        {/* Tablet & Desktop Player Roster Table (>= 640px) */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        {/* Tablet & Desktop Player Roster Table (>= 640px) - Zero horizontal overflow */}
+        <div className="hidden sm:block w-full">
+          <table className="w-full table-fixed text-left border-collapse">
+            <colgroup>
+              <col className="w-10" />
+              <col />
+              <col className="w-[82px] xl:w-[92px]" />
+              <col className="w-[82px] xl:w-[92px]" />
+              <col className="w-[82px] xl:w-[92px]" />
+            </colgroup>
             <thead>
-              <tr className="border-b border-white/10 text-[9px] uppercase font-black tracking-wider text-[#A0A0A0] bg-[#141414]">
-                <th className="py-2.5 px-2 text-center w-12">Nº</th>
-                <th className="py-2.5 px-3">JUGADOR</th>
-                <th className="py-2.5 px-2 text-center">GOLES</th>
-                <th className="py-2.5 px-2 text-center">AMARILLA</th>
-                <th className="py-2.5 px-2 text-center">ROJA</th>
+              <tr className="border-b border-white/10 text-[9px] uppercase font-black tracking-tight text-[#A0A0A0] bg-[#141414]">
+                <th className="py-2.5 px-1 text-center">Nº</th>
+                <th className="py-2.5 px-2">JUGADOR</th>
+                <th className="py-2.5 px-1 text-center">GOLES</th>
+                <th className="py-2.5 px-1 text-center">AMARILLA</th>
+                <th className="py-2.5 px-1 text-center">ROJA</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs">
@@ -810,101 +819,117 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
                       key={stat.player_id}
                       className={`hover:bg-white/5 transition-colors ${hasRed ? 'bg-red-500/5' : ''}`}
                     >
-                      <td className="py-2.5 px-2 text-center">
+                      <td className="py-2.5 px-1 text-center">
                         <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 text-white font-mono font-black text-xs flex items-center justify-center mx-auto shadow-sm">
                           {stat.jersey_number || '-'}
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`font-bold block text-xs ${hasRed ? 'text-red-300 line-through' : 'text-white'}`}>
+                      <td className="py-2.5 px-2 min-w-0">
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className={`font-bold text-xs leading-snug break-words ${hasRed ? 'text-red-300 line-through' : 'text-white'}`}>
                             {stat.player_name}
                           </span>
-                          {isVerified && (
-                            <span className="px-1.5 py-0.2 rounded bg-[#00ff66]/15 text-[#00ff66] text-[9px] font-bold border border-[#00ff66]/30 flex items-center gap-0.5" title="Carnet QR Verificado por Cámara">
-                              <CheckCircle className="w-2.5 h-2.5" /> QR OK
-                            </span>
-                          )}
-                          {hasRed && (
-                            <span className="px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 text-[9px] font-black border border-red-500/30">
-                              EXPULSADO
-                            </span>
+                          {(isVerified || hasRed) && (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {isVerified && (
+                                <span className="px-1.5 py-0.5 rounded bg-[#00ff66]/15 text-[#00ff66] text-[9px] font-bold border border-[#00ff66]/30 inline-flex items-center gap-0.5" title="Carnet QR Verificado por Cámara">
+                                  <CheckCircle className="w-2.5 h-2.5" /> QR OK
+                                </span>
+                              )}
+                              {hasRed && (
+                                <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-black border border-red-500/30">
+                                  EXPULSADO
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-2 text-center">
-                        <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
+                      <td className="py-2.5 px-1 text-center">
+                        <div className="inline-flex items-center gap-0.5 xl:gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
+                            type="button"
                             disabled={stat.goals <= 0}
                             onClick={() => updatePlayerGoals(stat.player_id, -1)}
-                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-6 h-6 xl:w-7 xl:h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar gol"
+                            aria-label={`Restar gol a ${stat.player_name}`}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
 
-                          <span className="w-6 text-center font-mono font-black text-xs text-[#00ff66]">
+                          <span className="w-4 xl:w-5 text-center font-mono font-black text-xs text-[#00ff66] tabular-nums">
                             {stat.goals}
                           </span>
 
                           <button
+                            type="button"
                             onClick={() => updatePlayerGoals(stat.player_id, 1)}
-                            className={`w-7 h-7 rounded ${btnPlusClass} flex items-center justify-center font-black cursor-pointer shadow-sm transition-all`}
+                            className={`w-6 h-6 xl:w-7 xl:h-7 rounded ${btnPlusClass} flex items-center justify-center font-black cursor-pointer shadow-sm transition-all`}
                             title="Sumar gol"
+                            aria-label={`Sumar gol a ${stat.player_name}`}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-2 text-center">
-                        <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
+                      <td className="py-2.5 px-1 text-center">
+                        <div className="inline-flex items-center gap-0.5 xl:gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
+                            type="button"
                             disabled={stat.yellow_cards <= 0}
                             onClick={() => updatePlayerYellowCards(stat.player_id, -1)}
-                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-6 h-6 xl:w-7 xl:h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar tarjeta amarilla"
+                            aria-label={`Restar amarilla a ${stat.player_name}`}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
 
-                          <span className="w-6 text-center font-mono font-black text-xs text-amber-400">
+                          <span className="w-4 xl:w-5 text-center font-mono font-black text-xs text-amber-400 tabular-nums">
                             {stat.yellow_cards}
                           </span>
 
                           <button
+                            type="button"
                             disabled={stat.yellow_cards >= 2}
                             onClick={() => updatePlayerYellowCards(stat.player_id, 1)}
-                            className="w-7 h-7 rounded bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
+                            className="w-6 h-6 xl:w-7 xl:h-7 rounded bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
                             title="Sumar tarjeta amarilla"
+                            aria-label={`Sumar amarilla a ${stat.player_name}`}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-2 text-center">
-                        <div className="inline-flex items-center gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
+                      <td className="py-2.5 px-1 text-center">
+                        <div className="inline-flex items-center gap-0.5 xl:gap-1 bg-[#141414] p-0.5 rounded-lg border border-white/10">
                           <button
+                            type="button"
                             disabled={stat.red_cards <= 0}
                             onClick={() => updatePlayerRedCards(stat.player_id, -1)}
-                            className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
+                            className="w-6 h-6 xl:w-7 xl:h-7 rounded bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-black cursor-pointer transition-all"
                             title="Restar tarjeta roja"
+                            aria-label={`Restar roja a ${stat.player_name}`}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
 
-                          <span className="w-6 text-center font-mono font-black text-xs text-red-400">
+                          <span className="w-4 xl:w-5 text-center font-mono font-black text-xs text-red-400 tabular-nums">
                             {stat.red_cards}
                           </span>
 
                           <button
+                            type="button"
                             disabled={stat.red_cards >= 1}
                             onClick={() => updatePlayerRedCards(stat.player_id, 1)}
-                            className="w-7 h-7 rounded bg-red-500 hover:bg-red-400 text-white flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
+                            className="w-6 h-6 xl:w-7 xl:h-7 rounded bg-red-500 hover:bg-red-400 text-white flex items-center justify-center font-black cursor-pointer shadow-sm transition-all disabled:opacity-30"
                             title="Sumar tarjeta roja (expulsión)"
+                            aria-label={`Sumar roja a ${stat.player_name}`}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -1058,8 +1083,8 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
       </div>
 
       {/* Main Scoreboard & Timer */}
-      <div className="cine-surface p-6 sm:p-8 space-y-6 tabular-nums">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+      <div className="cine-surface p-5 sm:p-6 xl:p-7 space-y-6 tabular-nums w-full">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-5 xl:gap-8 w-full">
           {/* Home Team Score */}
           <div className="space-y-2 flex-1 text-center w-full">
             <span className="text-xs uppercase font-extrabold text-cyan-400 tracking-wider block font-mono">EQUIPO LOCAL</span>
@@ -1266,7 +1291,7 @@ export const VocaliaDigital: React.FC<VocaliaDigitalProps> = ({
 
         {panelViewMode === 'DUAL' ? (
           /* Dual side-by-side grid */
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 items-start">
             {/* Team Local Panel */}
             {renderTeamPlayerTable(
               'HOME',

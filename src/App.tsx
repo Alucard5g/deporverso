@@ -65,6 +65,7 @@ export default function App() {
   };
 
   const [isPlatformUnlocked, setIsPlatformUnlocked] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isStepTourOpen, setIsStepTourOpen] = useState<boolean>(false);
   const [stepTourInitialIndex, setStepTourInitialIndex] = useState<number>(0);
@@ -232,7 +233,7 @@ export default function App() {
           setIsPlatformUnlocked(true);
           setCurrentUserEmail('roly3d.rg@gmail.com');
           setActiveTab('master-admin');
-          showToast('👑 Acceso Maestro: Modo Administrador CIG Desbloqueado (1326)', 4500);
+          showToast('👑 Acceso Autorizado: Modo Administrador CIG Desbloqueado', 4500);
 
           try {
             localStorage.setItem('deporverso_auth_session', JSON.stringify({
@@ -508,11 +509,11 @@ export default function App() {
     }
 
     // Regla de Seguridad: Streaming, VAR, Vocalía, Contenido de DEPORVERSO, Videos y Crónicas
-    // son de manejo exclusivo para Administrador (mediante Clave Maestra 1326 o Correo y Clave)
+    // son de manejo exclusivo para Administrador
     if (resolvedTab === 'var' && !isCurrentlyAdmin) {
       setAdminSecurityTargetTab('var');
       setAdminSecurityTitle('Sala VAR Oficial & Dictámenes Arbitrales');
-      setAdminSecurityDesc('El sistema VAR oficial, revisión de jugadas polémicas y actas periciales son de uso exclusivo del Administrador Oficial de la Liga. Ingresa con clave maestra (1326) o credenciales de administrador.');
+      setAdminSecurityDesc('El sistema VAR oficial, revisión de jugadas polémicas y actas periciales son de uso exclusivo del Administrador Oficial de la Liga. Ingresa con tus credenciales autorizadas.');
       setShowAdminSecurityModal(true);
       return;
     }
@@ -552,7 +553,7 @@ export default function App() {
     if ((resolvedTab === 'master-admin' || resolvedTab === 'master-admin-crm' || resolvedTab === 'sql-viewer' || resolvedTab === 'campaign-banners') && !isCurrentlyAdmin) {
       setAdminSecurityTargetTab(resolvedTab);
       setAdminSecurityTitle('Panel de Control Maestro CIG');
-      setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador para acceder a las herramientas maestras de la plataforma.');
+      setAdminSecurityDesc('Ingresa con tus credenciales de administrador para acceder a las herramientas maestras de la plataforma.');
       setShowAdminSecurityModal(true);
       return;
     }
@@ -637,11 +638,11 @@ export default function App() {
 
       {/* Left Column Vertical Sidebar Navigation - Se oculta en inicio y se despliega en el espacio de trabajo */}
       <div
-        className={`transition-all duration-700 ease-in-out shrink-0 z-40 ${
+        className={`transition-all duration-300 ease-in-out shrink-0 z-40 ${
           isPlatformUnlocked
             ? activeTab === 'welcome'
               ? 'w-full lg:w-0 lg:overflow-hidden'
-              : 'translate-x-0 w-full lg:w-64 opacity-100'
+              : `translate-x-0 w-full ${sidebarCollapsed ? 'lg:w-20' : 'lg:w-72'} opacity-100`
             : '-translate-x-full w-0 max-w-0 overflow-hidden opacity-0 pointer-events-none fixed lg:static'
         }`}
       >
@@ -668,6 +669,8 @@ export default function App() {
           setMobileMenuOpen={setMobileMenuOpen}
           onOpenCommandPalette={() => setShowCommandPalette(true)}
           hideMobileHeader={activeTab === 'welcome'}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
         />
       </div>
 
@@ -765,9 +768,9 @@ export default function App() {
           )}
 
           {/* Main App Content View Container */}
-          <main className={`flex-1 w-full min-w-0 transition-all duration-500 ${
+          <main className={`flex-1 w-full max-w-none min-w-0 transition-all duration-300 ${
             isPlatformUnlocked && activeTab !== 'welcome'
-              ? 'max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 lg:py-8'
+              ? 'px-3 sm:px-5 lg:px-6 xl:px-8 pt-4 pb-24 lg:py-6'
               : isPlatformUnlocked
               ? 'p-0 pb-16 lg:pb-0 w-full'
               : 'p-0 w-full'
@@ -907,12 +910,12 @@ export default function App() {
                 onClick={() => {
                   setAdminSecurityTargetTab('vocalia');
                   setAdminSecurityTitle('Vocalía Digital & Control de Mesa');
-                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setAdminSecurityDesc('Ingresa con tu clave de acceso o credenciales de administrador.');
                   setShowAdminSecurityModal(true);
                 }}
                 className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
               >
-                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador
               </button>
             </div>
           )
@@ -934,12 +937,12 @@ export default function App() {
                 onClick={() => {
                   setAdminSecurityTargetTab('vision-ai');
                   setAdminSecurityTitle('Cámaras en Cancha, Visión y Contenido 9:16');
-                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setAdminSecurityDesc('Ingresa con tu clave de acceso o credenciales de administrador.');
                   setShowAdminSecurityModal(true);
                 }}
                 className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
               >
-                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador
               </button>
             </div>
           )
@@ -975,12 +978,12 @@ export default function App() {
                 onClick={() => {
                   setAdminSecurityTargetTab('ingestion');
                   setAdminSecurityTitle('Ingesta Inteligente de Planillas & Datos');
-                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setAdminSecurityDesc('Ingresa con tu clave de acceso o credenciales de administrador.');
                   setShowAdminSecurityModal(true);
                 }}
                 className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-black font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
               >
-                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador
               </button>
             </div>
           )
@@ -1009,12 +1012,12 @@ export default function App() {
                 onClick={() => {
                   setAdminSecurityTargetTab('var');
                   setAdminSecurityTitle('Sala VAR Oficial & Dictámenes Arbitrales');
-                  setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o credenciales de administrador.');
+                  setAdminSecurityDesc('Ingresa con tu clave de acceso o credenciales de administrador.');
                   setShowAdminSecurityModal(true);
                 }}
                 className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all cursor-pointer inline-flex items-center gap-2"
               >
-                <Shield className="w-4 h-4" /> Desbloquear como Administrador (1326)
+                <Shield className="w-4 h-4" /> Desbloquear como Administrador
               </button>
             </div>
           )
@@ -1053,13 +1056,13 @@ export default function App() {
                   onClick={() => {
                     setAdminSecurityTargetTab('chronicle');
                     setAdminSecurityTitle('Generador de Crónicas Periodísticas IA');
-                    setAdminSecurityDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para redactar y publicar crónicas.');
+                    setAdminSecurityDesc('Ingresa con tus credenciales de administrador para redactar y publicar crónicas.');
                     setShowAdminSecurityModal(true);
                   }}
                   className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <KeyRound className="w-4 h-4" />
-                  <span>Ingresar con Clave Maestra (1326) o Correo</span>
+                  <span>Ingresar como Administrador</span>
                 </button>
 
                 <button

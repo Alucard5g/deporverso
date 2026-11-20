@@ -1077,10 +1077,10 @@ export const LiveStreamingPanel: React.FC<LiveStreamingPanelProps> = ({
                   onClick={() => requireAdminAction(
                     () => {},
                     'Control Oficial de Transmisión & VAR',
-                    'Streaming TV, Sala VAR, Grabación de Cámara y Resúmenes Reels están reservados para el Administrador mediante clave maestra o credenciales.'
+                    'Streaming TV, Sala VAR, Grabación de Cámara y Resúmenes Reels están reservados para el Administrador mediante credenciales autorizadas.'
                   )}
                   className="px-2.5 py-0.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all animate-pulse"
-                  title="Haz clic para desbloquear con tu clave maestra o correo de administrador"
+                  title="Haz clic para desbloquear con tus credenciales de administrador"
                 >
                   <Lock className="w-3 h-3 text-amber-400" />
                   <span>EXCLUSIVO ADMINISTRADOR (INGRESAR)</span>

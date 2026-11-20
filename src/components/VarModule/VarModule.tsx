@@ -58,7 +58,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
 
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [securityModalTitle, setSecurityModalTitle] = useState('Autorización Oficial Sala VAR');
-  const [securityModalDesc, setSecurityModalDesc] = useState('Para emitir dictámenes oficiales, exportar clips 9:16 y firmar actas arbitrales se requiere ingresar con clave maestra (1326) o correo de administrador.');
+  const [securityModalDesc, setSecurityModalDesc] = useState('Para emitir dictámenes oficiales, exportar clips 9:16 y firmar actas arbitrales se requiere ingresar con credenciales de administrador.');
   const [pendingAdminAction, setPendingAdminAction] = useState<(() => void) | null>(null);
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
@@ -260,7 +260,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
 
       setFeedbackToast('✓ ¡Servicio VAR A la Carta reservado ($12.00 USD)! Transmisión de baja latencia lista.');
       setTimeout(() => setFeedbackToast(null), 4000);
-    }, 'Iniciar Sesión VAR A la Carta', 'Ingresa con clave maestra o credenciales de administrador para reservar el sistema VAR.');
+    }, 'Iniciar Sesión VAR A la Carta', 'Ingresa con tu clave de acceso o credenciales de administrador para reservar el sistema VAR.');
   };
 
   return (
@@ -302,7 +302,7 @@ export const VarModule: React.FC<VarModuleProps> = ({
                   type="button"
                   onClick={() => {
                     setSecurityModalTitle('Desbloquear Control VAR Oficial');
-                    setSecurityModalDesc('Ingresa con tu clave maestra (1326) o con tu correo y contraseña de administrador para dictaminar y gestionar el VAR.');
+                    setSecurityModalDesc('Ingresa con tu clave de acceso o con tu correo y contraseña de administrador para dictaminar y gestionar el VAR.');
                     setShowSecurityModal(true);
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-[11px] font-bold cursor-pointer transition-all"
